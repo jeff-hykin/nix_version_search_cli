@@ -9,7 +9,7 @@
 
 A CLI tool(s) for finding old versions of nix packages!
 
-<img src="/docs/nvsc_fast.gif" alt="description">
+<img src="/docs/nvs_fast.gif" alt="description">
 <img src="/docs/nvs_short.gif" alt="description">
 
 ## How to install
@@ -23,7 +23,7 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/dab598002ffcf2f1dcaf9be63a8650258b0388c2.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/cb4ad0a48101a1031d1bcfbe280a0108be87debd.tar.gz
 ```
 
 ## How to use
