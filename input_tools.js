@@ -30,6 +30,7 @@ export function selectOne({ message, showList, showInfo, options, optionDescript
         info: showInfo,
         suggestions,
         suggestionDescriptions,
+        completeOnSubmit: true,
     }).then((answer)=>{
         if (optionStrings.includes(answer)) {
             return options[answer]

@@ -38,6 +38,10 @@ export interface GenericSuggestionsOptions<TValue, TRawValue>
    * An array of extra information for each description
    */
   suggestionDescriptions?: Array<string>;
+  /**
+   * will consider submission to be a completing value
+   */
+  completeOnSubmit?: boolean;
   /** Callback function for auto-suggestion completion. */
   complete?: CompleteHandler;
   /**
@@ -62,6 +66,7 @@ export interface GenericSuggestionsSettings<TValue, TRawValue>
   id?: string;
   suggestions?: Array<string | number> | SuggestionHandler;
   suggestionDescriptions?: Array<string>;
+  completeOnSubmit?: boolean;
   complete?: CompleteHandler;
   files?: boolean | RegExp;
   list?: boolean;
@@ -121,10 +126,12 @@ export abstract class GenericSuggestions<TValue, TRawValue>
   ): GenericSuggestionsSettings<TValue, TRawValue> {
     const settings = super.getDefaultSettings(options);
     return {
+      completeOnSubmit: false,
       ...settings,
       listPointer: options.listPointer ?? brightBlue(Figures.POINTER),
       maxRows: options.maxRows ?? 8,
       keys: {
+        submit: ["enter", "return"],
         complete: ["tab"],
         next: ["up"],
         previous: ["down"],
@@ -350,7 +357,7 @@ export abstract class GenericSuggestions<TValue, TRawValue>
       line += this.highlight(value);
     }
     if (description) {
-        line += `: ${description}`
+        line += dim(`${description}`)
     }
     return line
   }
@@ -408,6 +415,12 @@ export abstract class GenericSuggestions<TValue, TRawValue>
         } else {
           await this.#completeValue();
         }
+        break;
+      case this.isKey(this.settings.keys, "submit", event):
+        if (this.settings.completeOnSubmit) {
+            await this.#completeValue()
+        }
+        await this.submit();
         break;
       default:
         await super.handleEvent(event);
