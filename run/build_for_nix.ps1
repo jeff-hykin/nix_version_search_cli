@@ -14,6 +14,8 @@ const argsWereGiven = Deno.args.length > 0
 
 const nixFilePath = `${FileSystem.thisFolder}/../default.nix`
 const nixFileTemplate = `${FileSystem.thisFolder}/../build_helper/default.nix`
+const readmeFilePath = `${FileSystem.thisFolder}/../readme.md`
+const readmeFileTemplate = `${FileSystem.thisFolder}/../build_helper/readme.md`
 
 import { build } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 // import { BuildOptions } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
@@ -70,6 +72,18 @@ await FileSystem.write({
     #
     
     `.replace(/\n    /g, "\n")+(await FileSystem.read(nixFileTemplate)).replace("REPLACEME_420492093", latestCommitHash)
+})
+
+await FileSystem.write({
+    path: readmeFilePath,
+    data: `
+    <!--                                               -->
+    <!--                                               -->
+    <!-- DO NOT EDIT ME; EDIT ./build_helper/readme.md -->
+    <!--                                               -->
+    <!--                                               -->
+    
+    `.replace(/\n    /g, "\n")+(await FileSystem.read(readmeFileTemplate)).replace("REPLACEME_420492093", latestCommitHash)
 })
 
 console.log(`committing updated default.nix`)
