@@ -346,8 +346,8 @@ export abstract class GenericSuggestions<TValue, TRawValue>
    */
   protected getListItem(
     value: string | number,
-    description?: any,
     isSelected?: boolean,
+    description?: any,
   ): string {
     let line = this.settings.indent ?? "";
     line += isSelected ? `${this.settings.listPointer} ` : "  ";
