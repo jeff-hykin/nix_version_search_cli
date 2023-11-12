@@ -1,4 +1,8 @@
-### How to install
+## What is this?
+
+A CLI tool for finding old versions of nix packages!
+
+## How to install
 
 Make sure you have nix installed:
 
@@ -12,7 +16,7 @@ Then install nvs:
 nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/REPLACEME_420492093.tar.gz
 ```
 
-### How to use
+## How to use
 
 There's three commands:
 - `nvsc` for nix code (for `shell.nix`, `default.nix`, or `flake.nix`)
