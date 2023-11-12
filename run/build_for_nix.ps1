@@ -48,11 +48,10 @@ function bundle({entryPoints, outputPath}) {
     })
 }
 
-const result = await bundle({
+await bundle({
     entryPoints: [ `${FileSystem.thisFolder}/../main.js`, ],
     outputPath: `${FileSystem.thisFolder}/../build_helper/main.bundle.js`
 })
-console.debug(`result is:`,result)
 
 console.log(`created bundle; committing bundle`)
 var { success } = await run`git add -A`
