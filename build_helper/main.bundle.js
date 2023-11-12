@@ -13281,7 +13281,7 @@ var rikudoeSage = {
         return output2;
       });
     } catch (error) {
-      throw Error(`Unable to connect to nixhub.io, ${error}`);
+      throw Error(`Unable to connect to history.nix-packages.com, ${error}`);
     }
   },
   async getVersionsFor(attrPath) {
@@ -13368,31 +13368,32 @@ var devbox = {
     return versionResults;
   }
 };
+var sources = {
+  "history.nix-packages.com": rikudoeSage,
+  "nixhub.io": devbox
+};
 async function search(query) {
-  let basePackages;
-  try {
-    basePackages = basePackages.concat(await devbox.searchBasePackage(query));
-  } catch (error) {
-    console.warn(`Failed getting packages from one of the sources (nixhub.io): ${error}`);
-  }
-  try {
-    basePackages = basePackages.concat(await rikudoeSage.searchBasePackage(query));
-  } catch (error) {
-    console.warn(`Failed getting packages from one of the sources (history.nix-packages.com): ${error}`);
+  let basePackages = [];
+  for (const [name, sourceTools] of Object.entries(sources)) {
+    try {
+      basePackages = basePackages.concat(await sourceTools.searchBasePackage(query));
+    } catch (error) {
+      console.warn(`Failed getting packages from one of the sources (${name}):
+    ${error}`);
+    }
   }
   for (const value of basePackages) {
     value.versionsPromise = new Promise(async (resolve4, reject) => {
       let versions = [];
-      try {
-        versions = versions.concat(await devbox.getVersionsFor(value.attrPath));
-      } catch (error) {
-        console.warn(`Failed getting version info from one of the sources (nixhub.io): ${error}`);
+      for (const [name, sourceTools] of Object.entries(sources)) {
+        try {
+          versions = versions.concat(await sourceTools.getVersionsFor(value.attrPath));
+        } catch (error) {
+          console.warn(`Failed getting version info from one of the sources (${name}):
+    ${error}`);
+        }
       }
-      try {
-        versions = versions.concat(await rikudoeSage.getVersionsFor(value.attrPath));
-      } catch (error) {
-        console.warn(`Failed getting version info from one of the sources (nixhub.io): ${error}`);
-      }
+      resolve4(versions);
     });
   }
   return basePackages;

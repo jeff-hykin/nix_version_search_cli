@@ -25,7 +25,7 @@ export const rikudoeSage = {
                 return output
             })
         } catch (error) {
-            throw Error(`Unable to connect to nixhub.io, ${error}`)
+            throw Error(`Unable to connect to history.nix-packages.com:\n    ${error}`)
         }
     },
     async getVersionsFor(attrPath) {
@@ -114,35 +114,33 @@ export const devbox = {
     }
 }
 
+const sources = {
+    "history.nix-packages.com":rikudoeSage,
+    "nixhub.io": devbox,
+}
 export async function search(query) {
-    let basePackages
-    try {
-        basePackages = basePackages.concat(await devbox.searchBasePackage(query))
-    } catch (error) {
-        console.warn(`Failed getting packages from one of the sources (nixhub.io): ${error}`)
-    }
-    
-    try {
-        basePackages = basePackages.concat(await rikudoeSage.searchBasePackage(query))
-    } catch (error) {
-        console.warn(`Failed getting packages from one of the sources (history.nix-packages.com): ${error}`)
+    let basePackages = []
+    for (const [name, sourceTools] of Object.entries(sources)) {
+        try {
+            basePackages = basePackages.concat(await sourceTools.searchBasePackage(query))
+        } catch (error) {
+            console.warn(`Failed getting packages from one of the sources (${name}):\n    ${error}\n`)
+        }
     }
     
     for (const value of basePackages) {
         value.versionsPromise = new Promise(async (resolve, reject)=>{
             let versions = []
-            try {
-                versions = versions.concat(await devbox.getVersionsFor(value.attrPath))
-            } catch (error) {
-                console.warn(`Failed getting version info from one of the sources (nixhub.io): ${error}`)
+            for (const [name, sourceTools] of Object.entries(sources)) {
+                try {
+                    versions = versions.concat(await sourceTools.getVersionsFor(value.attrPath))
+                } catch (error) {
+                    console.warn(`Failed getting version info from one of the sources (${name}):\n    ${error}\n`)
+                }
             }
-            
-            try {
-                versions = versions.concat(await rikudoeSage.getVersionsFor(value.attrPath))
-            } catch (error) {
-                console.warn(`Failed getting version info from one of the sources (nixhub.io): ${error}`)
-            }
+            resolve(versions)
         })
     }
+
     return basePackages
 }
