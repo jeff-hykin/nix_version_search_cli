@@ -1,4 +1,10 @@
-{
+
+    #
+    #
+    # DONT EDIT ME; EDIT ./build_helper/default.nix
+    #
+    #
+    {
     # local install command: nix-env -i -f ./  
     pkgs ? (builtins.import 
         (builtins.fetchTarball
@@ -20,7 +26,7 @@
         gcc = pkgs.gcc;
         coreutils = pkgs.coreutils;
         src = builtins.fetchTarball ({
-            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/REPLACEME_420492093.tar.gz";
+            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/48f980997c2b21b47bc7d99eb4c1a9471d29f647.tar.gz";
         });
         
         buildInputs = [
