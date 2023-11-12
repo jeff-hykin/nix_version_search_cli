@@ -27,7 +27,7 @@
         gcc = pkgs.gcc;
         coreutils = pkgs.coreutils;
         src = builtins.fetchTarball ({
-            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/61f5d5a53ee87f57a6a175c3ddc0e7f4dbe3ef42.tar.gz";
+            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/4bdf5f443991733b2759b40d259802060faff302.tar.gz";
         });
         
         buildInputs = [
@@ -49,8 +49,8 @@
             # commands
             # 
             mkdir -p "$out/bin"
-            "$deno" compile --allow-env --allow-net "$src/bins/nvsc.js" --output "$out/bin/nvsc"
-            "$deno" compile --allow-env --allow-net "$src/bins/nvsg.js" --output "$out/bin/nvsg"
-            "$deno" compile --allow-env --allow-net "$src/bins/nvsr.js" --output "$out/bin/nvsr"
+            "$deno" compile --allow-env --allow-net "$src/build_helper/bins/nvsc.js" --output "$out/bin/nvsc"
+            "$deno" compile --allow-env --allow-net "$src/build_helper/bins/nvsg.js" --output "$out/bin/nvsg"
+            "$deno" compile --allow-env --allow-net "$src/build_helper/bins/nvsr.js" --output "$out/bin/nvsr"
         '';
     }
