@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:c4spar/deno-cliffy.git
+	branch = main
+	commit = aa1311f8d0891f535805395b0fb7d99de0b01b74
+	parent = c451afa01f1d62ead1727aec822e40b6518ee534
+	method = merge
+	cmdver = 0.4.5

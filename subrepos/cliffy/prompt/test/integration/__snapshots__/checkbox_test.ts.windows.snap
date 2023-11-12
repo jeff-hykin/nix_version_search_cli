@@ -1,0 +1,228 @@
+export const snapshot = {};
+
+snapshot[`checkbox prompt > should check an option 1`] = `
+stdout:
+"? Select an option
+❯ × Foo
+  × Bar
+  × Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option
+  × Foo
+❯ × Bar
+  × Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option
+  × Foo
+  × Bar
+❯ × Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option
+  × Foo
+  × Bar
+❯ √ Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option
+  × Foo
+  × Bar
+❯ √ Baz
+Press ↵ again to submit. To check or uncheck the selected option press space.\\x1b[4A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option » Baz
+\\x1b[?25h\\x1b[?25h"
+stderr:
+""
+`;
+
+snapshot[`checkbox prompt > should search an option 1`] = `
+stdout:
+"? Select an option 🔎 
+❯ × Foo
+  × Bar
+  × Baz\\x1b[3A\\x1b[23G\\x1b[G\\x1b[0J
+? Select an option 🔎 baz
+  × Baz\\x1b[1A\\x1b[26G\\x1b[G\\x1b[0J
+? Select an option 🔎 baz
+❯ × Baz\\x1b[1A\\x1b[26G\\x1b[G\\x1b[0J
+? Select an option 🔎 baz
+❯ √ Baz\\x1b[1A\\x1b[26G\\x1b[G\\x1b[0J
+? Select an option 🔎 baz
+❯ √ Baz
+Press ↵ again to submit. To check or uncheck the selected option press space.\\x1b[2A\\x1b[26G\\x1b[G\\x1b[0J
+? Select an option » Baz
+\\x1b[?25h\\x1b[?25h"
+stderr:
+""
+`;
+
+snapshot[`checkbox prompt > should format option value 1`] = `
+stdout:
+"? Message...
+❯ × 01-01-1970
+  × 01-01-1970\\x1b[2A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Message...
+  × 01-01-1970
+❯ × 01-01-1970\\x1b[2A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Message...
+  × 01-01-1970
+❯ √ 01-01-1970\\x1b[2A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Message...
+  × 01-01-1970
+❯ √ 01-01-1970
+Press ↵ again to submit. To check or uncheck the selected option press space.\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Message... » 01-01-1970
+\\x1b[?25h\\x1b[?25h"
+stderr:
+""
+`;
+
+snapshot[`checkbox prompt > should support separator option 1`] = `
+stdout:
+"? Message...
+❯ × 01-01-1970
+  +++++
+  × 01-01-1970\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Message...
+  × 01-01-1970
+  +++++
+❯ × 01-01-1970\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Message...
+  × 01-01-1970
+  +++++
+❯ √ 01-01-1970\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Message...
+  × 01-01-1970
+  +++++
+❯ √ 01-01-1970
+Press ↵ again to submit. To check or uncheck the selected option press space.\\x1b[4A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Message... » 01-01-1970
+\\x1b[?25h\\x1b[?25h"
+stderr:
+""
+`;
+
+snapshot[`checkbox prompt > should disable confirmSubmit 1`] = `
+stdout:
+"? Select an option
+❯ × Foo
+  × Bar
+  × Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option
+  × Foo
+❯ × Bar
+  × Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option
+  × Foo
+  × Bar
+❯ × Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option
+  × Foo
+  × Bar
+❯ √ Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select an option » Baz
+\\x1b[?25h\\x1b[?25h"
+stderr:
+""
+`;
+
+snapshot[`checkbox prompt > should not select disabled option 1`] = `
+stdout:
+"? Pick a value
+  × Value1
+❯ × Value2
+  × Value3
+  × Value4
+  × Value5
+  × Value6
+  × Value7
+  × Value8
+  × Value9
+  × Value10\\x1b[10A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Pick a value
+  × Value10
+  × Value11
+  × Value12
+❯ × Value13
+  × Value14
+  × Value15
+  × Value16
+  × Value17
+  × Value18
+  × Value19\\x1b[10A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Pick a value
+  × Value1
+  × Value2
+❯ × Value3
+  × Value4
+  × Value5
+  × Value6
+  × Value7
+  × Value8
+  × Value9
+  × Value10\\x1b[10A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Pick a value
+  × Value1
+❯ × Value2
+  × Value3
+  × Value4
+  × Value5
+  × Value6
+  × Value7
+  × Value8
+  × Value9
+  × Value10\\x1b[10A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Pick a value
+  × Value1
+❯ × Value2
+  × Value3
+  × Value4
+  × Value5
+  × Value6
+  × Value7
+  × Value8
+  × Value9
+  × Value10\\x1b[10A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Pick a value
+  × Value1
+❯ √ Value2
+  × Value3
+  × Value4
+  × Value5
+  × Value6
+  × Value7
+  × Value8
+  × Value9
+  × Value10\\x1b[10A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Pick a value
+  × Value1
+❯ √ Value2
+  × Value3
+  × Value4
+  × Value5
+  × Value6
+  × Value7
+  × Value8
+  × Value9
+  × Value10
+Press ↵ again to submit. To check or uncheck the selected option press space.\\x1b[11A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Pick a value » Value2
+\\x1b[?25h\\x1b[?25h"
+stderr:
+""
+`;
+
+snapshot[`checkbox prompt > should check all option 1`] = `
+stdout:
+"? Select option
+❯ × Foo
+  × Bar
+  × Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select option
+❯ √ Foo
+  √ Bar
+  √ Baz\\x1b[3A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select option
+❯ √ Foo
+  √ Bar
+  √ Baz
+Press ↵ again to submit. To check or uncheck the selected option press space.\\x1b[4A\\x1b[0G\\x1b[?25l\\x1b[G\\x1b[0J
+? Select option » Foo, Bar, Baz
+\\x1b[?25h\\x1b[?25h"
+stderr:
+""
+`;
