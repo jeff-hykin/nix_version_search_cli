@@ -38,7 +38,9 @@ export async function createCommand({whichContext}) {
                 await Promise.all(
                     Object.values(results).map(
                         eachPackage=>eachPackage.versionsPromise.then((versions)=>{
-                            eachPackage.versions = versions.filter(each=>each.version.startsWith(versionPrefix))
+                            eachPackage.versions = (eachPackage.versions||[]).concat(
+                                versions.filter(each=>each.version.startsWith(versionPrefix))
+                            )
                             delete eachPackage.versionsPromise
                             return eachPackage
                         })
@@ -51,14 +53,17 @@ export async function createCommand({whichContext}) {
             // 
             // interactive mode
             // 
+            const choiceOptions = {}
+            for (const each of results) {
+                choiceOptions[each.attrPath] = {...choiceOptions[each.attrPath], ...each}
+            }
+            const optionDescriptions = Object.values(choiceOptions).map(each=>(each.Description||"").replace(/\n/g," "))
             const packageInfo = await selectOne({
                 message: "Which Package [type OR press enter OR use arrow keys]",
                 showList: true,
                 showInfo: false,
-                options: Object.fromEntries(results.map(
-                    (value)=>([value.attrPath, value])
-                )),
-                optionDescriptions: results.map(each=>(each.Description||"").replace(/\n/g," ")),
+                options: choiceOptions,
+                optionDescriptions,
             })
             if (!packageInfo) {
                 console.log(`Hmm, I'm sorry I don't see any versions for that package :/`)

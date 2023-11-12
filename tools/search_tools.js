@@ -1,6 +1,8 @@
 #!/usr/bin/env -S deno run --allow-all
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
+import { deepCopy, deepCopySymbol, allKeyDescriptions, deepSortObject, shallowSortObject, isGeneratorType,isAsyncIterable, isSyncIterable, isTechnicallyIterable, isSyncIterableObjectOrContainer, allKeys } from "https://deno.land/x/good@1.5.1.0/value.js"
+
 // import { Parser, parserFromWasm } from "https://deno.land/x/deno_tree_sitter@0.1.3.0/main.js"
 // import html from "https://github.com/jeff-hykin/common_tree_sitter_languages/raw/4d8a6d34d7f6263ff570f333cdcf5ded6be89e3d/main/html.js"
 
@@ -123,7 +125,12 @@ export const devbox = {
 }
 
 export const lazamar = {
-    async searchBasePackage(query) {
+    searchBasePackage(query) {
+        return []
+        // return Object.values(dataPerAttributePath)
+    },
+    async getVersionsFor(attrPath) {
+        let query = attrPath.split(".").slice(-1)[0]
         const url = `https://lazamar.co.uk/nix-versions/?channel=nixpkgs-unstable&package=${encodeURIComponent(query)}`
         const htmlResult = await fetch(url).then(result=>result.text())
         const document = new DOMParser().parseFromString(
@@ -134,30 +141,29 @@ export const lazamar = {
         const dataPerAttributePath = {}
         for (let each of [...table.children]) {
             let [ packageNameNode, versionNode, revisionNode, dateNode ] = [...each.children]
-            const params = new URLSearchParams(revisionNode.children[0].href)
-            if (params.keyName) {
-                dataPerAttributePath[params.keyName] = dataPerAttributePath[params.keyName]||{versions:[]}
-                dataPerAttributePath[params.keyName].versions.push({
-                    version: params.version,
-                    hash: params.revision,
-                    attrPath: params.keyName,
+            const anchor = revisionNode.querySelector("a")
+            const params = new URLSearchParams(anchor.getAttribute("href"))
+            const attrPath = params.get("keyName")
+            if (attrPath) {
+                dataPerAttributePath[attrPath] = dataPerAttributePath[attrPath]||{ attrPath, versions:[] }
+                dataPerAttributePath[attrPath].versions.push({
+                    version: params.get("version"),
+                    hash: params.get("revision"),
+                    attrPath,
                     date: dateNode.innerText,
                 })
             }
         }
-        
-        return Object.values(dataPerAttributePath)
-    },
-    getVersionsFor(attrPath) {
+        return dataPerAttributePath[attrPath]?.versions||[]
         // versions were already retrieved in the first call
         return []
     }
 }
 
 const sources = {
+    "lazamar.co.uk": lazamar,
     "history.nix-packages.com":rikudoeSage,
     "nixhub.io": devbox,
-    "lazamar.co.uk": lazamar,
 }
 export async function search(query) {
     let basePackages = []
@@ -168,7 +174,6 @@ export async function search(query) {
             console.warn(`Failed getting packages from one of the sources (${name}):\n    ${error}\n`)
         }
     }
-    
     for (const value of basePackages) {
         value.versionsPromise = new Promise(async (resolve, reject)=>{
             let versions = []
