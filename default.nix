@@ -1,10 +1,11 @@
 
-    #
-    #
-    # DONT EDIT ME; EDIT ./build_helper/default.nix
-    #
-    #
-    {
+#
+#
+# DONT EDIT ME; EDIT ./build_helper/default.nix
+#
+#
+
+{
     # local install command: nix-env -i -f ./  
     pkgs ? (builtins.import 
         (builtins.fetchTarball
@@ -26,7 +27,7 @@
         gcc = pkgs.gcc;
         coreutils = pkgs.coreutils;
         src = builtins.fetchTarball ({
-            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/52b7f9c06d1a95c9f0f2051f3566be32ee422ec2.tar.gz";
+            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/61f5d5a53ee87f57a6a175c3ddc0e7f4dbe3ef42.tar.gz";
         });
         
         buildInputs = [
