@@ -65,15 +65,18 @@ export async function getVersionsFor(attrPath) {
         if (!referenceInfoOuterDiv) {
             throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding version info within list element)` )
         }
-        const referenceInfoInnerDiv = [...referenceInfoOuterDiv.querySelectorAll("div")].filter(each=>each.innerText.match("#"))
-        const hashAndAttrName = referenceInfoOuterDiv.innerText.replace(/^\s*Nixpkgs Reference\s*/,"").split(/ *# */) 
+        const referenceInfoInnerDiv = [...referenceInfoOuterDiv.querySelectorAll("div")].filter(each=>each.innerText.match("#"))[0]
+        if (!referenceInfoInnerDiv) {
+            throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue extracting inner referece hash div)` )
+        }
+        const hashAndAttrName = referenceInfoInnerDiv.innerText.replace(/^\s*Nixpkgs Reference\s*/,"").split(/ *# */) 
         if (!(hashAndAttrName.length == 2)) {
             throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue extracting referece hash from referece hash div)` )
         }
         versionResults.push({
             version,
             hash: hashAndAttrName[0],
-            attrName: hashAndAttrName[1],
+            attrPath: hashAndAttrName[1],
         })
     }
     return versionResults
