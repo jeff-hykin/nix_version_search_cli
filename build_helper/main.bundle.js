@@ -8213,13 +8213,14 @@ function selectOne({ message, showList, showInfo, options, optionDescriptions })
   }
   const { rows, columns } = Deno.consoleSize();
   const maxOptionWidth = columns - 3;
-  const longest2 = Math.min(columns - 3, Math.max(...optionStrings.map((each) => each.length)));
+  const longest2 = Math.max(...optionStrings.map((each) => each.length));
+  const operations = {};
   const suggestions = optionStrings;
   const suggestionDescriptions = [];
   if (optionDescriptions) {
     for (let [suggestion, description] of zip2(suggestions, optionDescriptions)) {
       suggestionDescriptions.push(
-        stripColor(suggestion.padEnd(longest2, " ") + ": " + description).slice(0, maxOptionWidth).slice(suggestion.length + 2)
+        stripColor(suggestion.padEnd(longest2 + 2, " ") + ": " + description).slice(0, maxOptionWidth).slice(suggestion.length + 2)
       );
     }
   }
@@ -13353,7 +13354,41 @@ var devbox = {
     return versionResults;
   }
 };
+var lazamar = {
+  searchBasePackage(query) {
+    return [];
+  },
+  async getVersionsFor(attrPath) {
+    let query = attrPath.split(".").slice(-1)[0];
+    const url = `https://lazamar.co.uk/nix-versions/?channel=nixpkgs-unstable&package=${encodeURIComponent(query)}`;
+    const htmlResult = await fetch(url).then((result2) => result2.text());
+    const document2 = new DOMParser().parseFromString(
+      htmlResult,
+      "text/html"
+    );
+    const table = document2.querySelector(".pure-table-bordered.pure-table tbody");
+    const dataPerAttributePath = {};
+    for (let each of [...table.children]) {
+      let [packageNameNode, versionNode, revisionNode, dateNode] = [...each.children];
+      const anchor = revisionNode.querySelector("a");
+      const params = new URLSearchParams(anchor.getAttribute("href"));
+      const attrPath2 = params.get("keyName");
+      if (attrPath2) {
+        dataPerAttributePath[attrPath2] = dataPerAttributePath[attrPath2] || { attrPath: attrPath2, versions: [] };
+        dataPerAttributePath[attrPath2].versions.push({
+          version: params.get("version"),
+          hash: params.get("revision"),
+          attrPath: attrPath2,
+          date: dateNode.innerText
+        });
+      }
+    }
+    return dataPerAttributePath[attrPath]?.versions || [];
+    return [];
+  }
+};
 var sources = {
+  "lazamar.co.uk": lazamar,
   "history.nix-packages.com": rikudoeSage,
   "nixhub.io": devbox
 };
@@ -13428,7 +13463,9 @@ async function createCommand({ whichContext }) {
       await Promise.all(
         Object.values(results).map(
           (eachPackage) => eachPackage.versionsPromise.then((versions) => {
-            eachPackage.versions = versions.filter((each) => each.version.startsWith(versionPrefix));
+            eachPackage.versions = (eachPackage.versions || []).concat(
+              versions.filter((each) => each.version.startsWith(versionPrefix))
+            );
             delete eachPackage.versionsPromise;
             return eachPackage;
           })
@@ -13437,14 +13474,17 @@ async function createCommand({ whichContext }) {
       console.log(JSON.stringify(results));
       return;
     }
+    const choiceOptions = {};
+    for (const each of results) {
+      choiceOptions[each.attrPath] = { ...choiceOptions[each.attrPath], ...each };
+    }
+    const optionDescriptions = Object.values(choiceOptions).map((each) => (each.Description || "").replace(/\n/g, " "));
     const packageInfo = await selectOne({
       message: "Which Package [type OR press enter OR use arrow keys]",
       showList: true,
       showInfo: false,
-      options: Object.fromEntries(results.map(
-        (value) => [value.attrPath, value]
-      )),
-      optionDescriptions: results.map((each) => (each.Description || "").replace(/\n/g, " "))
+      options: choiceOptions,
+      optionDescriptions
     });
     if (!packageInfo) {
       console.log(`Hmm, I'm sorry I don't see any versions for that package :/`);
