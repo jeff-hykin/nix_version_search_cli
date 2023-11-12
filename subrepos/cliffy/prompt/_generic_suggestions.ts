@@ -17,6 +17,7 @@ import {
 } from "./deps.ts";
 import { Figures, getFiguresByKeys } from "./_figures.ts";
 import { distance } from "../_utils/distance.ts";
+import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
 
 /** Generic input prompt options. */
 export interface GenericSuggestionsOptions<TValue, TRawValue>
@@ -33,6 +34,10 @@ export interface GenericSuggestionsOptions<TValue, TRawValue>
    * suggestions.
    */
   suggestions?: Array<string | number> | SuggestionHandler;
+  /**
+   * An array of extra information for each description
+   */
+  suggestionDescriptions?: Array<string>;
   /** Callback function for auto-suggestion completion. */
   complete?: CompleteHandler;
   /**
@@ -56,6 +61,7 @@ export interface GenericSuggestionsSettings<TValue, TRawValue>
   keys?: GenericSuggestionsKeys;
   id?: string;
   suggestions?: Array<string | number> | SuggestionHandler;
+  suggestionDescriptions?: Array<string>;
   complete?: CompleteHandler;
   files?: boolean | RegExp;
   list?: boolean;
@@ -107,6 +113,7 @@ export abstract class GenericSuggestions<TValue, TRawValue>
   protected suggestionsIndex = -1;
   protected suggestionsOffset = 0;
   protected suggestions: Array<string | number> = [];
+  protected suggestionDescriptions: Array<string> = [];
   #hasReadPermissions?: boolean;
 
   public getDefaultSettings(
@@ -303,6 +310,7 @@ export abstract class GenericSuggestions<TValue, TRawValue>
     if (!this.suggestions.length || !this.settings.list) {
       return "";
     }
+    const suggestionToDescription = Object.fromEntries(zip(this.settings.suggestions||[],this.settings.suggestionDescriptions||[]))
     const list: Array<string> = [];
     const height: number = this.getListHeight();
     for (
@@ -314,6 +322,7 @@ export abstract class GenericSuggestions<TValue, TRawValue>
         this.getListItem(
           this.suggestions[i],
           this.suggestionsIndex === i,
+          suggestionToDescription[this.suggestions[i]],
         ),
       );
     }
@@ -331,6 +340,7 @@ export abstract class GenericSuggestions<TValue, TRawValue>
   protected getListItem(
     value: string | number,
     isSelected?: boolean,
+    description,
   ): string {
     let line = this.settings.indent ?? "";
     line += isSelected ? `${this.settings.listPointer} ` : "  ";
@@ -339,7 +349,10 @@ export abstract class GenericSuggestions<TValue, TRawValue>
     } else {
       line += this.highlight(value);
     }
-    return line;
+    if (description) {
+        line += `: ${description}`
+    }
+    return line
   }
 
   /** Get suggestions row height. */
