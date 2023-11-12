@@ -27,7 +27,7 @@
         gcc = pkgs.gcc;
         coreutils = pkgs.coreutils;
         src = builtins.fetchTarball ({
-            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/d9dfa2920203e6aaee941bcf843ee7ea18701b2c.tar.gz";
+            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/09c50c09060cd1c070611568ac8fa713c72f5a2a.tar.gz";
         });
         
         buildInputs = [

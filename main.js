@@ -31,28 +31,6 @@ export async function createCommand({whichContext}) {
             
             const results = await search(name)
 
-            // 
-            // non-interactive mode
-            // 
-            if (options.json) {
-                await Promise.all(
-                    Object.values(results).map(
-                        eachPackage=>eachPackage.versionsPromise.then((versions)=>{
-                            eachPackage.versions = (eachPackage.versions||[]).concat(
-                                versions.filter(each=>each.version.startsWith(versionPrefix))
-                            )
-                            delete eachPackage.versionsPromise
-                            return eachPackage
-                        })
-                    )
-                )
-                console.log(JSON.stringify(results))
-                return
-            }
-            
-            // 
-            // interactive mode
-            // 
             const choiceOptions = {}
             for (const each of results) {
                 let oldVersionsPromise = choiceOptions[each.attrPath]?.versionsPromise
@@ -76,6 +54,29 @@ export async function createCommand({whichContext}) {
                     }
                 })
             }
+
+            // 
+            // non-interactive mode
+            // 
+            if (options.json) {
+                await Promise.all(
+                    Object.values(choiceOptions).map(
+                        eachPackage=>eachPackage.versionsPromise.then((versions)=>{
+                            eachPackage.versions = (eachPackage.versions||[]).concat(
+                                versions.filter(each=>each.version.startsWith(versionPrefix))
+                            )
+                            delete eachPackage.versionsPromise
+                            return eachPackage
+                        })
+                    )
+                )
+                console.log(JSON.stringify(choiceOptions))
+                return
+            }
+
+            // 
+            // interactive mode
+            // 
             while (1) {
                 const optionDescriptions = Object.values(choiceOptions).map(each=>(each.Description||"").replace(/\n/g," "))
                 const packageInfo = await selectOne({

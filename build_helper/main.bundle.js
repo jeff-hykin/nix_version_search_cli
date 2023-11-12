@@ -13462,21 +13462,6 @@ Examples:
     var [name, versionPrefix] = args[0].split("@");
     versionPrefix = versionPrefix || "";
     const results = await search(name);
-    if (options.json) {
-      await Promise.all(
-        Object.values(results).map(
-          (eachPackage) => eachPackage.versionsPromise.then((versions) => {
-            eachPackage.versions = (eachPackage.versions || []).concat(
-              versions.filter((each) => each.version.startsWith(versionPrefix))
-            );
-            delete eachPackage.versionsPromise;
-            return eachPackage;
-          })
-        )
-      );
-      console.log(JSON.stringify(results));
-      return;
-    }
     const choiceOptions = {};
     for (const each of results) {
       let oldVersionsPromise = choiceOptions[each.attrPath]?.versionsPromise;
@@ -13499,6 +13484,21 @@ Examples:
           delete choiceOptions[key];
         }
       });
+    }
+    if (options.json) {
+      await Promise.all(
+        Object.values(choiceOptions).map(
+          (eachPackage) => eachPackage.versionsPromise.then((versions) => {
+            eachPackage.versions = (eachPackage.versions || []).concat(
+              versions.filter((each) => each.version.startsWith(versionPrefix))
+            );
+            delete eachPackage.versionsPromise;
+            return eachPackage;
+          })
+        )
+      );
+      console.log(JSON.stringify(choiceOptions));
+      return;
     }
     while (1) {
       const optionDescriptions = Object.values(choiceOptions).map((each) => (each.Description || "").replace(/\n/g, " "));
