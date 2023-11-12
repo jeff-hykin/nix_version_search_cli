@@ -4,6 +4,7 @@ echo "1.36.1"; : --% ' |out-null <#'; }; version="$(dv)"; deno="$HOME/.deno/$ver
 # */0}`;
 
 import { FileSystem } from "https://deno.land/x/quickr@0.6.51/main/file_system.js"
+import { Console, bold, lightRed, yellow } from "https://deno.land/x/quickr@0.6.51/main/console.js"
 import { run, Timeout, Env, Cwd, Stdin, Stdout, Stderr, Out, Overwrite, AppendTo, throwIfFails, returnAsString, zipInto, mergeInto } from "https://deno.land/x/quickr@0.6.51/main/run.js"
 
 
@@ -12,13 +13,11 @@ import { run, Timeout, Env, Cwd, Stdin, Stdout, Stderr, Out, Overwrite, AppendTo
 const argsWereGiven = Deno.args.length > 0
 
 const nixFilePath = `${FileSystem.thisFolder}/../default.nix`
-const nixFileTemplate = `${FileSystem.thisFolder}/../build_cache/default.nix`
+const nixFileTemplate = `${FileSystem.thisFolder}/../build_helper/default.nix`
 
 import { build } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 // import { BuildOptions } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts"
-import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
-import { Console, clearAnsiStylesFrom, black, white, red, green, blue, yellow, cyan, magenta, lightBlack, lightWhite, lightRed, lightGreen, lightBlue, lightYellow, lightMagenta, lightCyan, blackBackground, whiteBackground, redBackground, greenBackground, blueBackground, yellowBackground, magentaBackground, cyanBackground, lightBlackBackground, lightRedBackground, lightGreenBackground, lightYellowBackground, lightBlueBackground, lightMagentaBackground, lightCyanBackground, lightWhiteBackground, bold, reset, dim, italic, underline, inverse, strikethrough, gray, grey, lightGray, lightGrey, grayBackground, greyBackground, lightGrayBackground, lightGreyBackground, } from "https://deno.land/x/quickr@0.6.38/main/console.js"
 
 function bundle({entryPoints, outputPath}) {
     return new Promise(async (resolve, reject)=>{
