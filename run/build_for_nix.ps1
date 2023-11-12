@@ -44,10 +44,11 @@ function bundle({entryPoints, outputPath}) {
     })
 }
 
-await bundle({
+const result = await bundle({
     entryPoints: [ `${FileSystem.thisFolder}/../main.js`, ],
     outputPath: `${FileSystem.thisFolder}/../build_helper/main.bundle.js`
 })
+console.debug(`result is:`,result)
 
 console.log(`created bundle; committing bundle`)
 var { success } = await run`git add -A`
@@ -70,4 +71,6 @@ await FileSystem.write({
 console.log(`committing updated default.nix`)
 var { success } = await run`git add -A`
 var { success } = await run`git commit -m ${'update commit'}`
+
+Deno.exit()
 // (this comment is part of deno-guillotine, dont remove) #>
