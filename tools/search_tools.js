@@ -122,9 +122,42 @@ export const devbox = {
     }
 }
 
+export const lazamar = {
+    async searchBasePackage(query) {
+        const url = `https://lazamar.co.uk/nix-versions/?channel=nixpkgs-unstable&package=${encodeURIComponent(query)}`
+        const htmlResult = await fetch(url).then(result=>result.text())
+        const document = new DOMParser().parseFromString(
+            htmlResult,
+            "text/html",
+        )
+        const table = document.querySelector(".pure-table-bordered.pure-table tbody")
+        const dataPerAttributePath = {}
+        for (let each of [...table.children]) {
+            let [ packageNameNode, versionNode, revisionNode, dateNode ] = [...each.children]
+            const params = new URLSearchParams(revisionNode.children[0].href)
+            if (params.keyName) {
+                dataPerAttributePath[params.keyName] = dataPerAttributePath[params.keyName]||{versions:[]}
+                dataPerAttributePath[params.keyName].versions.push({
+                    version: params.version,
+                    hash: params.revision,
+                    attrPath: params.keyName,
+                    date: dateNode.innerText,
+                })
+            }
+        }
+        
+        return Object.values(dataPerAttributePath)
+    },
+    getVersionsFor(attrPath) {
+        // versions were already retrieved in the first call
+        return []
+    }
+}
+
 const sources = {
     "history.nix-packages.com":rikudoeSage,
     "nixhub.io": devbox,
+    "lazamar.co.uk": lazamar,
 }
 export async function search(query) {
     let basePackages = []
