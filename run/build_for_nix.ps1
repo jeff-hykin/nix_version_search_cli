@@ -68,7 +68,8 @@ await FileSystem.write({
     # DONT EDIT ME; EDIT ./build_helper/default.nix
     #
     #
-    `+(await FileSystem.read(nixFileTemplate)).replace("REPLACEME_420492093", latestCommitHash)
+    
+    `.replace(/\n    /g, "\n")+(await FileSystem.read(nixFileTemplate)).replace("REPLACEME_420492093", latestCommitHash)
 })
 
 console.log(`committing updated default.nix`)
