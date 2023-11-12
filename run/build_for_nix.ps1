@@ -49,8 +49,10 @@ await bundle({
     outputPath: `${FileSystem.thisFolder}/../build_helper/main.bundle.js`
 })
 
+console.log(`created bundle; committing bundle`)
 var { success } = await run`git add -A`
 var { success } = await run`git commit -m 'build_for_nix'`
+console.log(`committing bundle`)
 
 const latestCommitHash = (await run`git rev-parse HEAD ${Stdout(returnAsString)}`).trim()
 
@@ -65,6 +67,7 @@ await FileSystem.write({
     `+(await FileSystem.read(nixFileTemplate)).replace("REPLACEME_420492093", latestCommitHash)
 })
 
+console.log(`committing updated default.nix`)
 var { success } = await run`git add -A`
-var { success } = await run`git commit -m 'update commit'`
+var { success } = await run`git commit -m ${'update commit'}`
 // (this comment is part of deno-guillotine, dont remove) #>
