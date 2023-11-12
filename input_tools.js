@@ -6,9 +6,8 @@ import { Input } from "../deno-cliffy/prompt/input.ts"
 // import { Input } from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/input.ts"
 import { stripColor } from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/deps.ts"
 import { distance } from "https://deno.land/x/cliffy@v1.0.0-rc.3/_utils/distance.ts"
-import { search } from "./search_tools.js"
 
-function selectOne({ message, showList, showInfo, options, optionDescriptions }) {
+export function selectOne({ message, showList, showInfo, options, optionDescriptions }) {
     let optionStrings
     if (options instanceof Array) {
         optionStrings = options
