@@ -28,7 +28,7 @@ If you want to use the "python" package in some nix code do:
 ```sh
 ➜ nvsc python@3
 
-? Which Package [press enter immediately to select first, or start typing] › 
+? Which Package [type OR press enter OR use arrows] › 
   python                : A high-level dynamically-typed programming language
   python-qt             : PythonQt is a dynamic Python binding for the Qt framework. It offers an easy way to embed the Python 
   python-full           : A high-level dynamically-typed programming language

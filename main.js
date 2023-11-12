@@ -52,7 +52,7 @@ export async function createCommand({whichContext}) {
             // interactive mode
             // 
             const packageInfo = await selectOne({
-                message: "Which Package [press enter immediately to select first, or start typing]",
+                message: "Which Package [type OR press enter OR use arrow keys]",
                 showList: true,
                 showInfo: false,
                 options: Object.fromEntries(results.map(

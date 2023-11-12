@@ -20,7 +20,7 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/a28ef80ea21a922e7409462757f0d17d95d2d305.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/00429646b1f1766475b6759df69d3360ccd99a0a.tar.gz
 ```
 
 ## How to use
@@ -35,7 +35,7 @@ If you want to use the "python" package in some nix code do:
 ```sh
 ➜ nvsc python@3
 
-? Which Package [press enter immediately to select first, or start typing] › 
+? Which Package [type OR press enter OR use arrows] › 
   python                : A high-level dynamically-typed programming language
   python-qt             : PythonQt is a dynamic Python binding for the Qt framework. It offers an easy way to embed the Python 
   python-full           : A high-level dynamically-typed programming language
