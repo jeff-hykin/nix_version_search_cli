@@ -31,7 +31,11 @@ function bundle({entryPoints, outputPath}) {
                     "name": "return-on-build",
                     "setup": (build) => {
                         build.onEnd((result) => {
-                            resolve(result)
+                            if (result.errors.length > 0) {
+                                reject(errors)
+                            } else {
+                                resolve(result)
+                            }
                         })
                     },
                 },
