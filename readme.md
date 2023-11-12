@@ -9,7 +9,7 @@
 
 A CLI tool(s) for finding old versions of nix packages!
 
-<img src="/docs/nvs_fast.gif" alt="description">
+<img src="/docs/nvsc_fast.gif" alt="description">
 <img src="/docs/nvs_short.gif" alt="description">
 
 ## How to install
