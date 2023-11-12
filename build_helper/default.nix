@@ -42,8 +42,8 @@
             # commands
             # 
             mkdir -p "$out/bin"
-            "$deno" compile --allow-env --allow-net "$src/bins/nvsc.js" --output "$out/bin/nvsc"
-            "$deno" compile --allow-env --allow-net "$src/bins/nvsg.js" --output "$out/bin/nvsg"
-            "$deno" compile --allow-env --allow-net "$src/bins/nvsr.js" --output "$out/bin/nvsr"
+            "$deno" compile --allow-env --allow-net "$src/build_helper/bins/nvsc.js" --output "$out/bin/nvsc"
+            "$deno" compile --allow-env --allow-net "$src/build_helper/bins/nvsg.js" --output "$out/bin/nvsg"
+            "$deno" compile --allow-env --allow-net "$src/build_helper/bins/nvsr.js" --output "$out/bin/nvsr"
         '';
     }
