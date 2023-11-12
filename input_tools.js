@@ -1,11 +1,7 @@
-import { Command, EnumType } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts"
-import { Select } from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/mod.ts"
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
-
-import { Input } from "../deno-cliffy/prompt/input.ts"
-// import { Input } from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/input.ts"
-import { stripColor } from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/deps.ts"
-import { distance } from "https://deno.land/x/cliffy@v1.0.0-rc.3/_utils/distance.ts"
+import { Input } from "./subrepos/cliffy/prompt/input.ts"
+import { stripColor } from "./subrepos/cliffy/prompt/deps.ts"
+import { distance } from "./subrepos/cliffy/_utils/distance.ts"
 
 export function selectOne({ message, showList, showInfo, options, optionDescriptions }) {
     let optionStrings
@@ -20,10 +16,12 @@ export function selectOne({ message, showList, showInfo, options, optionDescript
     const longest = Math.min(columns-3, Math.max(...optionStrings.map(each=>each.length)))
     const suggestions = optionStrings
     const suggestionDescriptions = []
-    for (let [suggestion, description] of zip(suggestions, optionDescriptions)) {
-        suggestionDescriptions.push(
-            stripColor(suggestion.padEnd(longest," ")+": "+description).slice(0,maxOptionWidth).slice(suggestion.length+2)
-        )
+    if (optionDescriptions) {
+        for (let [suggestion, description] of zip(suggestions, optionDescriptions)) {
+            suggestionDescriptions.push(
+                stripColor(suggestion.padEnd(longest," ")+": "+description).slice(0,maxOptionWidth).slice(suggestion.length+2)
+            )
+        }
     }
     
     return Input.prompt({
