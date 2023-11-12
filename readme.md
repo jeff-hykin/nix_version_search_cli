@@ -9,6 +9,8 @@
 
 A CLI tool for finding old versions of nix packages!
 
+<img src="/docs/nvs.gif" alt="description">
+
 ## How to install
 
 Make sure you have nix installed:
@@ -17,12 +19,10 @@ Make sure you have nix installed:
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 ```
 
-<img src="/docs/nvs.gif" alt="description">
-
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/fa45e46fad42334eaae04d901bcecfe81105b16d.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/4de535dbcb4bd9528291ddd7f5fe734950ed2ee0.tar.gz
 ```
 
 ## How to use

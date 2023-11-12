@@ -2,6 +2,8 @@
 
 A CLI tool for finding old versions of nix packages!
 
+<img src="/docs/nvs.gif" alt="description">
+
 ## How to install
 
 Make sure you have nix installed:
