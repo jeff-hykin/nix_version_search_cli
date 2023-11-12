@@ -5,7 +5,11 @@
 <!--                                               -->
 <!--                                               -->
 
-### How to install
+## What is this?
+
+A CLI tool for finding old versions of nix packages!
+
+## How to install
 
 Make sure you have nix installed:
 
@@ -16,10 +20,10 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/98f41c18b21ffa923960629c92549e681aca8c1c.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/a16d6284a52559b9e429d166fd882cabdd7c2a3d.tar.gz
 ```
 
-### How to use
+## How to use
 
 There's three commands:
 - `nvsc` for nix code (for `shell.nix`, `default.nix`, or `flake.nix`)
