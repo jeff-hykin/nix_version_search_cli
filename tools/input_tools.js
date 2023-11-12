@@ -13,13 +13,14 @@ export function selectOne({ message, showList, showInfo, options, optionDescript
     }
     const { rows, columns } = Deno.consoleSize()
     const maxOptionWidth = columns-3
-    const longest = Math.min(columns-3, Math.max(...optionStrings.map(each=>each.length)))
+    const longest = Math.max(...optionStrings.map(each=>each.length))
+    const operations = {}
     const suggestions = optionStrings
     const suggestionDescriptions = []
     if (optionDescriptions) {
         for (let [suggestion, description] of zip(suggestions, optionDescriptions)) {
             suggestionDescriptions.push(
-                stripColor(suggestion.padEnd(longest," ")+": "+description).slice(0,maxOptionWidth).slice(suggestion.length+2)
+                stripColor(suggestion.padEnd(longest+2," ")+": "+description).slice(0,maxOptionWidth).slice(suggestion.length+2)
             )
         }
     }
