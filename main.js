@@ -3,8 +3,8 @@ import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "htt
 // import { FileSystem } from "https://deno.land/x/quickr@0.6.51/main/file_system.js"
 import { Console, yellow, green, cyan } from "https://deno.land/x/quickr@0.6.51/main/console.js"
 
-import { selectOne } from "./input_tools.js"
-import { search } from "./search_tools.js"
+import { selectOne } from "./tools/input_tools.js"
+import { search } from "./tools/search_tools.js"
 
 const posixShellEscape = (string)=>"'"+string.replace(/'/g, `'"'"'`)+"'"
 
@@ -81,22 +81,22 @@ export async function createCommand({whichContext}) {
 
             switch (whichContext) {
                 case "global":
-                    console.log(`Okay run this:`)
+                    console.log(`Okay run the following to get version ${yellow(versionInfo.version)} of ${yellow(packageInfo.attrPath)}`)
                     console.log(``)
-                    console.log(`nix-env -iA ${posixShellEscape(versionInfo.attrPath)} -f https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`)
+                    console.log(cyan`nix-env -iA ${posixShellEscape(versionInfo.attrPath)} -f https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`)
                     console.log(``)
                     break;
                 case "code":
                     if (!options.explain) {
                         console.log(`Here's what to include in your nix code:`)
                         console.log(``)
-                        console.log(`    yourVarName = (`)
-                        console.log(`      (import (builtins.fetchTarball {`)
-                        console.log(`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`)
-                        console.log(`      }) {}).${versionInfo.attrPath}`)
-                        console.log(`    );`)
+                        console.log(cyan`    yourVarName = (`)
+                        console.log(cyan`      (import (builtins.fetchTarball {`)
+                        console.log(cyan`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`)
+                        console.log(cyan`      }) {}).${versionInfo.attrPath}`)
+                        console.log(cyan`    );`)
                         console.log(``)
-                        console.log(`Run again with --explain if you're not sure how to use this^`)
+                        console.log(`Run again with ${yellow`--explain`} if you're not sure how to use this^`)
                     } else {
                         console.log(`If you have a ${yellow`shell.nix`} or ${yellow`default.nix`} file it might look like:`)
                         console.log(`     { pkgs ? import <nixpkgs> {} }:`)
@@ -139,7 +139,7 @@ export async function createCommand({whichContext}) {
                     }
                     break;
                 case "repl":
-                    console.log(`Okay run this:`)
+                    console.log(`Okay run the following to a shell that has version ${yellow(versionInfo.version)} of ${yellow(packageInfo.attrPath)}`)
                     console.log(``)
                     console.log(`nix-shell -p ${posixShellEscape(versionInfo.attrPath)} -I https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`)
                     console.log(``)
