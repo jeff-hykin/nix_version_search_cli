@@ -17,6 +17,8 @@ Make sure you have nix installed:
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 ```
 
+<img src="/docs/nvs.gif" alt="description">
+
 Then install nvs:
 
 ```sh
