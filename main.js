@@ -17,8 +17,8 @@ export async function createCommand({whichContext}) {
         // Main command.
         .name("Nix Version Search")
         .version("0.1.0")
-        .description(`Find exact versions of nix packages\n    Usage:\n    nvsg python@3    # find all python package versions that start with 3`)
-        .arguments("<input:string> [output:string]")
+        .description(`Find exact versions of nix packages\n\nExamples:\n    nvsc python@3\n    nvsg python@3\n    nvsr python@3`)
+        .arguments("<input:string>")
         .globalOption("-e, --explain", "Include beginner-friendly explanations with the output")
         .globalOption("--json", "Return json output of the results (force enables non-interactive)")
         .action(async (options, ...args) => {
