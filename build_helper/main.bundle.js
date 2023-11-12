@@ -13479,101 +13479,129 @@ Examples:
     }
     const choiceOptions = {};
     for (const each of results) {
+      let oldVersionsPromise = choiceOptions[each.attrPath]?.versionsPromise;
       choiceOptions[each.attrPath] = { ...choiceOptions[each.attrPath], ...each };
+      if (oldVersionsPromise) {
+        choiceOptions[each.attrPath].versionsPromise = new Promise(async (resolve4, reject) => {
+          try {
+            resolve4(
+              (await oldVersionsPromise || []).concat(await each.versionsPromise)
+            );
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
     }
-    const optionDescriptions = Object.values(choiceOptions).map((each) => (each.Description || "").replace(/\n/g, " "));
-    const packageInfo = await selectOne({
-      message: "Which Package [type OR press enter OR use arrow keys]",
-      showList: true,
-      showInfo: false,
-      options: choiceOptions,
-      optionDescriptions
-    });
-    if (!packageInfo) {
-      console.log(`Hmm, I'm sorry I don't see any versions for that package :/`);
-    }
-    console.log(`Selected: ${packageInfo.attrPath}
-`);
-    const versionOptions = (await packageInfo?.versionsPromise || []).filter((each) => each.version.startsWith(versionPrefix));
-    const version = await selectOne({
-      message: "Pick a version",
-      showList: true,
-      showInfo: false,
-      options: versionOptions.map((each) => each.version)
-    });
-    console.log(`Selected: ${version}
-`);
-    if (!version) {
-      throw Error(`Sorry I don't see that version`);
-    }
-    const versionInfo = versionOptions.filter((each) => each.version == version)[0];
-    switch (whichContext) {
-      case "global":
-        console.log(`Okay run the following to get version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
-        console.log(``);
-        console.log(cyan2`nix-env -iA ${posixShellEscape(versionInfo.attrPath)} -f https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
-        console.log(``);
-        break;
-      case "code":
-        if (!options.explain) {
-          console.log(`Here's what to include in your nix code:`);
-          console.log(``);
-          console.log(cyan2`    yourVarName = (`);
-          console.log(cyan2`      (import (builtins.fetchTarball {`);
-          console.log(cyan2`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
-          console.log(cyan2`      }) {}).${versionInfo.attrPath}`);
-          console.log(cyan2`    );`);
-          console.log(``);
-          console.log(`Run again with ${yellow2`--explain`} if you're not sure how to use this^`);
-        } else {
-          console.log(`If you have a ${yellow2`shell.nix`} or ${yellow2`default.nix`} file it might look like:`);
-          console.log(`     { pkgs ? import <nixpkgs> {} }:`);
-          console.log(`     let`);
-          console.log(`       python = pkgs.python;`);
-          console.log(`     in`);
-          console.log(`       pkgs.mkShell {`);
-          console.log(`         buildInputs = [`);
-          console.log(`           python`);
-          console.log(`         ];`);
-          console.log(`         nativeBuildInputs = [`);
-          console.log(`         ];`);
-          console.log(`         shellHook = ''`);
-          console.log(`             # blah blah blah`);
-          console.log(`         '';`);
-          console.log(`       }`);
-          console.log(``);
-          console.log(`To make it work with version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
-          console.log(`You would change it to be:`);
-          console.log(`     { pkgs ? import <nixpkgs> {} }:`);
-          console.log(`     let`);
-          console.log(`       python = pkgs.python;`);
-          console.log(green2`       YOUR_THING = (`);
-          console.log(green2`         (import (builtins.fetchTarball {`);
-          console.log(green2`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
-          console.log(green2`         }) {}).${versionInfo.attrPath}`);
-          console.log(green2`       );`);
-          console.log(`     in`);
-          console.log(`       pkgs.mkShell {`);
-          console.log(`         buildInputs = [`);
-          console.log(`           python`);
-          console.log(green2`           YOUR_THING`);
-          console.log(`         ];`);
-          console.log(`         nativeBuildInputs = [`);
-          console.log(`         ];`);
-          console.log(`         shellHook = ''`);
-          console.log(`             # blah blah blah`);
-          console.log(`         '';`);
-          console.log(`       }`);
+    for (const [key, value] of Object.entries(choiceOptions)) {
+      value.versionsPromise.then((versions) => {
+        if (versions.filter((each) => each.version.startsWith(versionPrefix)).length == 0) {
+          delete choiceOptions[key];
         }
-        break;
-      case "repl":
-        console.log(`Okay run the following to a shell that has version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
-        console.log(``);
-        console.log(`nix-shell -p ${posixShellEscape(versionInfo.attrPath)} -I https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
-        console.log(``);
-        break;
-      default:
-        break;
+      });
+    }
+    while (1) {
+      const optionDescriptions = Object.values(choiceOptions).map((each) => (each.Description || "").replace(/\n/g, " "));
+      const packageInfo = await selectOne({
+        message: "Which Package [type OR press enter OR use arrow keys]",
+        showList: true,
+        showInfo: false,
+        options: choiceOptions,
+        optionDescriptions
+      });
+      if (!packageInfo) {
+        console.log(red2`Sorry, I checked just now`);
+        console.log(red2`it looks like that package doesn't have any versions matching ${JSON.stringify(versionPrefix)}\n`);
+        continue;
+      }
+      const versionOptions = (await packageInfo?.versionsPromise || []).filter((each) => each.version.startsWith(versionPrefix));
+      if (versionOptions.length == 0) {
+        console.log(red2`Sorry, I checked just now`);
+        console.log(red2`it looks like ${cyan2(packageInfo.attrPath)} doesn't have any versions matching ${JSON.stringify(versionPrefix)}\n`);
+        delete choiceOptions[packageInfo.attrPath];
+        continue;
+      }
+      const version = await selectOne({
+        message: "Pick a version",
+        showList: true,
+        showInfo: false,
+        options: versionOptions.map((each) => each.version)
+      });
+      console.log(`Selected: ${version}
+`);
+      if (!version) {
+        throw Error(`Sorry I don't see that version`);
+      }
+      const versionInfo = versionOptions.filter((each) => each.version == version)[0];
+      switch (whichContext) {
+        case "global":
+          console.log(`Okay run the following to get version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+          console.log(``);
+          console.log(cyan2`nix-env -iA ${posixShellEscape(versionInfo.attrPath)} -f https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
+          console.log(``);
+          break;
+        case "code":
+          if (!options.explain) {
+            console.log(`Here's what to include in your nix code:`);
+            console.log(``);
+            console.log(cyan2`    yourVarName = (`);
+            console.log(cyan2`      (import (builtins.fetchTarball {`);
+            console.log(cyan2`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
+            console.log(cyan2`      }) {}).${versionInfo.attrPath}`);
+            console.log(cyan2`    );`);
+            console.log(``);
+            console.log(`Run again with ${yellow2`--explain`} if you're not sure how to use this^`);
+          } else {
+            console.log(`If you have a ${yellow2`shell.nix`} or ${yellow2`default.nix`} file it might look like:`);
+            console.log(`     { pkgs ? import <nixpkgs> {} }:`);
+            console.log(`     let`);
+            console.log(`       python = pkgs.python;`);
+            console.log(`     in`);
+            console.log(`       pkgs.mkShell {`);
+            console.log(`         buildInputs = [`);
+            console.log(`           python`);
+            console.log(`         ];`);
+            console.log(`         nativeBuildInputs = [`);
+            console.log(`         ];`);
+            console.log(`         shellHook = ''`);
+            console.log(`             # blah blah blah`);
+            console.log(`         '';`);
+            console.log(`       }`);
+            console.log(``);
+            console.log(`To make it work with version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+            console.log(`You would change it to be:`);
+            console.log(`     { pkgs ? import <nixpkgs> {} }:`);
+            console.log(`     let`);
+            console.log(`       python = pkgs.python;`);
+            console.log(green2`       YOUR_THING = (`);
+            console.log(green2`         (import (builtins.fetchTarball {`);
+            console.log(green2`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
+            console.log(green2`         }) {}).${versionInfo.attrPath}`);
+            console.log(green2`       );`);
+            console.log(`     in`);
+            console.log(`       pkgs.mkShell {`);
+            console.log(`         buildInputs = [`);
+            console.log(`           python`);
+            console.log(green2`           YOUR_THING`);
+            console.log(`         ];`);
+            console.log(`         nativeBuildInputs = [`);
+            console.log(`         ];`);
+            console.log(`         shellHook = ''`);
+            console.log(`             # blah blah blah`);
+            console.log(`         '';`);
+            console.log(`       }`);
+          }
+          break;
+        case "repl":
+          console.log(`Okay run the following to a shell that has version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+          console.log(``);
+          console.log(`nix-shell -p ${posixShellEscape(versionInfo.attrPath)} -I https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
+          console.log(``);
+          break;
+        default:
+          break;
+      }
+      break;
     }
   });
   return command;
