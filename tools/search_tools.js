@@ -1,29 +1,37 @@
 #!/usr/bin/env -S deno run --allow-all
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
+import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
 // import { Parser, parserFromWasm } from "https://deno.land/x/deno_tree_sitter@0.1.3.0/main.js"
 // import html from "https://github.com/jeff-hykin/common_tree_sitter_languages/raw/4d8a6d34d7f6263ff570f333cdcf5ded6be89e3d/main/html.js"
 
+const versionToList = version=>`${version}`.split(".").map(each=>each.split(/(?<=\d)(?=\D)/)).flat(1).map(each=>each.match(/^\d+$/)?each-0:each)
 export const rikudoeSage = {
     async searchBasePackage(query) {
         try {
-            const url = `https://history.nix-packages.com/search?search=${encodeURIComponent(query)}`
-            const htmlResult = await fetch(url).then(result=>result.text())
-            var document = new DOMParser().parseFromString(
-                htmlResult,
-                "text/html",
-            )
-            const list = document.querySelector(".search-results ul")
-            if (!list) {
-                throw Error(`Looks like https://history.nix-packages.com has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))` )
-            }
-            const searchResults = [...list.querySelectorAll("a")]
-            return searchResults.map(each=>{
-                const dataDiv = each.querySelector("div")
-                const output = {
-                    attrPath: each.innerText,
-                }
-                return output
-            })
+            // FIXME: "history.nix-packages.com" uses a frontend caching method (not a bad idea)
+            // but also doesn't render it, so it can't be scraped from the html
+            // so for now, just don't get any package names from here
+            return []
+            
+            // const url = `https://history.nix-packages.com/search?search=${encodeURIComponent(query)}`
+            // const htmlResult = await fetch(url).then(result=>result.text())
+            // var document = new DOMParser().parseFromString(
+            //     htmlResult,
+            //     "text/html",
+            // )
+            // const list = document.querySelector(".search-results ul")
+            // if (!list) {
+            //     throw Error(`Looks like https://history.nix-packages.com has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))` )
+            // }
+            // const searchResults = [...list.querySelectorAll("a")]
+            // return searchResults.map(each=>{
+            //     const dataDiv = each.querySelector("div")
+            //     const output = {
+            //         attrPath: each.innerText,
+            //     }
+            //     return output
+            // })
+            
         } catch (error) {
             throw Error(`Unable to connect to history.nix-packages.com:\n    ${error}`)
         }
@@ -138,6 +146,28 @@ export async function search(query) {
                     console.warn(`Failed getting version info from one of the sources (${name}):\n    ${error}\n`)
                 }
             }
+            const alreadySeen = new Set()
+            versions = versions.filter(each=>{
+                if (alreadySeen.has(each.version)) {
+                    return false
+                }
+                alreadySeen.add(each.version)
+                return true
+            })
+            versions.sort(
+                (a, b) => {
+                    for (const [numberForA, numberForB ] of zip(versionToList(a.version), versionToList(b.version))) {
+                        if (numberForA != numberForB) {
+                            if (typeof numberForB == "number" && typeof numberForB == "number") {
+                                return numberForB - numberForA
+                            } else {
+                                return `${numberForB}`.localeCompare(numberForA)
+                            }
+                        }
+                    }
+                    return 0
+                }
+            )
             resolve(versions)
         })
     }

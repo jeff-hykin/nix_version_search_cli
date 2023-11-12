@@ -38,7 +38,7 @@ export async function createCommand({whichContext}) {
                 await Promise.all(
                     Object.values(results).map(
                         eachPackage=>eachPackage.versionsPromise.then((versions)=>{
-                            eachPackage.versions = versions
+                            eachPackage.versions = versions.filter(each=>each.version.startsWith(versionPrefix))
                             delete eachPackage.versionsPromise
                             return eachPackage
                         })
@@ -65,8 +65,8 @@ export async function createCommand({whichContext}) {
             }
             console.log(`Selected: ${packageInfo.attrPath}\n`)
 
-            const versionOptions = (await packageInfo?.versionsPromise)||[]
-            const version = await  selectOne({
+            const versionOptions = ((await packageInfo?.versionsPromise)||[]).filter(each=>each.version.startsWith(versionPrefix))
+            const version = await selectOne({
                 message: "Pick a version",
                 showList: true,
                 showInfo: false,

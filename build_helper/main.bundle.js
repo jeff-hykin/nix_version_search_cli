@@ -13259,29 +13259,14 @@ register(
 );
 
 // tools/search_tools.js
+var versionToList = (version) => `${version}`.split(".").map((each) => each.split(/(?<=\d)(?=\D)/)).flat(1).map((each) => each.match(/^\d+$/) ? each - 0 : each);
 var rikudoeSage = {
   async searchBasePackage(query) {
     try {
-      const url = `https://history.nix-packages.com/search?search=${encodeURIComponent(query)}`;
-      const htmlResult = await fetch(url).then((result2) => result2.text());
-      var document2 = new DOMParser().parseFromString(
-        htmlResult,
-        "text/html"
-      );
-      const list = document2.querySelector(".search-results ul");
-      if (!list) {
-        throw Error(`Looks like https://history.nix-packages.com has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))`);
-      }
-      const searchResults = [...list.querySelectorAll("a")];
-      return searchResults.map((each) => {
-        const dataDiv = each.querySelector("div");
-        const output2 = {
-          attrPath: each.innerText
-        };
-        return output2;
-      });
+      return [];
     } catch (error) {
-      throw Error(`Unable to connect to history.nix-packages.com, ${error}`);
+      throw Error(`Unable to connect to history.nix-packages.com:
+    ${error}`);
     }
   },
   async getVersionsFor(attrPath) {
@@ -13379,7 +13364,8 @@ async function search(query) {
       basePackages = basePackages.concat(await sourceTools.searchBasePackage(query));
     } catch (error) {
       console.warn(`Failed getting packages from one of the sources (${name}):
-    ${error}`);
+    ${error}
+`);
     }
   }
   for (const value of basePackages) {
@@ -13390,9 +13376,32 @@ async function search(query) {
           versions = versions.concat(await sourceTools.getVersionsFor(value.attrPath));
         } catch (error) {
           console.warn(`Failed getting version info from one of the sources (${name}):
-    ${error}`);
+    ${error}
+`);
         }
       }
+      const alreadySeen = /* @__PURE__ */ new Set();
+      versions = versions.filter((each) => {
+        if (alreadySeen.has(each.version)) {
+          return false;
+        }
+        alreadySeen.add(each.version);
+        return true;
+      });
+      versions.sort(
+        (a, b) => {
+          for (const [numberForA, numberForB] of zip2(versionToList(a.version), versionToList(b.version))) {
+            if (numberForA != numberForB) {
+              if (typeof numberForB == "number" && typeof numberForB == "number") {
+                return numberForB - numberForA;
+              } else {
+                return `${numberForB}`.localeCompare(numberForA);
+              }
+            }
+          }
+          return 0;
+        }
+      );
       resolve4(versions);
     });
   }
@@ -13419,7 +13428,7 @@ async function createCommand({ whichContext }) {
       await Promise.all(
         Object.values(results).map(
           (eachPackage) => eachPackage.versionsPromise.then((versions) => {
-            eachPackage.versions = versions;
+            eachPackage.versions = versions.filter((each) => each.version.startsWith(versionPrefix));
             delete eachPackage.versionsPromise;
             return eachPackage;
           })
@@ -13442,7 +13451,7 @@ async function createCommand({ whichContext }) {
     }
     console.log(`Selected: ${packageInfo.attrPath}
 `);
-    const versionOptions = await packageInfo?.versionsPromise || [];
+    const versionOptions = (await packageInfo?.versionsPromise || []).filter((each) => each.version.startsWith(versionPrefix));
     const version = await selectOne({
       message: "Pick a version",
       showList: true,
