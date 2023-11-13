@@ -13,7 +13,7 @@
 , bash ? pkgs.bash
 ,
 }:
-pkgs.stdenv.mkDerivation {
+pkgs.stdenv.mkDerivation (finalAttrs: {
   pname = "nvs";
   version = "0.1.0";
 
@@ -47,4 +47,4 @@ pkgs.stdenv.mkDerivation {
     "$deno" compile --allow-env --allow-net --output "$out/bin/nvsg" "$src/build_helper/bins/nvsg.js"
     "$deno" compile --allow-env --allow-net --output "$out/bin/nvsr" "$src/build_helper/bins/nvsr.js"
   '';
-}
+})
