@@ -590,47 +590,47 @@ function parseArgs(ctx, args, opts) {
       }
     };
     let option;
-    let current = args[argsIndex];
+    let current2 = args[argsIndex];
     let currentValue;
     let negate = false;
     if (inLiteral) {
-      ctx.literal.push(current);
+      ctx.literal.push(current2);
       continue;
-    } else if (current === "--") {
+    } else if (current2 === "--") {
       inLiteral = true;
       continue;
     } else if (ctx.stopEarly || ctx.stopOnUnknown) {
-      ctx.unknown.push(current);
+      ctx.unknown.push(current2);
       continue;
     }
-    const isFlag = current.length > 1 && current[0] === "-";
+    const isFlag = current2.length > 1 && current2[0] === "-";
     if (!isFlag) {
       if (opts.stopEarly) {
         ctx.stopEarly = true;
       }
-      ctx.unknown.push(current);
+      ctx.unknown.push(current2);
       continue;
     }
-    const isShort = current[1] !== "-";
-    const isLong = isShort ? false : current.length > 3 && current[2] !== "-";
+    const isShort = current2[1] !== "-";
+    const isLong = isShort ? false : current2.length > 3 && current2[2] !== "-";
     if (!isShort && !isLong) {
-      throw new InvalidOptionError(current, opts.flags ?? []);
+      throw new InvalidOptionError(current2, opts.flags ?? []);
     }
-    if (isShort && current.length > 2 && current[2] !== ".") {
-      args.splice(argsIndex, 1, ...splitFlags(current));
-      current = args[argsIndex];
-    } else if (isLong && current.startsWith("--no-")) {
+    if (isShort && current2.length > 2 && current2[2] !== ".") {
+      args.splice(argsIndex, 1, ...splitFlags(current2));
+      current2 = args[argsIndex];
+    } else if (isLong && current2.startsWith("--no-")) {
       negate = true;
     }
-    const equalSignIndex = current.indexOf("=");
+    const equalSignIndex = current2.indexOf("=");
     if (equalSignIndex !== -1) {
-      currentValue = current.slice(equalSignIndex + 1) || void 0;
-      current = current.slice(0, equalSignIndex);
+      currentValue = current2.slice(equalSignIndex + 1) || void 0;
+      current2 = current2.slice(0, equalSignIndex);
     }
     if (opts.flags) {
-      option = getOption(opts.flags, current);
+      option = getOption(opts.flags, current2);
       if (!option) {
-        const name = current.replace(/^-+/, "");
+        const name = current2.replace(/^-+/, "");
         option = matchWildCardOptions(name, opts.flags);
         if (!option) {
           if (opts.stopOnUnknown) {
@@ -638,12 +638,12 @@ function parseArgs(ctx, args, opts) {
             ctx.unknown.push(args[argsIndex]);
             continue;
           }
-          throw new UnknownOptionError(current, opts.flags);
+          throw new UnknownOptionError(current2, opts.flags);
         }
       }
     } else {
       option = {
-        name: current.replace(/^-+/, ""),
+        name: current2.replace(/^-+/, ""),
         optionalValue: true,
         type: "string" /* STRING */
       };
@@ -657,7 +657,7 @@ function parseArgs(ctx, args, opts) {
       if (!opts.flags?.length) {
         option.collect = true;
       } else if (!option.collect && !ctx.defaults[option.name]) {
-        throw new DuplicateOptionError(current);
+        throw new DuplicateOptionError(current2);
       }
     }
     if (option.type && !option.args?.length) {
@@ -818,14 +818,14 @@ function parseArgumentsDefinition(argsDefinition, validate = true, all) {
 function dedent(str) {
   const lines = str.split(/\r?\n|\r/g);
   let text = "";
-  let indent2 = 0;
+  let indent4 = 0;
   for (const line of lines) {
     if (text || line.trim()) {
       if (!text) {
         text = line.trimStart();
-        indent2 = line.length - text.length;
+        indent4 = line.length - text.length;
       } else {
-        text += line.slice(indent2);
+        text += line.slice(indent4);
       }
       text += "\n";
     }
@@ -1556,8 +1556,8 @@ var TableLayout = class {
       const row = rows[rowIndex];
       const length = row.length;
       if (length < columns) {
-        const diff = columns - length;
-        for (let i2 = 0; i2 < diff; i2++) {
+        const diff2 = columns - length;
+        for (let i2 = 0; i2 < diff2; i2++) {
           row.push(this.createCell(null, row, rowIndex, length + i2));
         }
       }
@@ -1793,12 +1793,12 @@ var TableLayout = class {
         }
       }
     }
-    const { current, next } = this.renderCellValue(cell, maxLength2);
+    const { current: current2, next } = this.renderCellValue(cell, maxLength2);
     row[colIndex].setValue(next.getValue());
     if (opts.hasBorder) {
       result2 += " ".repeat(opts.padding[colIndex]);
     }
-    result2 += current;
+    result2 += current2;
     if (opts.hasBorder || colIndex < opts.columns - 1) {
       result2 += " ".repeat(opts.padding[colIndex]);
     }
@@ -1823,20 +1823,20 @@ var TableLayout = class {
     const next = cell.toString().slice(words.length + (breakWord ? 0 : 1));
     const fillLength = maxLength2 - strLength(words);
     const align = cell.getAlign();
-    let current;
+    let current2;
     if (fillLength === 0) {
-      current = words;
+      current2 = words;
     } else if (align === "left") {
-      current = words + " ".repeat(fillLength);
+      current2 = words + " ".repeat(fillLength);
     } else if (align === "center") {
-      current = " ".repeat(Math.floor(fillLength / 2)) + words + " ".repeat(Math.ceil(fillLength / 2));
+      current2 = " ".repeat(Math.floor(fillLength / 2)) + words + " ".repeat(Math.ceil(fillLength / 2));
     } else if (align === "right") {
-      current = " ".repeat(fillLength) + words;
+      current2 = " ".repeat(fillLength) + words;
     } else {
       throw new Error("Unknown direction: " + align);
     }
     return {
-      current,
+      current: current2,
       next: cell.clone(next)
     };
   }
@@ -4143,7 +4143,7 @@ var typedArrayClasses = [
   Float64Array,
   globalThis.BigInt64Array,
   globalThis.BigUint64Array
-].filter((each) => each);
+].filter((each2) => each2);
 var copyableClasses = /* @__PURE__ */ new Set([RegExp, Date, URL, ...typedArrayClasses, globalThis.ArrayBuffer, globalThis.DataView]);
 var IteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
 var ArrayIterator = Object.getPrototypeOf([][Symbol.iterator]);
@@ -4222,7 +4222,7 @@ function deepCopyInner(value, valueChain = [], originalToCopyMap = /* @__PURE__ 
   if (isGeneratorType(value)) {
     throw Error(`Sadly built-in generators cannot be deep copied.
 And I found a generator along this path:
-${valueChain.reverse().map((each) => `${each},
+${valueChain.reverse().map((each2) => `${each2},
 `)}`);
   }
   let object, theThis, thisCopy;
@@ -4302,8 +4302,8 @@ var deepSortObject = (obj, seen = /* @__PURE__ */ new Map()) => {
     if (obj instanceof Array) {
       const sortedChildren = [];
       seen.set(obj, sortedChildren);
-      for (const each of obj) {
-        sortedChildren.push(deepSortObject(each, seen));
+      for (const each2 of obj) {
+        sortedChildren.push(deepSortObject(each2, seen));
       }
       return sortedChildren;
     } else {
@@ -4358,6 +4358,27 @@ var allKeyDescriptions = function(value, options = { includingBuiltin: false }) 
 };
 
 // https://deno.land/x/good@1.5.1.0/async.js
+function deferredPromise() {
+  let methods;
+  let state = "pending";
+  const promise = new Promise((resolve15, reject) => {
+    methods = {
+      async resolve(value) {
+        await value;
+        state = "fulfilled";
+        resolve15(value);
+      },
+      reject(reason) {
+        state = "rejected";
+        reject(reason);
+      }
+    };
+  });
+  Object.defineProperty(promise, "state", {
+    get: () => state
+  });
+  return Object.assign(promise, methods);
+}
 var objectPrototype = Object.getPrototypeOf({});
 
 // https://deno.land/x/good@1.5.1.0/iterable.js
@@ -4386,19 +4407,19 @@ var iter = (object) => {
 };
 async function asyncIteratorToList(asyncIterator) {
   const results = [];
-  for await (const each of asyncIterator) {
-    results.push(each);
+  for await (const each2 of asyncIterator) {
+    results.push(each2);
   }
   return results;
 }
 var zip = function* (...iterables) {
-  iterables = iterables.map((each) => iter(each));
+  iterables = iterables.map((each2) => iter(each2));
   while (true) {
-    const nexts = iterables.map((each) => each.next());
-    if (nexts.every((each) => each.done)) {
+    const nexts = iterables.map((each2) => each2.next());
+    if (nexts.every((each2) => each2.done)) {
       break;
     }
-    yield nexts.map((each) => each.value);
+    yield nexts.map((each2) => each2.value);
   }
 };
 var ERROR_WHILE_MAPPING_MESSAGE = "Threw while mapping.";
@@ -4477,7 +4498,7 @@ var NamedArray = class extends Array {
   }
 };
 
-// https://deno.land/x/quickr@0.6.51/main/operating_system.js
+// https://deno.land/x/quickr@0.6.54/main/operating_system.js
 var cache2 = {};
 var stdoutRun = async (args) => {
   const process = Deno.run({ cmd: args, stdout: "piped", stderr: "piped" });
@@ -4516,26 +4537,26 @@ var OperatingSystem = {
   },
   architecture: Deno.build.architecture,
   get versionArray() {
-    return new Promise(async (resolve4, reject) => {
+    return new Promise(async (resolve15, reject) => {
       let versionArray = [];
       if (OperatingSystem.commonChecks.isWindows) {
         try {
           const windowsVersionString = await stdoutRun(["pwsh", "-Command", `[System.Environment]::OSVersion.Version`]);
-          versionArray = windowsVersionString.replace(/^[\w\W]*?(\d+\.\d+\.\d+)[\w\W]*/, "$1").split(".").map((each) => each - 0);
+          versionArray = windowsVersionString.replace(/^[\w\W]*?(\d+\.\d+\.\d+)[\w\W]*/, "$1").split(".").map((each2) => each2 - 0);
         } catch (error) {
           console.warn(`unable to get version string for Windows: ${error.message}`);
         }
       } else if (OperatingSystem.commonChecks.isMac) {
         try {
           const macVersionString = await stdoutRun(["/usr/bin/sw_vers", "-productVersion"]);
-          versionArray = macVersionString.replace(/^[\w\W]*?(\d+\.\d+(\.\d+)?)[\w\W]*/, "$1").split(".").map((each) => each - 0);
+          versionArray = macVersionString.replace(/^[\w\W]*?(\d+\.\d+(\.\d+)?)[\w\W]*/, "$1").split(".").map((each2) => each2 - 0);
         } catch (error) {
           console.warn(`unable to get version string for MacOS: ${error.message}`);
         }
       } else {
         try {
           const outputString = await stdoutRun(["uname", "-r"]);
-          versionArray = outputString.replace(/^[\w\W]*?((\d+\.)+\d+)[\w\W]*/, "$1").split(".").map((each) => each - 0);
+          versionArray = outputString.replace(/^[\w\W]*?((\d+\.)+\d+)[\w\W]*/, "$1").split(".").map((each2) => each2 - 0);
         } catch (error) {
           console.warn(`unable to get version string for Linux: ${error.message}`);
         }
@@ -4567,14 +4588,14 @@ var OperatingSystem = {
       if (!cache2.macOsUserToUid) {
         const userListString = await stdoutRun(["dscl", ".", "-list", "/Users", "UniqueID"]);
         const userList = userListString.split(/\n/);
-        const userNamesAndIds = userList.map((each) => {
-          const match = each.match(/(.+?)(-?\d+)$/, "$1");
+        const userNamesAndIds = userList.map((each2) => {
+          const match = each2.match(/(.+?)(-?\d+)$/, "$1");
           if (match) {
             const username2 = match[1].trim();
             const uid = match[2];
             return [username2, uid];
           }
-        }).filter((each) => each);
+        }).filter((each2) => each2);
         const idsAndUsernames = userNamesAndIds.map(([username2, id]) => [id, username2]);
         cache2.macOsUserToUid = Object.fromEntries(userNamesAndIds);
         cache2.macOsUidToUser = Object.fromEntries(idsAndUsernames);
@@ -4601,7 +4622,7 @@ var typedArrayClasses2 = [
   Float64Array,
   globalThis.BigInt64Array,
   globalThis.BigUint64Array
-].filter((each) => each);
+].filter((each2) => each2);
 var copyableClasses2 = /* @__PURE__ */ new Set([RegExp, Date, URL, ...typedArrayClasses2, globalThis.ArrayBuffer, globalThis.DataView]);
 var IteratorPrototype2 = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
 var ArrayIterator2 = Object.getPrototypeOf([][Symbol.iterator]);
@@ -4677,7 +4698,7 @@ function deepCopyInner2(value, valueChain = [], originalToCopyMap = /* @__PURE__
   if (isGeneratorType2(value)) {
     throw Error(`Sadly built-in generators cannot be deep copied.
 And I found a generator along this path:
-${valueChain.reverse().map((each) => `${each},
+${valueChain.reverse().map((each2) => `${each2},
 `)}`);
   }
   let object, theThis, thisCopy;
@@ -4757,8 +4778,8 @@ var deepSortObject2 = (obj, seen = /* @__PURE__ */ new Map()) => {
     if (obj instanceof Array) {
       const sortedChildren = [];
       seen.set(obj, sortedChildren);
-      for (const each of obj) {
-        sortedChildren.push(deepSortObject2(each, seen));
+      for (const each2 of obj) {
+        sortedChildren.push(deepSortObject2(each2, seen));
       }
       return sortedChildren;
     } else {
@@ -4837,19 +4858,19 @@ var iter2 = (object) => {
 };
 var Stop2 = Symbol("iterationStop");
 var zip3 = function* (...iterables) {
-  iterables = iterables.map((each) => iter2(each));
+  iterables = iterables.map((each2) => iter2(each2));
   while (true) {
-    const nexts = iterables.map((each) => each.next());
-    if (nexts.every((each) => each.done)) {
+    const nexts = iterables.map((each2) => each2.next());
+    if (nexts.every((each2) => each2.done)) {
       break;
     }
-    yield nexts.map((each) => each.value);
+    yield nexts.map((each2) => each2.value);
   }
 };
 async function asyncIteratorToList2(asyncIterator) {
   const results = [];
-  for await (const each of asyncIterator) {
-    results.push(each);
+  for await (const each2 of asyncIterator) {
+    results.push(each2);
   }
   return results;
 }
@@ -4908,7 +4929,7 @@ function concurrentlyTransform2({ iterator, transformFunction, poolLimit = null,
 concurrentlyTransform2.defaultPoolLimit = 40;
 
 // https://deno.land/x/good@1.3.0.4/string.js
-var indent = ({ string: string2, by = "    ", noLead = false }) => (noLead ? "" : by) + string2.replace(/\n/g, "\n" + by);
+var indent2 = ({ string: string2, by = "    ", noLead = false }) => (noLead ? "" : by) + string2.replace(/\n/g, "\n" + by);
 var toString = (value) => {
   if (typeof value == "symbol") {
     return toRepresentation(value);
@@ -4951,9 +4972,9 @@ var toRepresentation = (item) => {
     } else if (item2 instanceof Date) {
       output2 = `new Date(${item2.getTime()})`;
     } else if (item2 instanceof Array) {
-      output2 = `[${item2.map((each) => recursionWrapper(each)).join(",")}]`;
+      output2 = `[${item2.map((each2) => recursionWrapper(each2)).join(",")}]`;
     } else if (item2 instanceof Set) {
-      output2 = `new Set(${[...item2].map((each) => recursionWrapper(each)).join(",")})`;
+      output2 = `new Set(${[...item2].map((each2) => recursionWrapper(each2)).join(",")})`;
     } else if (item2 instanceof Object && item2.constructor == Object) {
       output2 = pureObjectRepr(item2);
     } else if (item2 instanceof Map) {
@@ -4963,11 +4984,11 @@ var toRepresentation = (item) => {
         const stringValue = recursionWrapper(value);
         if (!stringKey.match(/\n/g)) {
           string2 += `
-  [${stringKey}, ${indent({ string: stringValue, by: "  ", noLead: true })}],`;
+  [${stringKey}, ${indent2({ string: stringValue, by: "  ", noLead: true })}],`;
         } else {
           string2 += `
-  [${indent({ string: stringKey, by: "  ", noLead: true })},
-  ${indent({ string: stringValue, by: "    ", noLead: true })}],`;
+  [${indent2({ string: stringKey, by: "  ", noLead: true })},
+  ${indent2({ string: stringValue, by: "    ", noLead: true })}],`;
         }
       }
       string2 += "\n)";
@@ -5018,7 +5039,7 @@ var toRepresentation = (item) => {
       const stringKey = recursionWrapper(key);
       const stringValue = recursionWrapper(value);
       string2 += `
-  ${stringKey}: ${indent({ string: stringValue, by: "  ", noLead: true })},`;
+  ${stringKey}: ${indent2({ string: stringValue, by: "  ", noLead: true })},`;
     }
     string2 += "\n}";
     return string2;
@@ -5053,9 +5074,9 @@ var regexProxyOptions = Object.freeze({
   }
 });
 proxyRegExp = (parent, flags) => {
-  const regex2 = new RegExp(parent, flags);
-  const output2 = new Proxy(regex2, regexProxyOptions);
-  Object.setPrototypeOf(output2, Object.getPrototypeOf(regex2));
+  const regex3 = new RegExp(parent, flags);
+  const output2 = new Proxy(regex3, regexProxyOptions);
+  Object.setPrototypeOf(output2, Object.getPrototypeOf(regex3));
   return output2;
 };
 function regexWithStripWarning(shouldStrip) {
@@ -5097,7 +5118,7 @@ var textEncoder = new TextEncoder("utf-8");
 var utf8BytesToString = textDecoder.decode.bind(textDecoder);
 var stringToUtf8Bytes = textEncoder.encode.bind(textEncoder);
 
-// https://deno.land/x/quickr@0.6.51/main/console.js
+// https://deno.land/x/quickr@0.6.54/main/console.js
 var realConsole = globalThis.console;
 var isBrowserContext = typeof document != "undefined" && typeof window != "undefined";
 var env = null;
@@ -5126,11 +5147,11 @@ globalThis.console = new Proxy(originalThing, {
     if (key == "log") {
       return (...args2) => {
         realConsole.log(
-          ...args2.map((each) => {
-            if (each instanceof Object && each[symbolForConsoleLog] instanceof Function) {
-              return each[symbolForConsoleLog]();
+          ...args2.map((each2) => {
+            if (each2 instanceof Object && each2[symbolForConsoleLog] instanceof Function) {
+              return each2[symbolForConsoleLog]();
             }
-            return each;
+            return each2;
           })
         );
       };
@@ -5224,9 +5245,9 @@ var styleObject = (rootStyleString) => {
         return singleCombinedString2;
       };
       let singleCombinedString = "";
-      if (!(strings instanceof Array) || strings.length < 1 || !strings.every((each) => typeof each == "string")) {
-        for (const each of [strings, ...values]) {
-          singleCombinedString += objectToStyledString(each);
+      if (!(strings instanceof Array) || strings.length < 1 || !strings.every((each2) => typeof each2 == "string")) {
+        for (const each2 of [strings, ...values]) {
+          singleCombinedString += objectToStyledString(each2);
         }
       } else {
         for (const index in values) {
@@ -5245,11 +5266,11 @@ var styleObject = (rootStyleString) => {
     styleAccumulator.toString = () => styleAccumulator.sequence.join("") + styleStrings.reset;
     styleAccumulator[Deno.customInspect] = () => styleAccumulator.sequence.join("") + styleStrings.reset;
     styleAccumulator[symbolForConsoleLog] = () => {
-      const asString = styleAccumulator.toString();
+      const asString2 = styleAccumulator.toString();
       if (Console.reliableColorSupport.includesAnsi) {
-        return asString;
+        return asString2;
       } else {
-        return clearAnsiStylesFrom(asString);
+        return clearAnsiStylesFrom(asString2);
       }
     };
     return Object.defineProperties(styleAccumulator, Object.fromEntries(Object.entries(styleStrings).map(
@@ -5269,11 +5290,11 @@ var styleObject = (rootStyleString) => {
   topLevelStyleAccumulator[styleObjectSymbol] = true;
   topLevelStyleAccumulator.toString = () => rootStyleString;
   topLevelStyleAccumulator[symbolForConsoleLog] = () => {
-    const asString = topLevelStyleAccumulator.toString();
+    const asString2 = topLevelStyleAccumulator.toString();
     if (Console.reliableColorSupport.includesAnsi) {
-      return asString;
+      return asString2;
     } else {
-      return clearAnsiStylesFrom(asString);
+      return clearAnsiStylesFrom(asString2);
     }
   };
   return Object.defineProperties(topLevelStyleAccumulator, Object.fromEntries(Object.entries(styleStrings).map(
@@ -5351,11 +5372,11 @@ var Console = {
     if (args.length == 0) {
       console.log();
     }
-    let [arg1, ...others] = args.map((each) => {
-      if (each instanceof Object && each[symbolForConsoleLog] instanceof Function) {
-        return each[symbolForConsoleLog]();
+    let [arg1, ...others] = args.map((each2) => {
+      if (each2 instanceof Object && each2[symbolForConsoleLog] instanceof Function) {
+        return each2[symbolForConsoleLog]();
       }
-      return each;
+      return each2;
     });
     if (typeof arg1 == "string") {
       arg1 = arg1.replace("%", "%%");
@@ -5363,18 +5384,18 @@ var Console = {
     if (!isBrowserContext) {
       if (!Console.reliableColorSupport.includesAnsi) {
         arg1 = clearAnsiStylesFrom(arg1);
-        others = others.map((each) => {
-          if (typeof each == "string") {
-            return clearAnsiStylesFrom(each);
+        others = others.map((each2) => {
+          if (typeof each2 == "string") {
+            return clearAnsiStylesFrom(each2);
           } else {
-            return each;
+            return each2;
           }
         });
       }
       realConsole.log(arg1, ...others);
     } else {
       if (args[0][symbolForConsoleLog] && typeof args[0].styleString == "string") {
-        realConsole.log(`%c${arg1}${others.map((each) => `${each}`).join("")}`, args[0].styleString);
+        realConsole.log(`%c${arg1}${others.map((each2) => `${each2}`).join("")}`, args[0].styleString);
       } else {
         realConsole.log(arg1, ...others);
       }
@@ -5470,17 +5491,17 @@ var Console = {
     },
     oneOf(keyValues, question = "Please type one of the names from the list above") {
       if (keyValues instanceof Array) {
-        keyValues = Object.fromEntries(keyValues.map((each, index) => [index, each]));
+        keyValues = Object.fromEntries(keyValues.map((each2, index) => [index, each2]));
       }
       const keys = Object.keys(keyValues);
       if (keys.length == 0) {
         console.warn(`Tried to perform Console.askFor.oneOf(object) but the object was empty`);
         return void 0;
       }
-      const longest2 = Math.max(keys.map((each) => each.length));
+      const longest2 = Math.max(keys.map((each2) => each2.length));
       while (true) {
         for (const [key, value] of Object.entries(keyValues)) {
-          const valueAsString = indent({ string: `${value}
+          const valueAsString = indent2({ string: `${value}
 `, by: " ".repeat(longest2 + 2), noLead: true });
           console.log(``, `${key}: ${valueAsString}`);
         }
@@ -5605,6 +5626,9556 @@ var Console = {
     return colorSupportCache;
   }
 };
+
+// https://deno.land/x/ensure@v1.1.0/src/compare.ts
+function isOutdated(minimumVersion, actualVersion) {
+  const minimumVersionArr = minimumVersion.split(".");
+  const actualVersionArr = actualVersion.split(".");
+  versionCategoryEnumeration:
+    for (let i2 = 0; i2 < minimumVersionArr.length; ++i2) {
+      const minimumVersionCategoryNum = parseInt(minimumVersionArr[i2]);
+      const actualVersionCategoryNum = parseInt(actualVersionArr[i2]);
+      if (minimumVersionCategoryNum > actualVersionCategoryNum) {
+        return true;
+      } else if (minimumVersionCategoryNum === actualVersionCategoryNum) {
+        continue versionCategoryEnumeration;
+      } else {
+        break versionCategoryEnumeration;
+      }
+    }
+  return false;
+}
+
+// https://deno.land/x/ensure@v1.1.0/src/main.ts
+var warn = (type, current2, expected) => `Your ${type} version is ${current2}, but at least version ${expected} is required. Please update to a later version of Deno. Thankies!`;
+function ensure(ensureOptions) {
+  const { deno: currentDeno, v8: currentV8, typescript: currentTypescript } = Deno.version;
+  const {
+    denoVersion: expectedDeno,
+    v8Version: expectedV8,
+    typescriptVersion: expectedTypescript
+  } = ensureOptions;
+  let atLeastOneOutdated = false;
+  const ensureCategories = [
+    ["Deno", currentDeno, expectedDeno],
+    ["V8", currentV8, expectedV8],
+    ["Typescript", currentTypescript, expectedTypescript]
+  ];
+  for (const [categoryName, currentVersion, expectedVersion] of ensureCategories) {
+    if (!expectedVersion)
+      continue;
+    const isCategoryOutdated = isOutdated(expectedVersion, currentVersion);
+    if (isCategoryOutdated) {
+      console.info(warn(categoryName, currentVersion, expectedVersion));
+      atLeastOneOutdated = true;
+    }
+  }
+  if (atLeastOneOutdated) {
+    Deno.exit(1);
+  }
+}
+
+// https://deno.land/std@0.128.0/_util/os.ts
+var osType = (() => {
+  const { Deno: Deno4 } = globalThis;
+  if (typeof Deno4?.build?.os === "string") {
+    return Deno4.build.os;
+  }
+  const { navigator } = globalThis;
+  if (navigator?.appVersion?.includes?.("Win") ?? false) {
+    return "windows";
+  }
+  return "linux";
+})();
+var isWindows = osType === "windows";
+
+// https://deno.land/std@0.128.0/path/win32.ts
+var win32_exports = {};
+__export(win32_exports, {
+  basename: () => basename,
+  delimiter: () => delimiter,
+  dirname: () => dirname,
+  extname: () => extname,
+  format: () => format,
+  fromFileUrl: () => fromFileUrl,
+  isAbsolute: () => isAbsolute,
+  join: () => join,
+  normalize: () => normalize,
+  parse: () => parse,
+  relative: () => relative,
+  resolve: () => resolve,
+  sep: () => sep,
+  toFileUrl: () => toFileUrl,
+  toNamespacedPath: () => toNamespacedPath
+});
+
+// https://deno.land/std@0.128.0/path/_constants.ts
+var CHAR_UPPERCASE_A = 65;
+var CHAR_LOWERCASE_A = 97;
+var CHAR_UPPERCASE_Z = 90;
+var CHAR_LOWERCASE_Z = 122;
+var CHAR_DOT = 46;
+var CHAR_FORWARD_SLASH = 47;
+var CHAR_BACKWARD_SLASH = 92;
+var CHAR_COLON = 58;
+var CHAR_QUESTION_MARK = 63;
+
+// https://deno.land/std@0.128.0/path/_util.ts
+function assertPath(path10) {
+  if (typeof path10 !== "string") {
+    throw new TypeError(
+      `Path must be a string. Received ${JSON.stringify(path10)}`
+    );
+  }
+}
+function isPosixPathSeparator(code2) {
+  return code2 === CHAR_FORWARD_SLASH;
+}
+function isPathSeparator(code2) {
+  return isPosixPathSeparator(code2) || code2 === CHAR_BACKWARD_SLASH;
+}
+function isWindowsDeviceRoot(code2) {
+  return code2 >= CHAR_LOWERCASE_A && code2 <= CHAR_LOWERCASE_Z || code2 >= CHAR_UPPERCASE_A && code2 <= CHAR_UPPERCASE_Z;
+}
+function normalizeString(path10, allowAboveRoot, separator, isPathSeparator6) {
+  let res = "";
+  let lastSegmentLength = 0;
+  let lastSlash = -1;
+  let dots = 0;
+  let code2;
+  for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
+    if (i2 < len)
+      code2 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code2))
+      break;
+    else
+      code2 = CHAR_FORWARD_SLASH;
+    if (isPathSeparator6(code2)) {
+      if (lastSlash === i2 - 1 || dots === 1) {
+      } else if (lastSlash !== i2 - 1 && dots === 2) {
+        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT || res.charCodeAt(res.length - 2) !== CHAR_DOT) {
+          if (res.length > 2) {
+            const lastSlashIndex = res.lastIndexOf(separator);
+            if (lastSlashIndex === -1) {
+              res = "";
+              lastSegmentLength = 0;
+            } else {
+              res = res.slice(0, lastSlashIndex);
+              lastSegmentLength = res.length - 1 - res.lastIndexOf(separator);
+            }
+            lastSlash = i2;
+            dots = 0;
+            continue;
+          } else if (res.length === 2 || res.length === 1) {
+            res = "";
+            lastSegmentLength = 0;
+            lastSlash = i2;
+            dots = 0;
+            continue;
+          }
+        }
+        if (allowAboveRoot) {
+          if (res.length > 0)
+            res += `${separator}..`;
+          else
+            res = "..";
+          lastSegmentLength = 2;
+        }
+      } else {
+        if (res.length > 0)
+          res += separator + path10.slice(lastSlash + 1, i2);
+        else
+          res = path10.slice(lastSlash + 1, i2);
+        lastSegmentLength = i2 - lastSlash - 1;
+      }
+      lastSlash = i2;
+      dots = 0;
+    } else if (code2 === CHAR_DOT && dots !== -1) {
+      ++dots;
+    } else {
+      dots = -1;
+    }
+  }
+  return res;
+}
+function _format(sep15, pathObject) {
+  const dir = pathObject.dir || pathObject.root;
+  const base = pathObject.base || (pathObject.name || "") + (pathObject.ext || "");
+  if (!dir)
+    return base;
+  if (dir === pathObject.root)
+    return dir + base;
+  return dir + sep15 + base;
+}
+var WHITESPACE_ENCODINGS = {
+  "	": "%09",
+  "\n": "%0A",
+  "\v": "%0B",
+  "\f": "%0C",
+  "\r": "%0D",
+  " ": "%20"
+};
+function encodeWhitespace(string2) {
+  return string2.replaceAll(/[\s]/g, (c) => {
+    return WHITESPACE_ENCODINGS[c] ?? c;
+  });
+}
+
+// https://deno.land/std@0.128.0/_util/assert.ts
+var DenoStdInternalError = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "DenoStdInternalError";
+  }
+};
+function assert2(expr, msg = "") {
+  if (!expr) {
+    throw new DenoStdInternalError(msg);
+  }
+}
+
+// https://deno.land/std@0.128.0/path/win32.ts
+var sep = "\\";
+var delimiter = ";";
+function resolve(...pathSegments) {
+  let resolvedDevice = "";
+  let resolvedTail = "";
+  let resolvedAbsolute = false;
+  for (let i2 = pathSegments.length - 1; i2 >= -1; i2--) {
+    let path10;
+    const { Deno: Deno4 } = globalThis;
+    if (i2 >= 0) {
+      path10 = pathSegments[i2];
+    } else if (!resolvedDevice) {
+      if (typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a drive-letter-less path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+    } else {
+      if (typeof Deno4?.env?.get !== "function" || typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+      if (path10 === void 0 || path10.slice(0, 3).toLowerCase() !== `${resolvedDevice.toLowerCase()}\\`) {
+        path10 = `${resolvedDevice}\\`;
+      }
+    }
+    assertPath(path10);
+    const len = path10.length;
+    if (len === 0)
+      continue;
+    let rootEnd = 0;
+    let device = "";
+    let isAbsolute15 = false;
+    const code2 = path10.charCodeAt(0);
+    if (len > 1) {
+      if (isPathSeparator(code2)) {
+        isAbsolute15 = true;
+        if (isPathSeparator(path10.charCodeAt(1))) {
+          let j = 2;
+          let last = j;
+          for (; j < len; ++j) {
+            if (isPathSeparator(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            const firstPart = path10.slice(last, j);
+            last = j;
+            for (; j < len; ++j) {
+              if (!isPathSeparator(path10.charCodeAt(j)))
+                break;
+            }
+            if (j < len && j !== last) {
+              last = j;
+              for (; j < len; ++j) {
+                if (isPathSeparator(path10.charCodeAt(j)))
+                  break;
+              }
+              if (j === len) {
+                device = `\\\\${firstPart}\\${path10.slice(last)}`;
+                rootEnd = j;
+              } else if (j !== last) {
+                device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
+                rootEnd = j;
+              }
+            }
+          }
+        } else {
+          rootEnd = 1;
+        }
+      } else if (isWindowsDeviceRoot(code2)) {
+        if (path10.charCodeAt(1) === CHAR_COLON) {
+          device = path10.slice(0, 2);
+          rootEnd = 2;
+          if (len > 2) {
+            if (isPathSeparator(path10.charCodeAt(2))) {
+              isAbsolute15 = true;
+              rootEnd = 3;
+            }
+          }
+        }
+      }
+    } else if (isPathSeparator(code2)) {
+      rootEnd = 1;
+      isAbsolute15 = true;
+    }
+    if (device.length > 0 && resolvedDevice.length > 0 && device.toLowerCase() !== resolvedDevice.toLowerCase()) {
+      continue;
+    }
+    if (resolvedDevice.length === 0 && device.length > 0) {
+      resolvedDevice = device;
+    }
+    if (!resolvedAbsolute) {
+      resolvedTail = `${path10.slice(rootEnd)}\\${resolvedTail}`;
+      resolvedAbsolute = isAbsolute15;
+    }
+    if (resolvedAbsolute && resolvedDevice.length > 0)
+      break;
+  }
+  resolvedTail = normalizeString(
+    resolvedTail,
+    !resolvedAbsolute,
+    "\\",
+    isPathSeparator
+  );
+  return resolvedDevice + (resolvedAbsolute ? "\\" : "") + resolvedTail || ".";
+}
+function normalize(path10) {
+  assertPath(path10);
+  const len = path10.length;
+  if (len === 0)
+    return ".";
+  let rootEnd = 0;
+  let device;
+  let isAbsolute15 = false;
+  const code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator(code2)) {
+      isAbsolute15 = true;
+      if (isPathSeparator(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          const firstPart = path10.slice(last, j);
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              return `\\\\${firstPart}\\${path10.slice(last)}\\`;
+            } else if (j !== last) {
+              device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
+              rootEnd = j;
+            }
+          }
+        }
+      } else {
+        rootEnd = 1;
+      }
+    } else if (isWindowsDeviceRoot(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON) {
+        device = path10.slice(0, 2);
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator(path10.charCodeAt(2))) {
+            isAbsolute15 = true;
+            rootEnd = 3;
+          }
+        }
+      }
+    }
+  } else if (isPathSeparator(code2)) {
+    return "\\";
+  }
+  let tail;
+  if (rootEnd < len) {
+    tail = normalizeString(
+      path10.slice(rootEnd),
+      !isAbsolute15,
+      "\\",
+      isPathSeparator
+    );
+  } else {
+    tail = "";
+  }
+  if (tail.length === 0 && !isAbsolute15)
+    tail = ".";
+  if (tail.length > 0 && isPathSeparator(path10.charCodeAt(len - 1))) {
+    tail += "\\";
+  }
+  if (device === void 0) {
+    if (isAbsolute15) {
+      if (tail.length > 0)
+        return `\\${tail}`;
+      else
+        return "\\";
+    } else if (tail.length > 0) {
+      return tail;
+    } else {
+      return "";
+    }
+  } else if (isAbsolute15) {
+    if (tail.length > 0)
+      return `${device}\\${tail}`;
+    else
+      return `${device}\\`;
+  } else if (tail.length > 0) {
+    return device + tail;
+  } else {
+    return device;
+  }
+}
+function isAbsolute(path10) {
+  assertPath(path10);
+  const len = path10.length;
+  if (len === 0)
+    return false;
+  const code2 = path10.charCodeAt(0);
+  if (isPathSeparator(code2)) {
+    return true;
+  } else if (isWindowsDeviceRoot(code2)) {
+    if (len > 2 && path10.charCodeAt(1) === CHAR_COLON) {
+      if (isPathSeparator(path10.charCodeAt(2)))
+        return true;
+    }
+  }
+  return false;
+}
+function join(...paths) {
+  const pathsCount = paths.length;
+  if (pathsCount === 0)
+    return ".";
+  let joined;
+  let firstPart = null;
+  for (let i2 = 0; i2 < pathsCount; ++i2) {
+    const path10 = paths[i2];
+    assertPath(path10);
+    if (path10.length > 0) {
+      if (joined === void 0)
+        joined = firstPart = path10;
+      else
+        joined += `\\${path10}`;
+    }
+  }
+  if (joined === void 0)
+    return ".";
+  let needsReplace = true;
+  let slashCount = 0;
+  assert2(firstPart != null);
+  if (isPathSeparator(firstPart.charCodeAt(0))) {
+    ++slashCount;
+    const firstLen = firstPart.length;
+    if (firstLen > 1) {
+      if (isPathSeparator(firstPart.charCodeAt(1))) {
+        ++slashCount;
+        if (firstLen > 2) {
+          if (isPathSeparator(firstPart.charCodeAt(2)))
+            ++slashCount;
+          else {
+            needsReplace = false;
+          }
+        }
+      }
+    }
+  }
+  if (needsReplace) {
+    for (; slashCount < joined.length; ++slashCount) {
+      if (!isPathSeparator(joined.charCodeAt(slashCount)))
+        break;
+    }
+    if (slashCount >= 2)
+      joined = `\\${joined.slice(slashCount)}`;
+  }
+  return normalize(joined);
+}
+function relative(from, to) {
+  assertPath(from);
+  assertPath(to);
+  if (from === to)
+    return "";
+  const fromOrig = resolve(from);
+  const toOrig = resolve(to);
+  if (fromOrig === toOrig)
+    return "";
+  from = fromOrig.toLowerCase();
+  to = toOrig.toLowerCase();
+  if (from === to)
+    return "";
+  let fromStart = 0;
+  let fromEnd = from.length;
+  for (; fromStart < fromEnd; ++fromStart) {
+    if (from.charCodeAt(fromStart) !== CHAR_BACKWARD_SLASH)
+      break;
+  }
+  for (; fromEnd - 1 > fromStart; --fromEnd) {
+    if (from.charCodeAt(fromEnd - 1) !== CHAR_BACKWARD_SLASH)
+      break;
+  }
+  const fromLen = fromEnd - fromStart;
+  let toStart = 0;
+  let toEnd = to.length;
+  for (; toStart < toEnd; ++toStart) {
+    if (to.charCodeAt(toStart) !== CHAR_BACKWARD_SLASH)
+      break;
+  }
+  for (; toEnd - 1 > toStart; --toEnd) {
+    if (to.charCodeAt(toEnd - 1) !== CHAR_BACKWARD_SLASH)
+      break;
+  }
+  const toLen = toEnd - toStart;
+  const length = fromLen < toLen ? fromLen : toLen;
+  let lastCommonSep = -1;
+  let i2 = 0;
+  for (; i2 <= length; ++i2) {
+    if (i2 === length) {
+      if (toLen > length) {
+        if (to.charCodeAt(toStart + i2) === CHAR_BACKWARD_SLASH) {
+          return toOrig.slice(toStart + i2 + 1);
+        } else if (i2 === 2) {
+          return toOrig.slice(toStart + i2);
+        }
+      }
+      if (fromLen > length) {
+        if (from.charCodeAt(fromStart + i2) === CHAR_BACKWARD_SLASH) {
+          lastCommonSep = i2;
+        } else if (i2 === 2) {
+          lastCommonSep = 3;
+        }
+      }
+      break;
+    }
+    const fromCode = from.charCodeAt(fromStart + i2);
+    const toCode = to.charCodeAt(toStart + i2);
+    if (fromCode !== toCode)
+      break;
+    else if (fromCode === CHAR_BACKWARD_SLASH)
+      lastCommonSep = i2;
+  }
+  if (i2 !== length && lastCommonSep === -1) {
+    return toOrig;
+  }
+  let out = "";
+  if (lastCommonSep === -1)
+    lastCommonSep = 0;
+  for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
+    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_BACKWARD_SLASH) {
+      if (out.length === 0)
+        out += "..";
+      else
+        out += "\\..";
+    }
+  }
+  if (out.length > 0) {
+    return out + toOrig.slice(toStart + lastCommonSep, toEnd);
+  } else {
+    toStart += lastCommonSep;
+    if (toOrig.charCodeAt(toStart) === CHAR_BACKWARD_SLASH)
+      ++toStart;
+    return toOrig.slice(toStart, toEnd);
+  }
+}
+function toNamespacedPath(path10) {
+  if (typeof path10 !== "string")
+    return path10;
+  if (path10.length === 0)
+    return "";
+  const resolvedPath = resolve(path10);
+  if (resolvedPath.length >= 3) {
+    if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH) {
+      if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH) {
+        const code2 = resolvedPath.charCodeAt(2);
+        if (code2 !== CHAR_QUESTION_MARK && code2 !== CHAR_DOT) {
+          return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
+        }
+      }
+    } else if (isWindowsDeviceRoot(resolvedPath.charCodeAt(0))) {
+      if (resolvedPath.charCodeAt(1) === CHAR_COLON && resolvedPath.charCodeAt(2) === CHAR_BACKWARD_SLASH) {
+        return `\\\\?\\${resolvedPath}`;
+      }
+    }
+  }
+  return path10;
+}
+function dirname(path10) {
+  assertPath(path10);
+  const len = path10.length;
+  if (len === 0)
+    return ".";
+  let rootEnd = -1;
+  let end = -1;
+  let matchedSlash = true;
+  let offset = 0;
+  const code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator(code2)) {
+      rootEnd = offset = 1;
+      if (isPathSeparator(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              return path10;
+            }
+            if (j !== last) {
+              rootEnd = offset = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON) {
+        rootEnd = offset = 2;
+        if (len > 2) {
+          if (isPathSeparator(path10.charCodeAt(2)))
+            rootEnd = offset = 3;
+        }
+      }
+    }
+  } else if (isPathSeparator(code2)) {
+    return path10;
+  }
+  for (let i2 = len - 1; i2 >= offset; --i2) {
+    if (isPathSeparator(path10.charCodeAt(i2))) {
+      if (!matchedSlash) {
+        end = i2;
+        break;
+      }
+    } else {
+      matchedSlash = false;
+    }
+  }
+  if (end === -1) {
+    if (rootEnd === -1)
+      return ".";
+    else
+      end = rootEnd;
+  }
+  return path10.slice(0, end);
+}
+function basename(path10, ext = "") {
+  if (ext !== void 0 && typeof ext !== "string") {
+    throw new TypeError('"ext" argument must be a string');
+  }
+  assertPath(path10);
+  let start = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2;
+  if (path10.length >= 2) {
+    const drive = path10.charCodeAt(0);
+    if (isWindowsDeviceRoot(drive)) {
+      if (path10.charCodeAt(1) === CHAR_COLON)
+        start = 2;
+    }
+  }
+  if (ext !== void 0 && ext.length > 0 && ext.length <= path10.length) {
+    if (ext.length === path10.length && ext === path10)
+      return "";
+    let extIdx = ext.length - 1;
+    let firstNonSlashEnd = -1;
+    for (i2 = path10.length - 1; i2 >= start; --i2) {
+      const code2 = path10.charCodeAt(i2);
+      if (isPathSeparator(code2)) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else {
+        if (firstNonSlashEnd === -1) {
+          matchedSlash = false;
+          firstNonSlashEnd = i2 + 1;
+        }
+        if (extIdx >= 0) {
+          if (code2 === ext.charCodeAt(extIdx)) {
+            if (--extIdx === -1) {
+              end = i2;
+            }
+          } else {
+            extIdx = -1;
+            end = firstNonSlashEnd;
+          }
+        }
+      }
+    }
+    if (start === end)
+      end = firstNonSlashEnd;
+    else if (end === -1)
+      end = path10.length;
+    return path10.slice(start, end);
+  } else {
+    for (i2 = path10.length - 1; i2 >= start; --i2) {
+      if (isPathSeparator(path10.charCodeAt(i2))) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else if (end === -1) {
+        matchedSlash = false;
+        end = i2 + 1;
+      }
+    }
+    if (end === -1)
+      return "";
+    return path10.slice(start, end);
+  }
+}
+function extname(path10) {
+  assertPath(path10);
+  let start = 0;
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let preDotState = 0;
+  if (path10.length >= 2 && path10.charCodeAt(1) === CHAR_COLON && isWindowsDeviceRoot(path10.charCodeAt(0))) {
+    start = startPart = 2;
+  }
+  for (let i2 = path10.length - 1; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPathSeparator(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return "";
+  }
+  return path10.slice(startDot, end);
+}
+function format(pathObject) {
+  if (pathObject === null || typeof pathObject !== "object") {
+    throw new TypeError(
+      `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
+    );
+  }
+  return _format("\\", pathObject);
+}
+function parse(path10) {
+  assertPath(path10);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  const len = path10.length;
+  if (len === 0)
+    return ret;
+  let rootEnd = 0;
+  let code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator(code2)) {
+      rootEnd = 1;
+      if (isPathSeparator(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              rootEnd = j;
+            } else if (j !== last) {
+              rootEnd = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON) {
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator(path10.charCodeAt(2))) {
+            if (len === 3) {
+              ret.root = ret.dir = path10;
+              return ret;
+            }
+            rootEnd = 3;
+          }
+        } else {
+          ret.root = ret.dir = path10;
+          return ret;
+        }
+      }
+    }
+  } else if (isPathSeparator(code2)) {
+    ret.root = ret.dir = path10;
+    return ret;
+  }
+  if (rootEnd > 0)
+    ret.root = path10.slice(0, rootEnd);
+  let startDot = -1;
+  let startPart = rootEnd;
+  let end = -1;
+  let matchedSlash = true;
+  let i2 = path10.length - 1;
+  let preDotState = 0;
+  for (; i2 >= rootEnd; --i2) {
+    code2 = path10.charCodeAt(i2);
+    if (isPathSeparator(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      ret.base = ret.name = path10.slice(startPart, end);
+    }
+  } else {
+    ret.name = path10.slice(startPart, startDot);
+    ret.base = path10.slice(startPart, end);
+    ret.ext = path10.slice(startDot, end);
+  }
+  if (startPart > 0 && startPart !== rootEnd) {
+    ret.dir = path10.slice(0, startPart - 1);
+  } else
+    ret.dir = ret.root;
+  return ret;
+}
+function fromFileUrl(url) {
+  url = url instanceof URL ? url : new URL(url);
+  if (url.protocol != "file:") {
+    throw new TypeError("Must be a file URL.");
+  }
+  let path10 = decodeURIComponent(
+    url.pathname.replace(/\//g, "\\").replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
+  ).replace(/^\\*([A-Za-z]:)(\\|$)/, "$1\\");
+  if (url.hostname != "") {
+    path10 = `\\\\${url.hostname}${path10}`;
+  }
+  return path10;
+}
+function toFileUrl(path10) {
+  if (!isAbsolute(path10)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+  const [, hostname, pathname] = path10.match(
+    /^(?:[/\\]{2}([^/\\]+)(?=[/\\](?:[^/\\]|$)))?(.*)/
+  );
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace(pathname.replace(/%/g, "%25"));
+  if (hostname != null && hostname != "localhost") {
+    url.hostname = hostname;
+    if (!url.hostname) {
+      throw new TypeError("Invalid hostname.");
+    }
+  }
+  return url;
+}
+
+// https://deno.land/std@0.128.0/path/posix.ts
+var posix_exports = {};
+__export(posix_exports, {
+  basename: () => basename2,
+  delimiter: () => delimiter2,
+  dirname: () => dirname2,
+  extname: () => extname2,
+  format: () => format2,
+  fromFileUrl: () => fromFileUrl2,
+  isAbsolute: () => isAbsolute2,
+  join: () => join2,
+  normalize: () => normalize2,
+  parse: () => parse2,
+  relative: () => relative2,
+  resolve: () => resolve2,
+  sep: () => sep2,
+  toFileUrl: () => toFileUrl2,
+  toNamespacedPath: () => toNamespacedPath2
+});
+var sep2 = "/";
+var delimiter2 = ":";
+function resolve2(...pathSegments) {
+  let resolvedPath = "";
+  let resolvedAbsolute = false;
+  for (let i2 = pathSegments.length - 1; i2 >= -1 && !resolvedAbsolute; i2--) {
+    let path10;
+    if (i2 >= 0)
+      path10 = pathSegments[i2];
+    else {
+      const { Deno: Deno4 } = globalThis;
+      if (typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+    }
+    assertPath(path10);
+    if (path10.length === 0) {
+      continue;
+    }
+    resolvedPath = `${path10}/${resolvedPath}`;
+    resolvedAbsolute = path10.charCodeAt(0) === CHAR_FORWARD_SLASH;
+  }
+  resolvedPath = normalizeString(
+    resolvedPath,
+    !resolvedAbsolute,
+    "/",
+    isPosixPathSeparator
+  );
+  if (resolvedAbsolute) {
+    if (resolvedPath.length > 0)
+      return `/${resolvedPath}`;
+    else
+      return "/";
+  } else if (resolvedPath.length > 0)
+    return resolvedPath;
+  else
+    return ".";
+}
+function normalize2(path10) {
+  assertPath(path10);
+  if (path10.length === 0)
+    return ".";
+  const isAbsolute15 = path10.charCodeAt(0) === CHAR_FORWARD_SLASH;
+  const trailingSeparator = path10.charCodeAt(path10.length - 1) === CHAR_FORWARD_SLASH;
+  path10 = normalizeString(path10, !isAbsolute15, "/", isPosixPathSeparator);
+  if (path10.length === 0 && !isAbsolute15)
+    path10 = ".";
+  if (path10.length > 0 && trailingSeparator)
+    path10 += "/";
+  if (isAbsolute15)
+    return `/${path10}`;
+  return path10;
+}
+function isAbsolute2(path10) {
+  assertPath(path10);
+  return path10.length > 0 && path10.charCodeAt(0) === CHAR_FORWARD_SLASH;
+}
+function join2(...paths) {
+  if (paths.length === 0)
+    return ".";
+  let joined;
+  for (let i2 = 0, len = paths.length; i2 < len; ++i2) {
+    const path10 = paths[i2];
+    assertPath(path10);
+    if (path10.length > 0) {
+      if (!joined)
+        joined = path10;
+      else
+        joined += `/${path10}`;
+    }
+  }
+  if (!joined)
+    return ".";
+  return normalize2(joined);
+}
+function relative2(from, to) {
+  assertPath(from);
+  assertPath(to);
+  if (from === to)
+    return "";
+  from = resolve2(from);
+  to = resolve2(to);
+  if (from === to)
+    return "";
+  let fromStart = 1;
+  const fromEnd = from.length;
+  for (; fromStart < fromEnd; ++fromStart) {
+    if (from.charCodeAt(fromStart) !== CHAR_FORWARD_SLASH)
+      break;
+  }
+  const fromLen = fromEnd - fromStart;
+  let toStart = 1;
+  const toEnd = to.length;
+  for (; toStart < toEnd; ++toStart) {
+    if (to.charCodeAt(toStart) !== CHAR_FORWARD_SLASH)
+      break;
+  }
+  const toLen = toEnd - toStart;
+  const length = fromLen < toLen ? fromLen : toLen;
+  let lastCommonSep = -1;
+  let i2 = 0;
+  for (; i2 <= length; ++i2) {
+    if (i2 === length) {
+      if (toLen > length) {
+        if (to.charCodeAt(toStart + i2) === CHAR_FORWARD_SLASH) {
+          return to.slice(toStart + i2 + 1);
+        } else if (i2 === 0) {
+          return to.slice(toStart + i2);
+        }
+      } else if (fromLen > length) {
+        if (from.charCodeAt(fromStart + i2) === CHAR_FORWARD_SLASH) {
+          lastCommonSep = i2;
+        } else if (i2 === 0) {
+          lastCommonSep = 0;
+        }
+      }
+      break;
+    }
+    const fromCode = from.charCodeAt(fromStart + i2);
+    const toCode = to.charCodeAt(toStart + i2);
+    if (fromCode !== toCode)
+      break;
+    else if (fromCode === CHAR_FORWARD_SLASH)
+      lastCommonSep = i2;
+  }
+  let out = "";
+  for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
+    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_FORWARD_SLASH) {
+      if (out.length === 0)
+        out += "..";
+      else
+        out += "/..";
+    }
+  }
+  if (out.length > 0)
+    return out + to.slice(toStart + lastCommonSep);
+  else {
+    toStart += lastCommonSep;
+    if (to.charCodeAt(toStart) === CHAR_FORWARD_SLASH)
+      ++toStart;
+    return to.slice(toStart);
+  }
+}
+function toNamespacedPath2(path10) {
+  return path10;
+}
+function dirname2(path10) {
+  assertPath(path10);
+  if (path10.length === 0)
+    return ".";
+  const hasRoot = path10.charCodeAt(0) === CHAR_FORWARD_SLASH;
+  let end = -1;
+  let matchedSlash = true;
+  for (let i2 = path10.length - 1; i2 >= 1; --i2) {
+    if (path10.charCodeAt(i2) === CHAR_FORWARD_SLASH) {
+      if (!matchedSlash) {
+        end = i2;
+        break;
+      }
+    } else {
+      matchedSlash = false;
+    }
+  }
+  if (end === -1)
+    return hasRoot ? "/" : ".";
+  if (hasRoot && end === 1)
+    return "//";
+  return path10.slice(0, end);
+}
+function basename2(path10, ext = "") {
+  if (ext !== void 0 && typeof ext !== "string") {
+    throw new TypeError('"ext" argument must be a string');
+  }
+  assertPath(path10);
+  let start = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2;
+  if (ext !== void 0 && ext.length > 0 && ext.length <= path10.length) {
+    if (ext.length === path10.length && ext === path10)
+      return "";
+    let extIdx = ext.length - 1;
+    let firstNonSlashEnd = -1;
+    for (i2 = path10.length - 1; i2 >= 0; --i2) {
+      const code2 = path10.charCodeAt(i2);
+      if (code2 === CHAR_FORWARD_SLASH) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else {
+        if (firstNonSlashEnd === -1) {
+          matchedSlash = false;
+          firstNonSlashEnd = i2 + 1;
+        }
+        if (extIdx >= 0) {
+          if (code2 === ext.charCodeAt(extIdx)) {
+            if (--extIdx === -1) {
+              end = i2;
+            }
+          } else {
+            extIdx = -1;
+            end = firstNonSlashEnd;
+          }
+        }
+      }
+    }
+    if (start === end)
+      end = firstNonSlashEnd;
+    else if (end === -1)
+      end = path10.length;
+    return path10.slice(start, end);
+  } else {
+    for (i2 = path10.length - 1; i2 >= 0; --i2) {
+      if (path10.charCodeAt(i2) === CHAR_FORWARD_SLASH) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else if (end === -1) {
+        matchedSlash = false;
+        end = i2 + 1;
+      }
+    }
+    if (end === -1)
+      return "";
+    return path10.slice(start, end);
+  }
+}
+function extname2(path10) {
+  assertPath(path10);
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let preDotState = 0;
+  for (let i2 = path10.length - 1; i2 >= 0; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (code2 === CHAR_FORWARD_SLASH) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return "";
+  }
+  return path10.slice(startDot, end);
+}
+function format2(pathObject) {
+  if (pathObject === null || typeof pathObject !== "object") {
+    throw new TypeError(
+      `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
+    );
+  }
+  return _format("/", pathObject);
+}
+function parse2(path10) {
+  assertPath(path10);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  if (path10.length === 0)
+    return ret;
+  const isAbsolute15 = path10.charCodeAt(0) === CHAR_FORWARD_SLASH;
+  let start;
+  if (isAbsolute15) {
+    ret.root = "/";
+    start = 1;
+  } else {
+    start = 0;
+  }
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2 = path10.length - 1;
+  let preDotState = 0;
+  for (; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (code2 === CHAR_FORWARD_SLASH) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      if (startPart === 0 && isAbsolute15) {
+        ret.base = ret.name = path10.slice(1, end);
+      } else {
+        ret.base = ret.name = path10.slice(startPart, end);
+      }
+    }
+  } else {
+    if (startPart === 0 && isAbsolute15) {
+      ret.name = path10.slice(1, startDot);
+      ret.base = path10.slice(1, end);
+    } else {
+      ret.name = path10.slice(startPart, startDot);
+      ret.base = path10.slice(startPart, end);
+    }
+    ret.ext = path10.slice(startDot, end);
+  }
+  if (startPart > 0)
+    ret.dir = path10.slice(0, startPart - 1);
+  else if (isAbsolute15)
+    ret.dir = "/";
+  return ret;
+}
+function fromFileUrl2(url) {
+  url = url instanceof URL ? url : new URL(url);
+  if (url.protocol != "file:") {
+    throw new TypeError("Must be a file URL.");
+  }
+  return decodeURIComponent(
+    url.pathname.replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
+  );
+}
+function toFileUrl2(path10) {
+  if (!isAbsolute2(path10)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace(
+    path10.replace(/%/g, "%25").replace(/\\/g, "%5C")
+  );
+  return url;
+}
+
+// https://deno.land/std@0.128.0/path/glob.ts
+var path = isWindows ? win32_exports : posix_exports;
+var { join: join3, normalize: normalize3 } = path;
+
+// https://deno.land/std@0.128.0/path/mod.ts
+var path2 = isWindows ? win32_exports : posix_exports;
+var {
+  basename: basename3,
+  delimiter: delimiter3,
+  dirname: dirname3,
+  extname: extname3,
+  format: format3,
+  fromFileUrl: fromFileUrl3,
+  isAbsolute: isAbsolute3,
+  join: join4,
+  normalize: normalize4,
+  parse: parse3,
+  relative: relative3,
+  resolve: resolve3,
+  sep: sep3,
+  toFileUrl: toFileUrl3,
+  toNamespacedPath: toNamespacedPath3
+} = path2;
+
+// https://deno.land/std@0.133.0/_util/os.ts
+var osType2 = (() => {
+  const { Deno: Deno4 } = globalThis;
+  if (typeof Deno4?.build?.os === "string") {
+    return Deno4.build.os;
+  }
+  const { navigator } = globalThis;
+  if (navigator?.appVersion?.includes?.("Win") ?? false) {
+    return "windows";
+  }
+  return "linux";
+})();
+var isWindows2 = osType2 === "windows";
+
+// https://deno.land/std@0.133.0/path/win32.ts
+var win32_exports2 = {};
+__export(win32_exports2, {
+  basename: () => basename4,
+  delimiter: () => delimiter4,
+  dirname: () => dirname4,
+  extname: () => extname4,
+  format: () => format4,
+  fromFileUrl: () => fromFileUrl4,
+  isAbsolute: () => isAbsolute4,
+  join: () => join5,
+  normalize: () => normalize5,
+  parse: () => parse4,
+  relative: () => relative4,
+  resolve: () => resolve4,
+  sep: () => sep4,
+  toFileUrl: () => toFileUrl4,
+  toNamespacedPath: () => toNamespacedPath4
+});
+
+// https://deno.land/std@0.133.0/path/_constants.ts
+var CHAR_UPPERCASE_A2 = 65;
+var CHAR_LOWERCASE_A2 = 97;
+var CHAR_UPPERCASE_Z2 = 90;
+var CHAR_LOWERCASE_Z2 = 122;
+var CHAR_DOT2 = 46;
+var CHAR_FORWARD_SLASH2 = 47;
+var CHAR_BACKWARD_SLASH2 = 92;
+var CHAR_COLON2 = 58;
+var CHAR_QUESTION_MARK2 = 63;
+
+// https://deno.land/std@0.133.0/path/_util.ts
+function assertPath2(path10) {
+  if (typeof path10 !== "string") {
+    throw new TypeError(
+      `Path must be a string. Received ${JSON.stringify(path10)}`
+    );
+  }
+}
+function isPosixPathSeparator2(code2) {
+  return code2 === CHAR_FORWARD_SLASH2;
+}
+function isPathSeparator2(code2) {
+  return isPosixPathSeparator2(code2) || code2 === CHAR_BACKWARD_SLASH2;
+}
+function isWindowsDeviceRoot2(code2) {
+  return code2 >= CHAR_LOWERCASE_A2 && code2 <= CHAR_LOWERCASE_Z2 || code2 >= CHAR_UPPERCASE_A2 && code2 <= CHAR_UPPERCASE_Z2;
+}
+function normalizeString2(path10, allowAboveRoot, separator, isPathSeparator6) {
+  let res = "";
+  let lastSegmentLength = 0;
+  let lastSlash = -1;
+  let dots = 0;
+  let code2;
+  for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
+    if (i2 < len)
+      code2 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code2))
+      break;
+    else
+      code2 = CHAR_FORWARD_SLASH2;
+    if (isPathSeparator6(code2)) {
+      if (lastSlash === i2 - 1 || dots === 1) {
+      } else if (lastSlash !== i2 - 1 && dots === 2) {
+        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT2 || res.charCodeAt(res.length - 2) !== CHAR_DOT2) {
+          if (res.length > 2) {
+            const lastSlashIndex = res.lastIndexOf(separator);
+            if (lastSlashIndex === -1) {
+              res = "";
+              lastSegmentLength = 0;
+            } else {
+              res = res.slice(0, lastSlashIndex);
+              lastSegmentLength = res.length - 1 - res.lastIndexOf(separator);
+            }
+            lastSlash = i2;
+            dots = 0;
+            continue;
+          } else if (res.length === 2 || res.length === 1) {
+            res = "";
+            lastSegmentLength = 0;
+            lastSlash = i2;
+            dots = 0;
+            continue;
+          }
+        }
+        if (allowAboveRoot) {
+          if (res.length > 0)
+            res += `${separator}..`;
+          else
+            res = "..";
+          lastSegmentLength = 2;
+        }
+      } else {
+        if (res.length > 0)
+          res += separator + path10.slice(lastSlash + 1, i2);
+        else
+          res = path10.slice(lastSlash + 1, i2);
+        lastSegmentLength = i2 - lastSlash - 1;
+      }
+      lastSlash = i2;
+      dots = 0;
+    } else if (code2 === CHAR_DOT2 && dots !== -1) {
+      ++dots;
+    } else {
+      dots = -1;
+    }
+  }
+  return res;
+}
+function _format2(sep15, pathObject) {
+  const dir = pathObject.dir || pathObject.root;
+  const base = pathObject.base || (pathObject.name || "") + (pathObject.ext || "");
+  if (!dir)
+    return base;
+  if (dir === pathObject.root)
+    return dir + base;
+  return dir + sep15 + base;
+}
+var WHITESPACE_ENCODINGS2 = {
+  "	": "%09",
+  "\n": "%0A",
+  "\v": "%0B",
+  "\f": "%0C",
+  "\r": "%0D",
+  " ": "%20"
+};
+function encodeWhitespace2(string2) {
+  return string2.replaceAll(/[\s]/g, (c) => {
+    return WHITESPACE_ENCODINGS2[c] ?? c;
+  });
+}
+
+// https://deno.land/std@0.133.0/_util/assert.ts
+var DenoStdInternalError2 = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "DenoStdInternalError";
+  }
+};
+function assert3(expr, msg = "") {
+  if (!expr) {
+    throw new DenoStdInternalError2(msg);
+  }
+}
+
+// https://deno.land/std@0.133.0/path/win32.ts
+var sep4 = "\\";
+var delimiter4 = ";";
+function resolve4(...pathSegments) {
+  let resolvedDevice = "";
+  let resolvedTail = "";
+  let resolvedAbsolute = false;
+  for (let i2 = pathSegments.length - 1; i2 >= -1; i2--) {
+    let path10;
+    const { Deno: Deno4 } = globalThis;
+    if (i2 >= 0) {
+      path10 = pathSegments[i2];
+    } else if (!resolvedDevice) {
+      if (typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a drive-letter-less path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+    } else {
+      if (typeof Deno4?.env?.get !== "function" || typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+      if (path10 === void 0 || path10.slice(0, 3).toLowerCase() !== `${resolvedDevice.toLowerCase()}\\`) {
+        path10 = `${resolvedDevice}\\`;
+      }
+    }
+    assertPath2(path10);
+    const len = path10.length;
+    if (len === 0)
+      continue;
+    let rootEnd = 0;
+    let device = "";
+    let isAbsolute15 = false;
+    const code2 = path10.charCodeAt(0);
+    if (len > 1) {
+      if (isPathSeparator2(code2)) {
+        isAbsolute15 = true;
+        if (isPathSeparator2(path10.charCodeAt(1))) {
+          let j = 2;
+          let last = j;
+          for (; j < len; ++j) {
+            if (isPathSeparator2(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            const firstPart = path10.slice(last, j);
+            last = j;
+            for (; j < len; ++j) {
+              if (!isPathSeparator2(path10.charCodeAt(j)))
+                break;
+            }
+            if (j < len && j !== last) {
+              last = j;
+              for (; j < len; ++j) {
+                if (isPathSeparator2(path10.charCodeAt(j)))
+                  break;
+              }
+              if (j === len) {
+                device = `\\\\${firstPart}\\${path10.slice(last)}`;
+                rootEnd = j;
+              } else if (j !== last) {
+                device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
+                rootEnd = j;
+              }
+            }
+          }
+        } else {
+          rootEnd = 1;
+        }
+      } else if (isWindowsDeviceRoot2(code2)) {
+        if (path10.charCodeAt(1) === CHAR_COLON2) {
+          device = path10.slice(0, 2);
+          rootEnd = 2;
+          if (len > 2) {
+            if (isPathSeparator2(path10.charCodeAt(2))) {
+              isAbsolute15 = true;
+              rootEnd = 3;
+            }
+          }
+        }
+      }
+    } else if (isPathSeparator2(code2)) {
+      rootEnd = 1;
+      isAbsolute15 = true;
+    }
+    if (device.length > 0 && resolvedDevice.length > 0 && device.toLowerCase() !== resolvedDevice.toLowerCase()) {
+      continue;
+    }
+    if (resolvedDevice.length === 0 && device.length > 0) {
+      resolvedDevice = device;
+    }
+    if (!resolvedAbsolute) {
+      resolvedTail = `${path10.slice(rootEnd)}\\${resolvedTail}`;
+      resolvedAbsolute = isAbsolute15;
+    }
+    if (resolvedAbsolute && resolvedDevice.length > 0)
+      break;
+  }
+  resolvedTail = normalizeString2(
+    resolvedTail,
+    !resolvedAbsolute,
+    "\\",
+    isPathSeparator2
+  );
+  return resolvedDevice + (resolvedAbsolute ? "\\" : "") + resolvedTail || ".";
+}
+function normalize5(path10) {
+  assertPath2(path10);
+  const len = path10.length;
+  if (len === 0)
+    return ".";
+  let rootEnd = 0;
+  let device;
+  let isAbsolute15 = false;
+  const code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator2(code2)) {
+      isAbsolute15 = true;
+      if (isPathSeparator2(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator2(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          const firstPart = path10.slice(last, j);
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator2(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator2(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              return `\\\\${firstPart}\\${path10.slice(last)}\\`;
+            } else if (j !== last) {
+              device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
+              rootEnd = j;
+            }
+          }
+        }
+      } else {
+        rootEnd = 1;
+      }
+    } else if (isWindowsDeviceRoot2(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON2) {
+        device = path10.slice(0, 2);
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator2(path10.charCodeAt(2))) {
+            isAbsolute15 = true;
+            rootEnd = 3;
+          }
+        }
+      }
+    }
+  } else if (isPathSeparator2(code2)) {
+    return "\\";
+  }
+  let tail;
+  if (rootEnd < len) {
+    tail = normalizeString2(
+      path10.slice(rootEnd),
+      !isAbsolute15,
+      "\\",
+      isPathSeparator2
+    );
+  } else {
+    tail = "";
+  }
+  if (tail.length === 0 && !isAbsolute15)
+    tail = ".";
+  if (tail.length > 0 && isPathSeparator2(path10.charCodeAt(len - 1))) {
+    tail += "\\";
+  }
+  if (device === void 0) {
+    if (isAbsolute15) {
+      if (tail.length > 0)
+        return `\\${tail}`;
+      else
+        return "\\";
+    } else if (tail.length > 0) {
+      return tail;
+    } else {
+      return "";
+    }
+  } else if (isAbsolute15) {
+    if (tail.length > 0)
+      return `${device}\\${tail}`;
+    else
+      return `${device}\\`;
+  } else if (tail.length > 0) {
+    return device + tail;
+  } else {
+    return device;
+  }
+}
+function isAbsolute4(path10) {
+  assertPath2(path10);
+  const len = path10.length;
+  if (len === 0)
+    return false;
+  const code2 = path10.charCodeAt(0);
+  if (isPathSeparator2(code2)) {
+    return true;
+  } else if (isWindowsDeviceRoot2(code2)) {
+    if (len > 2 && path10.charCodeAt(1) === CHAR_COLON2) {
+      if (isPathSeparator2(path10.charCodeAt(2)))
+        return true;
+    }
+  }
+  return false;
+}
+function join5(...paths) {
+  const pathsCount = paths.length;
+  if (pathsCount === 0)
+    return ".";
+  let joined;
+  let firstPart = null;
+  for (let i2 = 0; i2 < pathsCount; ++i2) {
+    const path10 = paths[i2];
+    assertPath2(path10);
+    if (path10.length > 0) {
+      if (joined === void 0)
+        joined = firstPart = path10;
+      else
+        joined += `\\${path10}`;
+    }
+  }
+  if (joined === void 0)
+    return ".";
+  let needsReplace = true;
+  let slashCount = 0;
+  assert3(firstPart != null);
+  if (isPathSeparator2(firstPart.charCodeAt(0))) {
+    ++slashCount;
+    const firstLen = firstPart.length;
+    if (firstLen > 1) {
+      if (isPathSeparator2(firstPart.charCodeAt(1))) {
+        ++slashCount;
+        if (firstLen > 2) {
+          if (isPathSeparator2(firstPart.charCodeAt(2)))
+            ++slashCount;
+          else {
+            needsReplace = false;
+          }
+        }
+      }
+    }
+  }
+  if (needsReplace) {
+    for (; slashCount < joined.length; ++slashCount) {
+      if (!isPathSeparator2(joined.charCodeAt(slashCount)))
+        break;
+    }
+    if (slashCount >= 2)
+      joined = `\\${joined.slice(slashCount)}`;
+  }
+  return normalize5(joined);
+}
+function relative4(from, to) {
+  assertPath2(from);
+  assertPath2(to);
+  if (from === to)
+    return "";
+  const fromOrig = resolve4(from);
+  const toOrig = resolve4(to);
+  if (fromOrig === toOrig)
+    return "";
+  from = fromOrig.toLowerCase();
+  to = toOrig.toLowerCase();
+  if (from === to)
+    return "";
+  let fromStart = 0;
+  let fromEnd = from.length;
+  for (; fromStart < fromEnd; ++fromStart) {
+    if (from.charCodeAt(fromStart) !== CHAR_BACKWARD_SLASH2)
+      break;
+  }
+  for (; fromEnd - 1 > fromStart; --fromEnd) {
+    if (from.charCodeAt(fromEnd - 1) !== CHAR_BACKWARD_SLASH2)
+      break;
+  }
+  const fromLen = fromEnd - fromStart;
+  let toStart = 0;
+  let toEnd = to.length;
+  for (; toStart < toEnd; ++toStart) {
+    if (to.charCodeAt(toStart) !== CHAR_BACKWARD_SLASH2)
+      break;
+  }
+  for (; toEnd - 1 > toStart; --toEnd) {
+    if (to.charCodeAt(toEnd - 1) !== CHAR_BACKWARD_SLASH2)
+      break;
+  }
+  const toLen = toEnd - toStart;
+  const length = fromLen < toLen ? fromLen : toLen;
+  let lastCommonSep = -1;
+  let i2 = 0;
+  for (; i2 <= length; ++i2) {
+    if (i2 === length) {
+      if (toLen > length) {
+        if (to.charCodeAt(toStart + i2) === CHAR_BACKWARD_SLASH2) {
+          return toOrig.slice(toStart + i2 + 1);
+        } else if (i2 === 2) {
+          return toOrig.slice(toStart + i2);
+        }
+      }
+      if (fromLen > length) {
+        if (from.charCodeAt(fromStart + i2) === CHAR_BACKWARD_SLASH2) {
+          lastCommonSep = i2;
+        } else if (i2 === 2) {
+          lastCommonSep = 3;
+        }
+      }
+      break;
+    }
+    const fromCode = from.charCodeAt(fromStart + i2);
+    const toCode = to.charCodeAt(toStart + i2);
+    if (fromCode !== toCode)
+      break;
+    else if (fromCode === CHAR_BACKWARD_SLASH2)
+      lastCommonSep = i2;
+  }
+  if (i2 !== length && lastCommonSep === -1) {
+    return toOrig;
+  }
+  let out = "";
+  if (lastCommonSep === -1)
+    lastCommonSep = 0;
+  for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
+    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_BACKWARD_SLASH2) {
+      if (out.length === 0)
+        out += "..";
+      else
+        out += "\\..";
+    }
+  }
+  if (out.length > 0) {
+    return out + toOrig.slice(toStart + lastCommonSep, toEnd);
+  } else {
+    toStart += lastCommonSep;
+    if (toOrig.charCodeAt(toStart) === CHAR_BACKWARD_SLASH2)
+      ++toStart;
+    return toOrig.slice(toStart, toEnd);
+  }
+}
+function toNamespacedPath4(path10) {
+  if (typeof path10 !== "string")
+    return path10;
+  if (path10.length === 0)
+    return "";
+  const resolvedPath = resolve4(path10);
+  if (resolvedPath.length >= 3) {
+    if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH2) {
+      if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH2) {
+        const code2 = resolvedPath.charCodeAt(2);
+        if (code2 !== CHAR_QUESTION_MARK2 && code2 !== CHAR_DOT2) {
+          return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
+        }
+      }
+    } else if (isWindowsDeviceRoot2(resolvedPath.charCodeAt(0))) {
+      if (resolvedPath.charCodeAt(1) === CHAR_COLON2 && resolvedPath.charCodeAt(2) === CHAR_BACKWARD_SLASH2) {
+        return `\\\\?\\${resolvedPath}`;
+      }
+    }
+  }
+  return path10;
+}
+function dirname4(path10) {
+  assertPath2(path10);
+  const len = path10.length;
+  if (len === 0)
+    return ".";
+  let rootEnd = -1;
+  let end = -1;
+  let matchedSlash = true;
+  let offset = 0;
+  const code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator2(code2)) {
+      rootEnd = offset = 1;
+      if (isPathSeparator2(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator2(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator2(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator2(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              return path10;
+            }
+            if (j !== last) {
+              rootEnd = offset = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot2(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON2) {
+        rootEnd = offset = 2;
+        if (len > 2) {
+          if (isPathSeparator2(path10.charCodeAt(2)))
+            rootEnd = offset = 3;
+        }
+      }
+    }
+  } else if (isPathSeparator2(code2)) {
+    return path10;
+  }
+  for (let i2 = len - 1; i2 >= offset; --i2) {
+    if (isPathSeparator2(path10.charCodeAt(i2))) {
+      if (!matchedSlash) {
+        end = i2;
+        break;
+      }
+    } else {
+      matchedSlash = false;
+    }
+  }
+  if (end === -1) {
+    if (rootEnd === -1)
+      return ".";
+    else
+      end = rootEnd;
+  }
+  return path10.slice(0, end);
+}
+function basename4(path10, ext = "") {
+  if (ext !== void 0 && typeof ext !== "string") {
+    throw new TypeError('"ext" argument must be a string');
+  }
+  assertPath2(path10);
+  let start = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2;
+  if (path10.length >= 2) {
+    const drive = path10.charCodeAt(0);
+    if (isWindowsDeviceRoot2(drive)) {
+      if (path10.charCodeAt(1) === CHAR_COLON2)
+        start = 2;
+    }
+  }
+  if (ext !== void 0 && ext.length > 0 && ext.length <= path10.length) {
+    if (ext.length === path10.length && ext === path10)
+      return "";
+    let extIdx = ext.length - 1;
+    let firstNonSlashEnd = -1;
+    for (i2 = path10.length - 1; i2 >= start; --i2) {
+      const code2 = path10.charCodeAt(i2);
+      if (isPathSeparator2(code2)) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else {
+        if (firstNonSlashEnd === -1) {
+          matchedSlash = false;
+          firstNonSlashEnd = i2 + 1;
+        }
+        if (extIdx >= 0) {
+          if (code2 === ext.charCodeAt(extIdx)) {
+            if (--extIdx === -1) {
+              end = i2;
+            }
+          } else {
+            extIdx = -1;
+            end = firstNonSlashEnd;
+          }
+        }
+      }
+    }
+    if (start === end)
+      end = firstNonSlashEnd;
+    else if (end === -1)
+      end = path10.length;
+    return path10.slice(start, end);
+  } else {
+    for (i2 = path10.length - 1; i2 >= start; --i2) {
+      if (isPathSeparator2(path10.charCodeAt(i2))) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else if (end === -1) {
+        matchedSlash = false;
+        end = i2 + 1;
+      }
+    }
+    if (end === -1)
+      return "";
+    return path10.slice(start, end);
+  }
+}
+function extname4(path10) {
+  assertPath2(path10);
+  let start = 0;
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let preDotState = 0;
+  if (path10.length >= 2 && path10.charCodeAt(1) === CHAR_COLON2 && isWindowsDeviceRoot2(path10.charCodeAt(0))) {
+    start = startPart = 2;
+  }
+  for (let i2 = path10.length - 1; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPathSeparator2(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT2) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return "";
+  }
+  return path10.slice(startDot, end);
+}
+function format4(pathObject) {
+  if (pathObject === null || typeof pathObject !== "object") {
+    throw new TypeError(
+      `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
+    );
+  }
+  return _format2("\\", pathObject);
+}
+function parse4(path10) {
+  assertPath2(path10);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  const len = path10.length;
+  if (len === 0)
+    return ret;
+  let rootEnd = 0;
+  let code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator2(code2)) {
+      rootEnd = 1;
+      if (isPathSeparator2(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator2(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator2(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator2(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              rootEnd = j;
+            } else if (j !== last) {
+              rootEnd = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot2(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON2) {
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator2(path10.charCodeAt(2))) {
+            if (len === 3) {
+              ret.root = ret.dir = path10;
+              return ret;
+            }
+            rootEnd = 3;
+          }
+        } else {
+          ret.root = ret.dir = path10;
+          return ret;
+        }
+      }
+    }
+  } else if (isPathSeparator2(code2)) {
+    ret.root = ret.dir = path10;
+    return ret;
+  }
+  if (rootEnd > 0)
+    ret.root = path10.slice(0, rootEnd);
+  let startDot = -1;
+  let startPart = rootEnd;
+  let end = -1;
+  let matchedSlash = true;
+  let i2 = path10.length - 1;
+  let preDotState = 0;
+  for (; i2 >= rootEnd; --i2) {
+    code2 = path10.charCodeAt(i2);
+    if (isPathSeparator2(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT2) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      ret.base = ret.name = path10.slice(startPart, end);
+    }
+  } else {
+    ret.name = path10.slice(startPart, startDot);
+    ret.base = path10.slice(startPart, end);
+    ret.ext = path10.slice(startDot, end);
+  }
+  if (startPart > 0 && startPart !== rootEnd) {
+    ret.dir = path10.slice(0, startPart - 1);
+  } else
+    ret.dir = ret.root;
+  return ret;
+}
+function fromFileUrl4(url) {
+  url = url instanceof URL ? url : new URL(url);
+  if (url.protocol != "file:") {
+    throw new TypeError("Must be a file URL.");
+  }
+  let path10 = decodeURIComponent(
+    url.pathname.replace(/\//g, "\\").replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
+  ).replace(/^\\*([A-Za-z]:)(\\|$)/, "$1\\");
+  if (url.hostname != "") {
+    path10 = `\\\\${url.hostname}${path10}`;
+  }
+  return path10;
+}
+function toFileUrl4(path10) {
+  if (!isAbsolute4(path10)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+  const [, hostname, pathname] = path10.match(
+    /^(?:[/\\]{2}([^/\\]+)(?=[/\\](?:[^/\\]|$)))?(.*)/
+  );
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace2(pathname.replace(/%/g, "%25"));
+  if (hostname != null && hostname != "localhost") {
+    url.hostname = hostname;
+    if (!url.hostname) {
+      throw new TypeError("Invalid hostname.");
+    }
+  }
+  return url;
+}
+
+// https://deno.land/std@0.133.0/path/posix.ts
+var posix_exports2 = {};
+__export(posix_exports2, {
+  basename: () => basename5,
+  delimiter: () => delimiter5,
+  dirname: () => dirname5,
+  extname: () => extname5,
+  format: () => format5,
+  fromFileUrl: () => fromFileUrl5,
+  isAbsolute: () => isAbsolute5,
+  join: () => join6,
+  normalize: () => normalize6,
+  parse: () => parse5,
+  relative: () => relative5,
+  resolve: () => resolve5,
+  sep: () => sep5,
+  toFileUrl: () => toFileUrl5,
+  toNamespacedPath: () => toNamespacedPath5
+});
+var sep5 = "/";
+var delimiter5 = ":";
+function resolve5(...pathSegments) {
+  let resolvedPath = "";
+  let resolvedAbsolute = false;
+  for (let i2 = pathSegments.length - 1; i2 >= -1 && !resolvedAbsolute; i2--) {
+    let path10;
+    if (i2 >= 0)
+      path10 = pathSegments[i2];
+    else {
+      const { Deno: Deno4 } = globalThis;
+      if (typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+    }
+    assertPath2(path10);
+    if (path10.length === 0) {
+      continue;
+    }
+    resolvedPath = `${path10}/${resolvedPath}`;
+    resolvedAbsolute = path10.charCodeAt(0) === CHAR_FORWARD_SLASH2;
+  }
+  resolvedPath = normalizeString2(
+    resolvedPath,
+    !resolvedAbsolute,
+    "/",
+    isPosixPathSeparator2
+  );
+  if (resolvedAbsolute) {
+    if (resolvedPath.length > 0)
+      return `/${resolvedPath}`;
+    else
+      return "/";
+  } else if (resolvedPath.length > 0)
+    return resolvedPath;
+  else
+    return ".";
+}
+function normalize6(path10) {
+  assertPath2(path10);
+  if (path10.length === 0)
+    return ".";
+  const isAbsolute15 = path10.charCodeAt(0) === CHAR_FORWARD_SLASH2;
+  const trailingSeparator = path10.charCodeAt(path10.length - 1) === CHAR_FORWARD_SLASH2;
+  path10 = normalizeString2(path10, !isAbsolute15, "/", isPosixPathSeparator2);
+  if (path10.length === 0 && !isAbsolute15)
+    path10 = ".";
+  if (path10.length > 0 && trailingSeparator)
+    path10 += "/";
+  if (isAbsolute15)
+    return `/${path10}`;
+  return path10;
+}
+function isAbsolute5(path10) {
+  assertPath2(path10);
+  return path10.length > 0 && path10.charCodeAt(0) === CHAR_FORWARD_SLASH2;
+}
+function join6(...paths) {
+  if (paths.length === 0)
+    return ".";
+  let joined;
+  for (let i2 = 0, len = paths.length; i2 < len; ++i2) {
+    const path10 = paths[i2];
+    assertPath2(path10);
+    if (path10.length > 0) {
+      if (!joined)
+        joined = path10;
+      else
+        joined += `/${path10}`;
+    }
+  }
+  if (!joined)
+    return ".";
+  return normalize6(joined);
+}
+function relative5(from, to) {
+  assertPath2(from);
+  assertPath2(to);
+  if (from === to)
+    return "";
+  from = resolve5(from);
+  to = resolve5(to);
+  if (from === to)
+    return "";
+  let fromStart = 1;
+  const fromEnd = from.length;
+  for (; fromStart < fromEnd; ++fromStart) {
+    if (from.charCodeAt(fromStart) !== CHAR_FORWARD_SLASH2)
+      break;
+  }
+  const fromLen = fromEnd - fromStart;
+  let toStart = 1;
+  const toEnd = to.length;
+  for (; toStart < toEnd; ++toStart) {
+    if (to.charCodeAt(toStart) !== CHAR_FORWARD_SLASH2)
+      break;
+  }
+  const toLen = toEnd - toStart;
+  const length = fromLen < toLen ? fromLen : toLen;
+  let lastCommonSep = -1;
+  let i2 = 0;
+  for (; i2 <= length; ++i2) {
+    if (i2 === length) {
+      if (toLen > length) {
+        if (to.charCodeAt(toStart + i2) === CHAR_FORWARD_SLASH2) {
+          return to.slice(toStart + i2 + 1);
+        } else if (i2 === 0) {
+          return to.slice(toStart + i2);
+        }
+      } else if (fromLen > length) {
+        if (from.charCodeAt(fromStart + i2) === CHAR_FORWARD_SLASH2) {
+          lastCommonSep = i2;
+        } else if (i2 === 0) {
+          lastCommonSep = 0;
+        }
+      }
+      break;
+    }
+    const fromCode = from.charCodeAt(fromStart + i2);
+    const toCode = to.charCodeAt(toStart + i2);
+    if (fromCode !== toCode)
+      break;
+    else if (fromCode === CHAR_FORWARD_SLASH2)
+      lastCommonSep = i2;
+  }
+  let out = "";
+  for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
+    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_FORWARD_SLASH2) {
+      if (out.length === 0)
+        out += "..";
+      else
+        out += "/..";
+    }
+  }
+  if (out.length > 0)
+    return out + to.slice(toStart + lastCommonSep);
+  else {
+    toStart += lastCommonSep;
+    if (to.charCodeAt(toStart) === CHAR_FORWARD_SLASH2)
+      ++toStart;
+    return to.slice(toStart);
+  }
+}
+function toNamespacedPath5(path10) {
+  return path10;
+}
+function dirname5(path10) {
+  assertPath2(path10);
+  if (path10.length === 0)
+    return ".";
+  const hasRoot = path10.charCodeAt(0) === CHAR_FORWARD_SLASH2;
+  let end = -1;
+  let matchedSlash = true;
+  for (let i2 = path10.length - 1; i2 >= 1; --i2) {
+    if (path10.charCodeAt(i2) === CHAR_FORWARD_SLASH2) {
+      if (!matchedSlash) {
+        end = i2;
+        break;
+      }
+    } else {
+      matchedSlash = false;
+    }
+  }
+  if (end === -1)
+    return hasRoot ? "/" : ".";
+  if (hasRoot && end === 1)
+    return "//";
+  return path10.slice(0, end);
+}
+function basename5(path10, ext = "") {
+  if (ext !== void 0 && typeof ext !== "string") {
+    throw new TypeError('"ext" argument must be a string');
+  }
+  assertPath2(path10);
+  let start = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2;
+  if (ext !== void 0 && ext.length > 0 && ext.length <= path10.length) {
+    if (ext.length === path10.length && ext === path10)
+      return "";
+    let extIdx = ext.length - 1;
+    let firstNonSlashEnd = -1;
+    for (i2 = path10.length - 1; i2 >= 0; --i2) {
+      const code2 = path10.charCodeAt(i2);
+      if (code2 === CHAR_FORWARD_SLASH2) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else {
+        if (firstNonSlashEnd === -1) {
+          matchedSlash = false;
+          firstNonSlashEnd = i2 + 1;
+        }
+        if (extIdx >= 0) {
+          if (code2 === ext.charCodeAt(extIdx)) {
+            if (--extIdx === -1) {
+              end = i2;
+            }
+          } else {
+            extIdx = -1;
+            end = firstNonSlashEnd;
+          }
+        }
+      }
+    }
+    if (start === end)
+      end = firstNonSlashEnd;
+    else if (end === -1)
+      end = path10.length;
+    return path10.slice(start, end);
+  } else {
+    for (i2 = path10.length - 1; i2 >= 0; --i2) {
+      if (path10.charCodeAt(i2) === CHAR_FORWARD_SLASH2) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else if (end === -1) {
+        matchedSlash = false;
+        end = i2 + 1;
+      }
+    }
+    if (end === -1)
+      return "";
+    return path10.slice(start, end);
+  }
+}
+function extname5(path10) {
+  assertPath2(path10);
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let preDotState = 0;
+  for (let i2 = path10.length - 1; i2 >= 0; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (code2 === CHAR_FORWARD_SLASH2) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT2) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return "";
+  }
+  return path10.slice(startDot, end);
+}
+function format5(pathObject) {
+  if (pathObject === null || typeof pathObject !== "object") {
+    throw new TypeError(
+      `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
+    );
+  }
+  return _format2("/", pathObject);
+}
+function parse5(path10) {
+  assertPath2(path10);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  if (path10.length === 0)
+    return ret;
+  const isAbsolute15 = path10.charCodeAt(0) === CHAR_FORWARD_SLASH2;
+  let start;
+  if (isAbsolute15) {
+    ret.root = "/";
+    start = 1;
+  } else {
+    start = 0;
+  }
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2 = path10.length - 1;
+  let preDotState = 0;
+  for (; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (code2 === CHAR_FORWARD_SLASH2) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT2) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      if (startPart === 0 && isAbsolute15) {
+        ret.base = ret.name = path10.slice(1, end);
+      } else {
+        ret.base = ret.name = path10.slice(startPart, end);
+      }
+    }
+  } else {
+    if (startPart === 0 && isAbsolute15) {
+      ret.name = path10.slice(1, startDot);
+      ret.base = path10.slice(1, end);
+    } else {
+      ret.name = path10.slice(startPart, startDot);
+      ret.base = path10.slice(startPart, end);
+    }
+    ret.ext = path10.slice(startDot, end);
+  }
+  if (startPart > 0)
+    ret.dir = path10.slice(0, startPart - 1);
+  else if (isAbsolute15)
+    ret.dir = "/";
+  return ret;
+}
+function fromFileUrl5(url) {
+  url = url instanceof URL ? url : new URL(url);
+  if (url.protocol != "file:") {
+    throw new TypeError("Must be a file URL.");
+  }
+  return decodeURIComponent(
+    url.pathname.replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
+  );
+}
+function toFileUrl5(path10) {
+  if (!isAbsolute5(path10)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace2(
+    path10.replace(/%/g, "%25").replace(/\\/g, "%5C")
+  );
+  return url;
+}
+
+// https://deno.land/std@0.133.0/path/glob.ts
+var path3 = isWindows2 ? win32_exports2 : posix_exports2;
+var { join: join7, normalize: normalize7 } = path3;
+
+// https://deno.land/std@0.133.0/path/mod.ts
+var path4 = isWindows2 ? win32_exports2 : posix_exports2;
+var {
+  basename: basename6,
+  delimiter: delimiter6,
+  dirname: dirname6,
+  extname: extname6,
+  format: format6,
+  fromFileUrl: fromFileUrl6,
+  isAbsolute: isAbsolute6,
+  join: join8,
+  normalize: normalize8,
+  parse: parse6,
+  relative: relative6,
+  resolve: resolve6,
+  sep: sep6,
+  toFileUrl: toFileUrl6,
+  toNamespacedPath: toNamespacedPath6
+} = path4;
+
+// https://deno.land/std@0.133.0/fs/_util.ts
+function isSubdir(src, dest, sep15 = sep6) {
+  if (src === dest) {
+    return false;
+  }
+  const srcArray = src.split(sep15);
+  const destArray = dest.split(sep15);
+  return srcArray.every((current2, i2) => destArray[i2] === current2);
+}
+function getFileInfoType(fileInfo) {
+  return fileInfo.isFile ? "file" : fileInfo.isDirectory ? "dir" : fileInfo.isSymlink ? "symlink" : void 0;
+}
+
+// https://deno.land/std@0.133.0/fs/ensure_dir.ts
+async function ensureDir(dir) {
+  try {
+    const fileInfo = await Deno.lstat(dir);
+    if (!fileInfo.isDirectory) {
+      throw new Error(
+        `Ensure path exists, expected 'dir', got '${getFileInfoType(fileInfo)}'`
+      );
+    }
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      await Deno.mkdir(dir, { recursive: true });
+      return;
+    }
+    throw err;
+  }
+}
+
+// https://deno.land/std@0.133.0/fs/exists.ts
+async function exists(filePath) {
+  try {
+    await Deno.lstat(filePath);
+    return true;
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      return false;
+    }
+    throw err;
+  }
+}
+function existsSync(filePath) {
+  try {
+    Deno.lstatSync(filePath);
+    return true;
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      return false;
+    }
+    throw err;
+  }
+}
+
+// https://deno.land/std@0.133.0/fs/move.ts
+async function move(src, dest, { overwrite = false } = {}) {
+  const srcStat = await Deno.stat(src);
+  if (srcStat.isDirectory && isSubdir(src, dest)) {
+    throw new Error(
+      `Cannot move '${src}' to a subdirectory of itself, '${dest}'.`
+    );
+  }
+  if (overwrite) {
+    if (await exists(dest)) {
+      await Deno.remove(dest, { recursive: true });
+    }
+  } else {
+    if (await exists(dest)) {
+      throw new Error("dest already exists.");
+    }
+  }
+  await Deno.rename(src, dest);
+  return;
+}
+function moveSync(src, dest, { overwrite = false } = {}) {
+  const srcStat = Deno.statSync(src);
+  if (srcStat.isDirectory && isSubdir(src, dest)) {
+    throw new Error(
+      `Cannot move '${src}' to a subdirectory of itself, '${dest}'.`
+    );
+  }
+  if (overwrite) {
+    if (existsSync(dest)) {
+      Deno.removeSync(dest, { recursive: true });
+    }
+  } else {
+    if (existsSync(dest)) {
+      throw new Error("dest already exists.");
+    }
+  }
+  Deno.renameSync(src, dest);
+}
+
+// https://deno.land/std@0.133.0/_deno_unstable.ts
+function utime(...args) {
+  if (typeof Deno.utime == "function") {
+    return Deno.utime(...args);
+  } else {
+    return Promise.reject(new TypeError("Requires --unstable"));
+  }
+}
+
+// https://deno.land/std@0.133.0/fs/copy.ts
+async function ensureValidCopy(src, dest, options) {
+  let destStat;
+  try {
+    destStat = await Deno.lstat(dest);
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      return;
+    }
+    throw err;
+  }
+  if (options.isFolder && !destStat.isDirectory) {
+    throw new Error(
+      `Cannot overwrite non-directory '${dest}' with directory '${src}'.`
+    );
+  }
+  if (!options.overwrite) {
+    throw new Error(`'${dest}' already exists.`);
+  }
+  return destStat;
+}
+async function copyFile(src, dest, options) {
+  await ensureValidCopy(src, dest, options);
+  await Deno.copyFile(src, dest);
+  if (options.preserveTimestamps) {
+    const statInfo = await Deno.stat(src);
+    assert3(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert3(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    await utime(dest, statInfo.atime, statInfo.mtime);
+  }
+}
+async function copySymLink(src, dest, options) {
+  await ensureValidCopy(src, dest, options);
+  const originSrcFilePath = await Deno.readLink(src);
+  const type = getFileInfoType(await Deno.lstat(src));
+  if (isWindows2) {
+    await Deno.symlink(originSrcFilePath, dest, {
+      type: type === "dir" ? "dir" : "file"
+    });
+  } else {
+    await Deno.symlink(originSrcFilePath, dest);
+  }
+  if (options.preserveTimestamps) {
+    const statInfo = await Deno.lstat(src);
+    assert3(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert3(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    await utime(dest, statInfo.atime, statInfo.mtime);
+  }
+}
+async function copyDir(src, dest, options) {
+  const destStat = await ensureValidCopy(src, dest, {
+    ...options,
+    isFolder: true
+  });
+  if (!destStat) {
+    await ensureDir(dest);
+  }
+  if (options.preserveTimestamps) {
+    const srcStatInfo = await Deno.stat(src);
+    assert3(srcStatInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert3(srcStatInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    await utime(dest, srcStatInfo.atime, srcStatInfo.mtime);
+  }
+  for await (const entry of Deno.readDir(src)) {
+    const srcPath = join8(src, entry.name);
+    const destPath = join8(dest, basename6(srcPath));
+    if (entry.isSymlink) {
+      await copySymLink(srcPath, destPath, options);
+    } else if (entry.isDirectory) {
+      await copyDir(srcPath, destPath, options);
+    } else if (entry.isFile) {
+      await copyFile(srcPath, destPath, options);
+    }
+  }
+}
+async function copy(src, dest, options = {}) {
+  src = resolve6(src);
+  dest = resolve6(dest);
+  if (src === dest) {
+    throw new Error("Source and destination cannot be the same.");
+  }
+  const srcStat = await Deno.lstat(src);
+  if (srcStat.isDirectory && isSubdir(src, dest)) {
+    throw new Error(
+      `Cannot copy '${src}' to a subdirectory of itself, '${dest}'.`
+    );
+  }
+  if (srcStat.isSymlink) {
+    await copySymLink(src, dest, options);
+  } else if (srcStat.isDirectory) {
+    await copyDir(src, dest, options);
+  } else if (srcStat.isFile) {
+    await copyFile(src, dest, options);
+  }
+}
+
+// https://deno.land/x/good@1.1.1.2/string.js
+var findAll = (regexPattern, sourceString) => {
+  var output2 = [];
+  var match;
+  var regexPatternWithGlobal = regexPattern.global ? regexPattern : RegExp(regexPattern, regexPattern.flags + "g");
+  while (match = regexPatternWithGlobal.exec(sourceString)) {
+    output2.push(match);
+    if (match[0].length == 0) {
+      regexPatternWithGlobal.lastIndex += 1;
+    }
+  }
+  return output2;
+};
+
+// https://deno.land/x/good@1.1.1.2/value.js
+var typedArrayClasses3 = [
+  Uint16Array,
+  Uint32Array,
+  Uint8Array,
+  Uint8ClampedArray,
+  Int16Array,
+  Int32Array,
+  Int8Array,
+  Float32Array,
+  Float64Array,
+  globalThis.BigInt64Array,
+  globalThis.BigUint64Array
+].filter((each2) => each2);
+var copyableClasses3 = /* @__PURE__ */ new Set([RegExp, Date, URL, ...typedArrayClasses3, globalThis.ArrayBuffer, globalThis.DataView]);
+var IteratorPrototype3 = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
+var ArrayIterator3 = Object.getPrototypeOf([][Symbol.iterator]);
+var MapIterator3 = Object.getPrototypeOf((/* @__PURE__ */ new Map())[Symbol.iterator]);
+var SetIterator3 = Object.getPrototypeOf((/* @__PURE__ */ new Set())[Symbol.iterator]);
+var AsyncFunction3 = class {
+};
+var GeneratorFunction3 = class {
+};
+var AsyncGeneratorFunction3 = class {
+};
+var SyncGenerator3 = class {
+};
+var AsyncGenerator3 = class {
+};
+try {
+  AsyncFunction3 = eval("(async function(){}).constructor");
+  GeneratorFunction3 = eval("(function*(){}).constructor");
+  AsyncGeneratorFunction3 = eval("(async function*(){}).constructor");
+  SyncGenerator3 = eval("((function*(){})()).constructor");
+  AsyncGenerator3 = eval("((async function*(){})()).constructor");
+} catch (error) {
+}
+var isPrimitive3 = (value) => !(value instanceof Object);
+var isPureObject3 = (value) => value instanceof Object && Object.getPrototypeOf(value).constructor == Object;
+var isPracticallyPrimitive3 = (value) => isPrimitive3(value) || value instanceof Date || value instanceof RegExp || value instanceof URL;
+var isBuiltInIterator3 = (value) => IteratorPrototype3.isPrototypeOf(value);
+var isGeneratorType3 = (value) => {
+  if (value instanceof Object) {
+    if (isBuiltInIterator3(value)) {
+      return true;
+    }
+    const constructor = value.constructor;
+    return constructor == SyncGenerator3 || constructor == AsyncGenerator3;
+  }
+  return false;
+};
+var isAsyncIterable3 = function(value) {
+  return value && typeof value[Symbol.asyncIterator] === "function";
+};
+var isSyncIterable3 = function(value) {
+  return value && typeof value[Symbol.iterator] === "function";
+};
+var isTechnicallyIterable3 = function(value) {
+  return value instanceof Object || typeof value == "string";
+};
+var isSyncIterableObjectOrContainer3 = function(value) {
+  return value instanceof Object && typeof value[Symbol.iterator] == "function";
+};
+var deepCopySymbol3 = Symbol.for("deepCopy");
+var clonedFromSymbol3 = Symbol();
+var getThis3 = Symbol();
+Object.getPrototypeOf(function() {
+})[getThis3] = function() {
+  return this;
+};
+function deepCopyInner3(value, valueChain = [], originalToCopyMap = /* @__PURE__ */ new Map()) {
+  valueChain.push(value);
+  if (value == null) {
+    return value;
+  }
+  if (!(value instanceof Object)) {
+    return value;
+  }
+  if (originalToCopyMap.has(value)) {
+    return originalToCopyMap.get(value);
+  }
+  if (value[deepCopySymbol3] instanceof Function) {
+    const clonedValue = value[deepCopySymbol3](originalToCopyMap);
+    originalToCopyMap.set(value, clonedValue);
+    return clonedValue;
+  }
+  if (isGeneratorType3(value)) {
+    throw Error(`Sadly built-in generators cannot be deep copied.
+And I found a generator along this path:
+${valueChain.reverse().map((each2) => `${each2},
+`)}`);
+  }
+  let object, theThis, thisCopy;
+  if (value instanceof Date) {
+    object = new Date(value.getTime());
+  } else if (value instanceof RegExp) {
+    object = new RegExp(value);
+  } else if (value instanceof URL) {
+    object = new URL(value);
+  } else if (value instanceof Function) {
+    theThis = value[getThis3]();
+    object = value.bind(theThis);
+  } else if (copyableClasses3.has(value.constructor)) {
+    object = new value.constructor(value);
+  } else if (value instanceof Array) {
+    object = [];
+  } else if (value instanceof Set) {
+    object = /* @__PURE__ */ new Set();
+  } else if (value instanceof Map) {
+    object = /* @__PURE__ */ new Map();
+  }
+  originalToCopyMap.set(value, object);
+  if (object instanceof Function) {
+    thisCopy = deepCopyInner3(theThis, valueChain, originalToCopyMap);
+    object = object.bind(thisCopy);
+  }
+  const output2 = object;
+  try {
+    output2.constructor = value.constructor;
+  } catch (error) {
+  }
+  Object.setPrototypeOf(output2, Object.getPrototypeOf(value));
+  const propertyDefinitions = {};
+  for (const [key, description] of Object.entries(Object.getOwnPropertyDescriptors(value))) {
+    const { value: value2, get, set, ...options } = description;
+    const getIsFunc = get instanceof Function;
+    const setIsFunc = set instanceof Function;
+    if (getIsFunc || setIsFunc) {
+      propertyDefinitions[key] = {
+        ...options,
+        get: get ? function(...args) {
+          return get.apply(output2, args);
+        } : void 0,
+        set: set ? function(...args) {
+          return set.apply(output2, args);
+        } : void 0
+      };
+    } else {
+      if (key == "length" && output2 instanceof Array) {
+        continue;
+      }
+      propertyDefinitions[key] = {
+        ...options,
+        value: deepCopyInner3(value2, valueChain, originalToCopyMap)
+      };
+    }
+  }
+  Object.defineProperties(output2, propertyDefinitions);
+  return output2;
+}
+var deepCopy3 = (value) => deepCopyInner3(value);
+var shallowSortObject3 = (obj) => {
+  return Object.keys(obj).sort().reduce(
+    (newObj, key) => {
+      newObj[key] = obj[key];
+      return newObj;
+    },
+    {}
+  );
+};
+var deepSortObject3 = (obj, seen = /* @__PURE__ */ new Map()) => {
+  if (!(obj instanceof Object)) {
+    return obj;
+  } else if (seen.has(obj)) {
+    return seen.get(obj);
+  } else {
+    if (obj instanceof Array) {
+      const sortedChildren = [];
+      seen.set(obj, sortedChildren);
+      for (const each2 of obj) {
+        sortedChildren.push(deepSortObject3(each2, seen));
+      }
+      return sortedChildren;
+    } else {
+      const sorted = {};
+      seen.set(obj, sorted);
+      for (const eachKey of Object.keys(obj).sort()) {
+        sorted[eachKey] = deepSortObject3(obj[eachKey], seen);
+      }
+      return sorted;
+    }
+  }
+};
+var stableStringify3 = (value, ...args) => {
+  return JSON.stringify(deepSortObject3(value), ...args);
+};
+var allKeys3 = function(obj) {
+  let keys = [];
+  if (obj == null) {
+    return [];
+  }
+  if (!(obj instanceof Object)) {
+    obj = Object.getPrototypeOf(obj);
+  }
+  while (obj) {
+    keys = keys.concat(Reflect.ownKeys(obj));
+    obj = Object.getPrototypeOf(obj);
+  }
+  return keys;
+};
+var ownKeyDescriptions3 = Object.getOwnPropertyDescriptors;
+var allKeyDescriptions3 = function(value, options = { includingBuiltin: false }) {
+  var { includingBuiltin } = { ...options };
+  let descriptions = [];
+  if (value == null) {
+    return {};
+  }
+  if (!(value instanceof Object)) {
+    value = Object.getPrototypeOf(value);
+  }
+  const rootPrototype = Object.getPrototypeOf({});
+  let prevObj;
+  while (value && value != prevObj) {
+    if (!includingBuiltin && value == rootPrototype) {
+      break;
+    }
+    descriptions = descriptions.concat(Object.entries(Object.getOwnPropertyDescriptors(value)));
+    prevObj = value;
+    value = Object.getPrototypeOf(value);
+  }
+  descriptions.reverse();
+  return Object.fromEntries(descriptions);
+};
+
+// https://deno.land/x/good@1.1.1.2/iterable.js
+var Stop3 = Symbol("iterationStop");
+async function asyncIteratorToList3(asyncIterator) {
+  const results = [];
+  for await (const each2 of asyncIterator) {
+    results.push(each2);
+  }
+  return results;
+}
+var ERROR_WHILE_MAPPING_MESSAGE3 = "Threw while mapping.";
+function concurrentlyTransform3({ iterator, transformFunction, poolLimit = null, awaitAll = false }) {
+  poolLimit = poolLimit || concurrentlyTransform3.defaultPoolLimit;
+  const res = new TransformStream({
+    async transform(p, controller) {
+      try {
+        const s = await p;
+        controller.enqueue(s);
+      } catch (e) {
+        if (e instanceof AggregateError && e.message == ERROR_WHILE_MAPPING_MESSAGE3) {
+          controller.error(e);
+        }
+      }
+    }
+  });
+  const mainPromise = (async () => {
+    const writer = res.writable.getWriter();
+    const executing = [];
+    try {
+      let index = 0;
+      for await (const item of iterator) {
+        const p = Promise.resolve().then(() => transformFunction(item, index));
+        index++;
+        writer.write(p);
+        const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+        executing.push(e);
+        if (executing.length >= poolLimit) {
+          await Promise.race(executing);
+        }
+      }
+      await Promise.all(executing);
+      writer.close();
+    } catch {
+      const errors = [];
+      for (const result2 of await Promise.allSettled(executing)) {
+        if (result2.status == "rejected") {
+          errors.push(result2.reason);
+        }
+      }
+      writer.write(Promise.reject(
+        new AggregateError(errors, ERROR_WHILE_MAPPING_MESSAGE3)
+      )).catch(() => {
+      });
+    }
+  })();
+  const asyncIterator = res.readable[Symbol.asyncIterator]();
+  if (!awaitAll) {
+    return asyncIterator;
+  } else {
+    return mainPromise.then(() => asyncIteratorToList3(asyncIterator));
+  }
+}
+concurrentlyTransform3.defaultPoolLimit = 40;
+
+// https://deno.land/std@0.191.0/_util/os.ts
+var osType3 = (() => {
+  const { Deno: Deno4 } = globalThis;
+  if (typeof Deno4?.build?.os === "string") {
+    return Deno4.build.os;
+  }
+  const { navigator } = globalThis;
+  if (navigator?.appVersion?.includes?.("Win")) {
+    return "windows";
+  }
+  return "linux";
+})();
+var isWindows3 = osType3 === "windows";
+
+// https://deno.land/std@0.191.0/path/win32.ts
+var win32_exports3 = {};
+__export(win32_exports3, {
+  basename: () => basename7,
+  delimiter: () => delimiter7,
+  dirname: () => dirname7,
+  extname: () => extname7,
+  format: () => format7,
+  fromFileUrl: () => fromFileUrl7,
+  isAbsolute: () => isAbsolute7,
+  join: () => join9,
+  normalize: () => normalize9,
+  parse: () => parse7,
+  relative: () => relative7,
+  resolve: () => resolve7,
+  sep: () => sep7,
+  toFileUrl: () => toFileUrl7,
+  toNamespacedPath: () => toNamespacedPath7
+});
+
+// https://deno.land/std@0.191.0/path/_constants.ts
+var CHAR_UPPERCASE_A3 = 65;
+var CHAR_LOWERCASE_A3 = 97;
+var CHAR_UPPERCASE_Z3 = 90;
+var CHAR_LOWERCASE_Z3 = 122;
+var CHAR_DOT3 = 46;
+var CHAR_FORWARD_SLASH3 = 47;
+var CHAR_BACKWARD_SLASH3 = 92;
+var CHAR_COLON3 = 58;
+var CHAR_QUESTION_MARK3 = 63;
+
+// https://deno.land/std@0.191.0/path/_util.ts
+function assertPath3(path10) {
+  if (typeof path10 !== "string") {
+    throw new TypeError(
+      `Path must be a string. Received ${JSON.stringify(path10)}`
+    );
+  }
+}
+function isPosixPathSeparator3(code2) {
+  return code2 === CHAR_FORWARD_SLASH3;
+}
+function isPathSeparator3(code2) {
+  return isPosixPathSeparator3(code2) || code2 === CHAR_BACKWARD_SLASH3;
+}
+function isWindowsDeviceRoot3(code2) {
+  return code2 >= CHAR_LOWERCASE_A3 && code2 <= CHAR_LOWERCASE_Z3 || code2 >= CHAR_UPPERCASE_A3 && code2 <= CHAR_UPPERCASE_Z3;
+}
+function normalizeString3(path10, allowAboveRoot, separator, isPathSeparator6) {
+  let res = "";
+  let lastSegmentLength = 0;
+  let lastSlash = -1;
+  let dots = 0;
+  let code2;
+  for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
+    if (i2 < len)
+      code2 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code2))
+      break;
+    else
+      code2 = CHAR_FORWARD_SLASH3;
+    if (isPathSeparator6(code2)) {
+      if (lastSlash === i2 - 1 || dots === 1) {
+      } else if (lastSlash !== i2 - 1 && dots === 2) {
+        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT3 || res.charCodeAt(res.length - 2) !== CHAR_DOT3) {
+          if (res.length > 2) {
+            const lastSlashIndex = res.lastIndexOf(separator);
+            if (lastSlashIndex === -1) {
+              res = "";
+              lastSegmentLength = 0;
+            } else {
+              res = res.slice(0, lastSlashIndex);
+              lastSegmentLength = res.length - 1 - res.lastIndexOf(separator);
+            }
+            lastSlash = i2;
+            dots = 0;
+            continue;
+          } else if (res.length === 2 || res.length === 1) {
+            res = "";
+            lastSegmentLength = 0;
+            lastSlash = i2;
+            dots = 0;
+            continue;
+          }
+        }
+        if (allowAboveRoot) {
+          if (res.length > 0)
+            res += `${separator}..`;
+          else
+            res = "..";
+          lastSegmentLength = 2;
+        }
+      } else {
+        if (res.length > 0)
+          res += separator + path10.slice(lastSlash + 1, i2);
+        else
+          res = path10.slice(lastSlash + 1, i2);
+        lastSegmentLength = i2 - lastSlash - 1;
+      }
+      lastSlash = i2;
+      dots = 0;
+    } else if (code2 === CHAR_DOT3 && dots !== -1) {
+      ++dots;
+    } else {
+      dots = -1;
+    }
+  }
+  return res;
+}
+function _format3(sep15, pathObject) {
+  const dir = pathObject.dir || pathObject.root;
+  const base = pathObject.base || (pathObject.name || "") + (pathObject.ext || "");
+  if (!dir)
+    return base;
+  if (base === sep15)
+    return dir;
+  if (dir === pathObject.root)
+    return dir + base;
+  return dir + sep15 + base;
+}
+var WHITESPACE_ENCODINGS3 = {
+  "	": "%09",
+  "\n": "%0A",
+  "\v": "%0B",
+  "\f": "%0C",
+  "\r": "%0D",
+  " ": "%20"
+};
+function encodeWhitespace3(string2) {
+  return string2.replaceAll(/[\s]/g, (c) => {
+    return WHITESPACE_ENCODINGS3[c] ?? c;
+  });
+}
+function lastPathSegment(path10, isSep, start = 0) {
+  let matchedNonSeparator = false;
+  let end = path10.length;
+  for (let i2 = path10.length - 1; i2 >= start; --i2) {
+    if (isSep(path10.charCodeAt(i2))) {
+      if (matchedNonSeparator) {
+        start = i2 + 1;
+        break;
+      }
+    } else if (!matchedNonSeparator) {
+      matchedNonSeparator = true;
+      end = i2 + 1;
+    }
+  }
+  return path10.slice(start, end);
+}
+function stripTrailingSeparators(segment, isSep) {
+  if (segment.length <= 1) {
+    return segment;
+  }
+  let end = segment.length;
+  for (let i2 = segment.length - 1; i2 > 0; i2--) {
+    if (isSep(segment.charCodeAt(i2))) {
+      end = i2;
+    } else {
+      break;
+    }
+  }
+  return segment.slice(0, end);
+}
+function stripSuffix(name, suffix) {
+  if (suffix.length >= name.length) {
+    return name;
+  }
+  const lenDiff = name.length - suffix.length;
+  for (let i2 = suffix.length - 1; i2 >= 0; --i2) {
+    if (name.charCodeAt(lenDiff + i2) !== suffix.charCodeAt(i2)) {
+      return name;
+    }
+  }
+  return name.slice(0, -suffix.length);
+}
+
+// https://deno.land/std@0.191.0/_util/asserts.ts
+var DenoStdInternalError3 = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "DenoStdInternalError";
+  }
+};
+function assert4(expr, msg = "") {
+  if (!expr) {
+    throw new DenoStdInternalError3(msg);
+  }
+}
+
+// https://deno.land/std@0.191.0/path/win32.ts
+var sep7 = "\\";
+var delimiter7 = ";";
+function resolve7(...pathSegments) {
+  let resolvedDevice = "";
+  let resolvedTail = "";
+  let resolvedAbsolute = false;
+  for (let i2 = pathSegments.length - 1; i2 >= -1; i2--) {
+    let path10;
+    const { Deno: Deno4 } = globalThis;
+    if (i2 >= 0) {
+      path10 = pathSegments[i2];
+    } else if (!resolvedDevice) {
+      if (typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a drive-letter-less path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+    } else {
+      if (typeof Deno4?.env?.get !== "function" || typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+      if (path10 === void 0 || path10.slice(0, 3).toLowerCase() !== `${resolvedDevice.toLowerCase()}\\`) {
+        path10 = `${resolvedDevice}\\`;
+      }
+    }
+    assertPath3(path10);
+    const len = path10.length;
+    if (len === 0)
+      continue;
+    let rootEnd = 0;
+    let device = "";
+    let isAbsolute15 = false;
+    const code2 = path10.charCodeAt(0);
+    if (len > 1) {
+      if (isPathSeparator3(code2)) {
+        isAbsolute15 = true;
+        if (isPathSeparator3(path10.charCodeAt(1))) {
+          let j = 2;
+          let last = j;
+          for (; j < len; ++j) {
+            if (isPathSeparator3(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            const firstPart = path10.slice(last, j);
+            last = j;
+            for (; j < len; ++j) {
+              if (!isPathSeparator3(path10.charCodeAt(j)))
+                break;
+            }
+            if (j < len && j !== last) {
+              last = j;
+              for (; j < len; ++j) {
+                if (isPathSeparator3(path10.charCodeAt(j)))
+                  break;
+              }
+              if (j === len) {
+                device = `\\\\${firstPart}\\${path10.slice(last)}`;
+                rootEnd = j;
+              } else if (j !== last) {
+                device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
+                rootEnd = j;
+              }
+            }
+          }
+        } else {
+          rootEnd = 1;
+        }
+      } else if (isWindowsDeviceRoot3(code2)) {
+        if (path10.charCodeAt(1) === CHAR_COLON3) {
+          device = path10.slice(0, 2);
+          rootEnd = 2;
+          if (len > 2) {
+            if (isPathSeparator3(path10.charCodeAt(2))) {
+              isAbsolute15 = true;
+              rootEnd = 3;
+            }
+          }
+        }
+      }
+    } else if (isPathSeparator3(code2)) {
+      rootEnd = 1;
+      isAbsolute15 = true;
+    }
+    if (device.length > 0 && resolvedDevice.length > 0 && device.toLowerCase() !== resolvedDevice.toLowerCase()) {
+      continue;
+    }
+    if (resolvedDevice.length === 0 && device.length > 0) {
+      resolvedDevice = device;
+    }
+    if (!resolvedAbsolute) {
+      resolvedTail = `${path10.slice(rootEnd)}\\${resolvedTail}`;
+      resolvedAbsolute = isAbsolute15;
+    }
+    if (resolvedAbsolute && resolvedDevice.length > 0)
+      break;
+  }
+  resolvedTail = normalizeString3(
+    resolvedTail,
+    !resolvedAbsolute,
+    "\\",
+    isPathSeparator3
+  );
+  return resolvedDevice + (resolvedAbsolute ? "\\" : "") + resolvedTail || ".";
+}
+function normalize9(path10) {
+  assertPath3(path10);
+  const len = path10.length;
+  if (len === 0)
+    return ".";
+  let rootEnd = 0;
+  let device;
+  let isAbsolute15 = false;
+  const code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator3(code2)) {
+      isAbsolute15 = true;
+      if (isPathSeparator3(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator3(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          const firstPart = path10.slice(last, j);
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator3(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator3(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              return `\\\\${firstPart}\\${path10.slice(last)}\\`;
+            } else if (j !== last) {
+              device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
+              rootEnd = j;
+            }
+          }
+        }
+      } else {
+        rootEnd = 1;
+      }
+    } else if (isWindowsDeviceRoot3(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON3) {
+        device = path10.slice(0, 2);
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator3(path10.charCodeAt(2))) {
+            isAbsolute15 = true;
+            rootEnd = 3;
+          }
+        }
+      }
+    }
+  } else if (isPathSeparator3(code2)) {
+    return "\\";
+  }
+  let tail;
+  if (rootEnd < len) {
+    tail = normalizeString3(
+      path10.slice(rootEnd),
+      !isAbsolute15,
+      "\\",
+      isPathSeparator3
+    );
+  } else {
+    tail = "";
+  }
+  if (tail.length === 0 && !isAbsolute15)
+    tail = ".";
+  if (tail.length > 0 && isPathSeparator3(path10.charCodeAt(len - 1))) {
+    tail += "\\";
+  }
+  if (device === void 0) {
+    if (isAbsolute15) {
+      if (tail.length > 0)
+        return `\\${tail}`;
+      else
+        return "\\";
+    } else if (tail.length > 0) {
+      return tail;
+    } else {
+      return "";
+    }
+  } else if (isAbsolute15) {
+    if (tail.length > 0)
+      return `${device}\\${tail}`;
+    else
+      return `${device}\\`;
+  } else if (tail.length > 0) {
+    return device + tail;
+  } else {
+    return device;
+  }
+}
+function isAbsolute7(path10) {
+  assertPath3(path10);
+  const len = path10.length;
+  if (len === 0)
+    return false;
+  const code2 = path10.charCodeAt(0);
+  if (isPathSeparator3(code2)) {
+    return true;
+  } else if (isWindowsDeviceRoot3(code2)) {
+    if (len > 2 && path10.charCodeAt(1) === CHAR_COLON3) {
+      if (isPathSeparator3(path10.charCodeAt(2)))
+        return true;
+    }
+  }
+  return false;
+}
+function join9(...paths) {
+  const pathsCount = paths.length;
+  if (pathsCount === 0)
+    return ".";
+  let joined;
+  let firstPart = null;
+  for (let i2 = 0; i2 < pathsCount; ++i2) {
+    const path10 = paths[i2];
+    assertPath3(path10);
+    if (path10.length > 0) {
+      if (joined === void 0)
+        joined = firstPart = path10;
+      else
+        joined += `\\${path10}`;
+    }
+  }
+  if (joined === void 0)
+    return ".";
+  let needsReplace = true;
+  let slashCount = 0;
+  assert4(firstPart != null);
+  if (isPathSeparator3(firstPart.charCodeAt(0))) {
+    ++slashCount;
+    const firstLen = firstPart.length;
+    if (firstLen > 1) {
+      if (isPathSeparator3(firstPart.charCodeAt(1))) {
+        ++slashCount;
+        if (firstLen > 2) {
+          if (isPathSeparator3(firstPart.charCodeAt(2)))
+            ++slashCount;
+          else {
+            needsReplace = false;
+          }
+        }
+      }
+    }
+  }
+  if (needsReplace) {
+    for (; slashCount < joined.length; ++slashCount) {
+      if (!isPathSeparator3(joined.charCodeAt(slashCount)))
+        break;
+    }
+    if (slashCount >= 2)
+      joined = `\\${joined.slice(slashCount)}`;
+  }
+  return normalize9(joined);
+}
+function relative7(from, to) {
+  assertPath3(from);
+  assertPath3(to);
+  if (from === to)
+    return "";
+  const fromOrig = resolve7(from);
+  const toOrig = resolve7(to);
+  if (fromOrig === toOrig)
+    return "";
+  from = fromOrig.toLowerCase();
+  to = toOrig.toLowerCase();
+  if (from === to)
+    return "";
+  let fromStart = 0;
+  let fromEnd = from.length;
+  for (; fromStart < fromEnd; ++fromStart) {
+    if (from.charCodeAt(fromStart) !== CHAR_BACKWARD_SLASH3)
+      break;
+  }
+  for (; fromEnd - 1 > fromStart; --fromEnd) {
+    if (from.charCodeAt(fromEnd - 1) !== CHAR_BACKWARD_SLASH3)
+      break;
+  }
+  const fromLen = fromEnd - fromStart;
+  let toStart = 0;
+  let toEnd = to.length;
+  for (; toStart < toEnd; ++toStart) {
+    if (to.charCodeAt(toStart) !== CHAR_BACKWARD_SLASH3)
+      break;
+  }
+  for (; toEnd - 1 > toStart; --toEnd) {
+    if (to.charCodeAt(toEnd - 1) !== CHAR_BACKWARD_SLASH3)
+      break;
+  }
+  const toLen = toEnd - toStart;
+  const length = fromLen < toLen ? fromLen : toLen;
+  let lastCommonSep = -1;
+  let i2 = 0;
+  for (; i2 <= length; ++i2) {
+    if (i2 === length) {
+      if (toLen > length) {
+        if (to.charCodeAt(toStart + i2) === CHAR_BACKWARD_SLASH3) {
+          return toOrig.slice(toStart + i2 + 1);
+        } else if (i2 === 2) {
+          return toOrig.slice(toStart + i2);
+        }
+      }
+      if (fromLen > length) {
+        if (from.charCodeAt(fromStart + i2) === CHAR_BACKWARD_SLASH3) {
+          lastCommonSep = i2;
+        } else if (i2 === 2) {
+          lastCommonSep = 3;
+        }
+      }
+      break;
+    }
+    const fromCode = from.charCodeAt(fromStart + i2);
+    const toCode = to.charCodeAt(toStart + i2);
+    if (fromCode !== toCode)
+      break;
+    else if (fromCode === CHAR_BACKWARD_SLASH3)
+      lastCommonSep = i2;
+  }
+  if (i2 !== length && lastCommonSep === -1) {
+    return toOrig;
+  }
+  let out = "";
+  if (lastCommonSep === -1)
+    lastCommonSep = 0;
+  for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
+    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_BACKWARD_SLASH3) {
+      if (out.length === 0)
+        out += "..";
+      else
+        out += "\\..";
+    }
+  }
+  if (out.length > 0) {
+    return out + toOrig.slice(toStart + lastCommonSep, toEnd);
+  } else {
+    toStart += lastCommonSep;
+    if (toOrig.charCodeAt(toStart) === CHAR_BACKWARD_SLASH3)
+      ++toStart;
+    return toOrig.slice(toStart, toEnd);
+  }
+}
+function toNamespacedPath7(path10) {
+  if (typeof path10 !== "string")
+    return path10;
+  if (path10.length === 0)
+    return "";
+  const resolvedPath = resolve7(path10);
+  if (resolvedPath.length >= 3) {
+    if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH3) {
+      if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH3) {
+        const code2 = resolvedPath.charCodeAt(2);
+        if (code2 !== CHAR_QUESTION_MARK3 && code2 !== CHAR_DOT3) {
+          return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
+        }
+      }
+    } else if (isWindowsDeviceRoot3(resolvedPath.charCodeAt(0))) {
+      if (resolvedPath.charCodeAt(1) === CHAR_COLON3 && resolvedPath.charCodeAt(2) === CHAR_BACKWARD_SLASH3) {
+        return `\\\\?\\${resolvedPath}`;
+      }
+    }
+  }
+  return path10;
+}
+function dirname7(path10) {
+  assertPath3(path10);
+  const len = path10.length;
+  if (len === 0)
+    return ".";
+  let rootEnd = -1;
+  let end = -1;
+  let matchedSlash = true;
+  let offset = 0;
+  const code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator3(code2)) {
+      rootEnd = offset = 1;
+      if (isPathSeparator3(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator3(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator3(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator3(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              return path10;
+            }
+            if (j !== last) {
+              rootEnd = offset = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot3(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON3) {
+        rootEnd = offset = 2;
+        if (len > 2) {
+          if (isPathSeparator3(path10.charCodeAt(2)))
+            rootEnd = offset = 3;
+        }
+      }
+    }
+  } else if (isPathSeparator3(code2)) {
+    return path10;
+  }
+  for (let i2 = len - 1; i2 >= offset; --i2) {
+    if (isPathSeparator3(path10.charCodeAt(i2))) {
+      if (!matchedSlash) {
+        end = i2;
+        break;
+      }
+    } else {
+      matchedSlash = false;
+    }
+  }
+  if (end === -1) {
+    if (rootEnd === -1)
+      return ".";
+    else
+      end = rootEnd;
+  }
+  return stripTrailingSeparators(path10.slice(0, end), isPosixPathSeparator3);
+}
+function basename7(path10, suffix = "") {
+  assertPath3(path10);
+  if (path10.length === 0)
+    return path10;
+  if (typeof suffix !== "string") {
+    throw new TypeError(
+      `Suffix must be a string. Received ${JSON.stringify(suffix)}`
+    );
+  }
+  let start = 0;
+  if (path10.length >= 2) {
+    const drive = path10.charCodeAt(0);
+    if (isWindowsDeviceRoot3(drive)) {
+      if (path10.charCodeAt(1) === CHAR_COLON3)
+        start = 2;
+    }
+  }
+  const lastSegment = lastPathSegment(path10, isPathSeparator3, start);
+  const strippedSegment = stripTrailingSeparators(lastSegment, isPathSeparator3);
+  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+}
+function extname7(path10) {
+  assertPath3(path10);
+  let start = 0;
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let preDotState = 0;
+  if (path10.length >= 2 && path10.charCodeAt(1) === CHAR_COLON3 && isWindowsDeviceRoot3(path10.charCodeAt(0))) {
+    start = startPart = 2;
+  }
+  for (let i2 = path10.length - 1; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPathSeparator3(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT3) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return "";
+  }
+  return path10.slice(startDot, end);
+}
+function format7(pathObject) {
+  if (pathObject === null || typeof pathObject !== "object") {
+    throw new TypeError(
+      `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
+    );
+  }
+  return _format3("\\", pathObject);
+}
+function parse7(path10) {
+  assertPath3(path10);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  const len = path10.length;
+  if (len === 0)
+    return ret;
+  let rootEnd = 0;
+  let code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator3(code2)) {
+      rootEnd = 1;
+      if (isPathSeparator3(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator3(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator3(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator3(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              rootEnd = j;
+            } else if (j !== last) {
+              rootEnd = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot3(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON3) {
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator3(path10.charCodeAt(2))) {
+            if (len === 3) {
+              ret.root = ret.dir = path10;
+              ret.base = "\\";
+              return ret;
+            }
+            rootEnd = 3;
+          }
+        } else {
+          ret.root = ret.dir = path10;
+          return ret;
+        }
+      }
+    }
+  } else if (isPathSeparator3(code2)) {
+    ret.root = ret.dir = path10;
+    ret.base = "\\";
+    return ret;
+  }
+  if (rootEnd > 0)
+    ret.root = path10.slice(0, rootEnd);
+  let startDot = -1;
+  let startPart = rootEnd;
+  let end = -1;
+  let matchedSlash = true;
+  let i2 = path10.length - 1;
+  let preDotState = 0;
+  for (; i2 >= rootEnd; --i2) {
+    code2 = path10.charCodeAt(i2);
+    if (isPathSeparator3(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT3) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      ret.base = ret.name = path10.slice(startPart, end);
+    }
+  } else {
+    ret.name = path10.slice(startPart, startDot);
+    ret.base = path10.slice(startPart, end);
+    ret.ext = path10.slice(startDot, end);
+  }
+  ret.base = ret.base || "\\";
+  if (startPart > 0 && startPart !== rootEnd) {
+    ret.dir = path10.slice(0, startPart - 1);
+  } else
+    ret.dir = ret.root;
+  return ret;
+}
+function fromFileUrl7(url) {
+  url = url instanceof URL ? url : new URL(url);
+  if (url.protocol != "file:") {
+    throw new TypeError("Must be a file URL.");
+  }
+  let path10 = decodeURIComponent(
+    url.pathname.replace(/\//g, "\\").replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
+  ).replace(/^\\*([A-Za-z]:)(\\|$)/, "$1\\");
+  if (url.hostname != "") {
+    path10 = `\\\\${url.hostname}${path10}`;
+  }
+  return path10;
+}
+function toFileUrl7(path10) {
+  if (!isAbsolute7(path10)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+  const [, hostname, pathname] = path10.match(
+    /^(?:[/\\]{2}([^/\\]+)(?=[/\\](?:[^/\\]|$)))?(.*)/
+  );
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace3(pathname.replace(/%/g, "%25"));
+  if (hostname != null && hostname != "localhost") {
+    url.hostname = hostname;
+    if (!url.hostname) {
+      throw new TypeError("Invalid hostname.");
+    }
+  }
+  return url;
+}
+
+// https://deno.land/std@0.191.0/path/posix.ts
+var posix_exports3 = {};
+__export(posix_exports3, {
+  basename: () => basename8,
+  delimiter: () => delimiter8,
+  dirname: () => dirname8,
+  extname: () => extname8,
+  format: () => format8,
+  fromFileUrl: () => fromFileUrl8,
+  isAbsolute: () => isAbsolute8,
+  join: () => join10,
+  normalize: () => normalize10,
+  parse: () => parse8,
+  relative: () => relative8,
+  resolve: () => resolve8,
+  sep: () => sep8,
+  toFileUrl: () => toFileUrl8,
+  toNamespacedPath: () => toNamespacedPath8
+});
+var sep8 = "/";
+var delimiter8 = ":";
+function resolve8(...pathSegments) {
+  let resolvedPath = "";
+  let resolvedAbsolute = false;
+  for (let i2 = pathSegments.length - 1; i2 >= -1 && !resolvedAbsolute; i2--) {
+    let path10;
+    if (i2 >= 0)
+      path10 = pathSegments[i2];
+    else {
+      const { Deno: Deno4 } = globalThis;
+      if (typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+    }
+    assertPath3(path10);
+    if (path10.length === 0) {
+      continue;
+    }
+    resolvedPath = `${path10}/${resolvedPath}`;
+    resolvedAbsolute = isPosixPathSeparator3(path10.charCodeAt(0));
+  }
+  resolvedPath = normalizeString3(
+    resolvedPath,
+    !resolvedAbsolute,
+    "/",
+    isPosixPathSeparator3
+  );
+  if (resolvedAbsolute) {
+    if (resolvedPath.length > 0)
+      return `/${resolvedPath}`;
+    else
+      return "/";
+  } else if (resolvedPath.length > 0)
+    return resolvedPath;
+  else
+    return ".";
+}
+function normalize10(path10) {
+  assertPath3(path10);
+  if (path10.length === 0)
+    return ".";
+  const isAbsolute15 = isPosixPathSeparator3(path10.charCodeAt(0));
+  const trailingSeparator = isPosixPathSeparator3(
+    path10.charCodeAt(path10.length - 1)
+  );
+  path10 = normalizeString3(path10, !isAbsolute15, "/", isPosixPathSeparator3);
+  if (path10.length === 0 && !isAbsolute15)
+    path10 = ".";
+  if (path10.length > 0 && trailingSeparator)
+    path10 += "/";
+  if (isAbsolute15)
+    return `/${path10}`;
+  return path10;
+}
+function isAbsolute8(path10) {
+  assertPath3(path10);
+  return path10.length > 0 && isPosixPathSeparator3(path10.charCodeAt(0));
+}
+function join10(...paths) {
+  if (paths.length === 0)
+    return ".";
+  let joined;
+  for (let i2 = 0, len = paths.length; i2 < len; ++i2) {
+    const path10 = paths[i2];
+    assertPath3(path10);
+    if (path10.length > 0) {
+      if (!joined)
+        joined = path10;
+      else
+        joined += `/${path10}`;
+    }
+  }
+  if (!joined)
+    return ".";
+  return normalize10(joined);
+}
+function relative8(from, to) {
+  assertPath3(from);
+  assertPath3(to);
+  if (from === to)
+    return "";
+  from = resolve8(from);
+  to = resolve8(to);
+  if (from === to)
+    return "";
+  let fromStart = 1;
+  const fromEnd = from.length;
+  for (; fromStart < fromEnd; ++fromStart) {
+    if (!isPosixPathSeparator3(from.charCodeAt(fromStart)))
+      break;
+  }
+  const fromLen = fromEnd - fromStart;
+  let toStart = 1;
+  const toEnd = to.length;
+  for (; toStart < toEnd; ++toStart) {
+    if (!isPosixPathSeparator3(to.charCodeAt(toStart)))
+      break;
+  }
+  const toLen = toEnd - toStart;
+  const length = fromLen < toLen ? fromLen : toLen;
+  let lastCommonSep = -1;
+  let i2 = 0;
+  for (; i2 <= length; ++i2) {
+    if (i2 === length) {
+      if (toLen > length) {
+        if (isPosixPathSeparator3(to.charCodeAt(toStart + i2))) {
+          return to.slice(toStart + i2 + 1);
+        } else if (i2 === 0) {
+          return to.slice(toStart + i2);
+        }
+      } else if (fromLen > length) {
+        if (isPosixPathSeparator3(from.charCodeAt(fromStart + i2))) {
+          lastCommonSep = i2;
+        } else if (i2 === 0) {
+          lastCommonSep = 0;
+        }
+      }
+      break;
+    }
+    const fromCode = from.charCodeAt(fromStart + i2);
+    const toCode = to.charCodeAt(toStart + i2);
+    if (fromCode !== toCode)
+      break;
+    else if (isPosixPathSeparator3(fromCode))
+      lastCommonSep = i2;
+  }
+  let out = "";
+  for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
+    if (i2 === fromEnd || isPosixPathSeparator3(from.charCodeAt(i2))) {
+      if (out.length === 0)
+        out += "..";
+      else
+        out += "/..";
+    }
+  }
+  if (out.length > 0)
+    return out + to.slice(toStart + lastCommonSep);
+  else {
+    toStart += lastCommonSep;
+    if (isPosixPathSeparator3(to.charCodeAt(toStart)))
+      ++toStart;
+    return to.slice(toStart);
+  }
+}
+function toNamespacedPath8(path10) {
+  return path10;
+}
+function dirname8(path10) {
+  if (path10.length === 0)
+    return ".";
+  let end = -1;
+  let matchedNonSeparator = false;
+  for (let i2 = path10.length - 1; i2 >= 1; --i2) {
+    if (isPosixPathSeparator3(path10.charCodeAt(i2))) {
+      if (matchedNonSeparator) {
+        end = i2;
+        break;
+      }
+    } else {
+      matchedNonSeparator = true;
+    }
+  }
+  if (end === -1) {
+    return isPosixPathSeparator3(path10.charCodeAt(0)) ? "/" : ".";
+  }
+  return stripTrailingSeparators(
+    path10.slice(0, end),
+    isPosixPathSeparator3
+  );
+}
+function basename8(path10, suffix = "") {
+  assertPath3(path10);
+  if (path10.length === 0)
+    return path10;
+  if (typeof suffix !== "string") {
+    throw new TypeError(
+      `Suffix must be a string. Received ${JSON.stringify(suffix)}`
+    );
+  }
+  const lastSegment = lastPathSegment(path10, isPosixPathSeparator3);
+  const strippedSegment = stripTrailingSeparators(
+    lastSegment,
+    isPosixPathSeparator3
+  );
+  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+}
+function extname8(path10) {
+  assertPath3(path10);
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let preDotState = 0;
+  for (let i2 = path10.length - 1; i2 >= 0; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPosixPathSeparator3(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT3) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return "";
+  }
+  return path10.slice(startDot, end);
+}
+function format8(pathObject) {
+  if (pathObject === null || typeof pathObject !== "object") {
+    throw new TypeError(
+      `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
+    );
+  }
+  return _format3("/", pathObject);
+}
+function parse8(path10) {
+  assertPath3(path10);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  if (path10.length === 0)
+    return ret;
+  const isAbsolute15 = isPosixPathSeparator3(path10.charCodeAt(0));
+  let start;
+  if (isAbsolute15) {
+    ret.root = "/";
+    start = 1;
+  } else {
+    start = 0;
+  }
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2 = path10.length - 1;
+  let preDotState = 0;
+  for (; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPosixPathSeparator3(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT3) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      if (startPart === 0 && isAbsolute15) {
+        ret.base = ret.name = path10.slice(1, end);
+      } else {
+        ret.base = ret.name = path10.slice(startPart, end);
+      }
+    }
+    ret.base = ret.base || "/";
+  } else {
+    if (startPart === 0 && isAbsolute15) {
+      ret.name = path10.slice(1, startDot);
+      ret.base = path10.slice(1, end);
+    } else {
+      ret.name = path10.slice(startPart, startDot);
+      ret.base = path10.slice(startPart, end);
+    }
+    ret.ext = path10.slice(startDot, end);
+  }
+  if (startPart > 0) {
+    ret.dir = stripTrailingSeparators(
+      path10.slice(0, startPart - 1),
+      isPosixPathSeparator3
+    );
+  } else if (isAbsolute15)
+    ret.dir = "/";
+  return ret;
+}
+function fromFileUrl8(url) {
+  url = url instanceof URL ? url : new URL(url);
+  if (url.protocol != "file:") {
+    throw new TypeError("Must be a file URL.");
+  }
+  return decodeURIComponent(
+    url.pathname.replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
+  );
+}
+function toFileUrl8(path10) {
+  if (!isAbsolute8(path10)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace3(
+    path10.replace(/%/g, "%25").replace(/\\/g, "%5C")
+  );
+  return url;
+}
+
+// https://deno.land/std@0.191.0/path/glob.ts
+var path5 = isWindows3 ? win32_exports3 : posix_exports3;
+var { join: join11, normalize: normalize11 } = path5;
+var regExpEscapeChars = [
+  "!",
+  "$",
+  "(",
+  ")",
+  "*",
+  "+",
+  ".",
+  "=",
+  "?",
+  "[",
+  "\\",
+  "^",
+  "{",
+  "|"
+];
+var rangeEscapeChars = ["-", "\\", "]"];
+function globToRegExp2(glob2, {
+  extended = true,
+  globstar: globstarOption = true,
+  os = osType3,
+  caseInsensitive = false
+} = {}) {
+  if (glob2 == "") {
+    return /(?!)/;
+  }
+  const sep15 = os == "windows" ? "(?:\\\\|/)+" : "/+";
+  const sepMaybe = os == "windows" ? "(?:\\\\|/)*" : "/*";
+  const seps = os == "windows" ? ["\\", "/"] : ["/"];
+  const globstar = os == "windows" ? "(?:[^\\\\/]*(?:\\\\|/|$)+)*" : "(?:[^/]*(?:/|$)+)*";
+  const wildcard = os == "windows" ? "[^\\\\/]*" : "[^/]*";
+  const escapePrefix = os == "windows" ? "`" : "\\";
+  let newLength = glob2.length;
+  for (; newLength > 1 && seps.includes(glob2[newLength - 1]); newLength--)
+    ;
+  glob2 = glob2.slice(0, newLength);
+  let regExpString = "";
+  for (let j = 0; j < glob2.length; ) {
+    let segment = "";
+    const groupStack = [];
+    let inRange = false;
+    let inEscape = false;
+    let endsWithSep = false;
+    let i2 = j;
+    for (; i2 < glob2.length && !seps.includes(glob2[i2]); i2++) {
+      if (inEscape) {
+        inEscape = false;
+        const escapeChars = inRange ? rangeEscapeChars : regExpEscapeChars;
+        segment += escapeChars.includes(glob2[i2]) ? `\\${glob2[i2]}` : glob2[i2];
+        continue;
+      }
+      if (glob2[i2] == escapePrefix) {
+        inEscape = true;
+        continue;
+      }
+      if (glob2[i2] == "[") {
+        if (!inRange) {
+          inRange = true;
+          segment += "[";
+          if (glob2[i2 + 1] == "!") {
+            i2++;
+            segment += "^";
+          } else if (glob2[i2 + 1] == "^") {
+            i2++;
+            segment += "\\^";
+          }
+          continue;
+        } else if (glob2[i2 + 1] == ":") {
+          let k = i2 + 1;
+          let value = "";
+          while (glob2[k + 1] != null && glob2[k + 1] != ":") {
+            value += glob2[k + 1];
+            k++;
+          }
+          if (glob2[k + 1] == ":" && glob2[k + 2] == "]") {
+            i2 = k + 2;
+            if (value == "alnum")
+              segment += "\\dA-Za-z";
+            else if (value == "alpha")
+              segment += "A-Za-z";
+            else if (value == "ascii")
+              segment += "\0-\x7F";
+            else if (value == "blank")
+              segment += "	 ";
+            else if (value == "cntrl")
+              segment += "\0-\x7F";
+            else if (value == "digit")
+              segment += "\\d";
+            else if (value == "graph")
+              segment += "!-~";
+            else if (value == "lower")
+              segment += "a-z";
+            else if (value == "print")
+              segment += " -~";
+            else if (value == "punct") {
+              segment += `!"#$%&'()*+,\\-./:;<=>?@[\\\\\\]^_\u2018{|}~`;
+            } else if (value == "space")
+              segment += "\\s\v";
+            else if (value == "upper")
+              segment += "A-Z";
+            else if (value == "word")
+              segment += "\\w";
+            else if (value == "xdigit")
+              segment += "\\dA-Fa-f";
+            continue;
+          }
+        }
+      }
+      if (glob2[i2] == "]" && inRange) {
+        inRange = false;
+        segment += "]";
+        continue;
+      }
+      if (inRange) {
+        if (glob2[i2] == "\\") {
+          segment += `\\\\`;
+        } else {
+          segment += glob2[i2];
+        }
+        continue;
+      }
+      if (glob2[i2] == ")" && groupStack.length > 0 && groupStack[groupStack.length - 1] != "BRACE") {
+        segment += ")";
+        const type = groupStack.pop();
+        if (type == "!") {
+          segment += wildcard;
+        } else if (type != "@") {
+          segment += type;
+        }
+        continue;
+      }
+      if (glob2[i2] == "|" && groupStack.length > 0 && groupStack[groupStack.length - 1] != "BRACE") {
+        segment += "|";
+        continue;
+      }
+      if (glob2[i2] == "+" && extended && glob2[i2 + 1] == "(") {
+        i2++;
+        groupStack.push("+");
+        segment += "(?:";
+        continue;
+      }
+      if (glob2[i2] == "@" && extended && glob2[i2 + 1] == "(") {
+        i2++;
+        groupStack.push("@");
+        segment += "(?:";
+        continue;
+      }
+      if (glob2[i2] == "?") {
+        if (extended && glob2[i2 + 1] == "(") {
+          i2++;
+          groupStack.push("?");
+          segment += "(?:";
+        } else {
+          segment += ".";
+        }
+        continue;
+      }
+      if (glob2[i2] == "!" && extended && glob2[i2 + 1] == "(") {
+        i2++;
+        groupStack.push("!");
+        segment += "(?!";
+        continue;
+      }
+      if (glob2[i2] == "{") {
+        groupStack.push("BRACE");
+        segment += "(?:";
+        continue;
+      }
+      if (glob2[i2] == "}" && groupStack[groupStack.length - 1] == "BRACE") {
+        groupStack.pop();
+        segment += ")";
+        continue;
+      }
+      if (glob2[i2] == "," && groupStack[groupStack.length - 1] == "BRACE") {
+        segment += "|";
+        continue;
+      }
+      if (glob2[i2] == "*") {
+        if (extended && glob2[i2 + 1] == "(") {
+          i2++;
+          groupStack.push("*");
+          segment += "(?:";
+        } else {
+          const prevChar = glob2[i2 - 1];
+          let numStars = 1;
+          while (glob2[i2 + 1] == "*") {
+            i2++;
+            numStars++;
+          }
+          const nextChar = glob2[i2 + 1];
+          if (globstarOption && numStars == 2 && [...seps, void 0].includes(prevChar) && [...seps, void 0].includes(nextChar)) {
+            segment += globstar;
+            endsWithSep = true;
+          } else {
+            segment += wildcard;
+          }
+        }
+        continue;
+      }
+      segment += regExpEscapeChars.includes(glob2[i2]) ? `\\${glob2[i2]}` : glob2[i2];
+    }
+    if (groupStack.length > 0 || inRange || inEscape) {
+      segment = "";
+      for (const c of glob2.slice(j, i2)) {
+        segment += regExpEscapeChars.includes(c) ? `\\${c}` : c;
+        endsWithSep = false;
+      }
+    }
+    regExpString += segment;
+    if (!endsWithSep) {
+      regExpString += i2 < glob2.length ? sep15 : sepMaybe;
+      endsWithSep = true;
+    }
+    while (seps.includes(glob2[i2]))
+      i2++;
+    if (!(i2 > j)) {
+      throw new Error("Assertion failure: i > j (potential infinite loop)");
+    }
+    j = i2;
+  }
+  regExpString = `^${regExpString}$`;
+  return new RegExp(regExpString, caseInsensitive ? "i" : "");
+}
+
+// https://deno.land/std@0.191.0/bytes/copy.ts
+function copy2(src, dst, off = 0) {
+  off = Math.max(0, Math.min(off, dst.byteLength));
+  const dstBytesAvailable = dst.byteLength - off;
+  if (src.byteLength > dstBytesAvailable) {
+    src = src.subarray(0, dstBytesAvailable);
+  }
+  dst.set(src, off);
+  return src.byteLength;
+}
+
+// https://deno.land/std@0.191.0/io/buf_reader.ts
+var DEFAULT_BUF_SIZE = 4096;
+var MIN_BUF_SIZE = 16;
+var MAX_CONSECUTIVE_EMPTY_READS = 100;
+var CR = "\r".charCodeAt(0);
+var LF = "\n".charCodeAt(0);
+var BufferFullError = class extends Error {
+  constructor(partial) {
+    super("Buffer full");
+    this.partial = partial;
+  }
+  name = "BufferFullError";
+};
+var PartialReadError = class extends Error {
+  name = "PartialReadError";
+  partial;
+  constructor() {
+    super("Encountered UnexpectedEof, data only partially read");
+  }
+};
+var BufReader = class _BufReader {
+  #buf;
+  #rd;
+  // Reader provided by caller.
+  #r = 0;
+  // buf read position.
+  #w = 0;
+  // buf write position.
+  #eof = false;
+  // private lastByte: number;
+  // private lastCharSize: number;
+  /** return new BufReader unless r is BufReader */
+  static create(r, size = DEFAULT_BUF_SIZE) {
+    return r instanceof _BufReader ? r : new _BufReader(r, size);
+  }
+  constructor(rd, size = DEFAULT_BUF_SIZE) {
+    if (size < MIN_BUF_SIZE) {
+      size = MIN_BUF_SIZE;
+    }
+    this.#reset(new Uint8Array(size), rd);
+  }
+  /** Returns the size of the underlying buffer in bytes. */
+  size() {
+    return this.#buf.byteLength;
+  }
+  buffered() {
+    return this.#w - this.#r;
+  }
+  // Reads a new chunk into the buffer.
+  #fill = async () => {
+    if (this.#r > 0) {
+      this.#buf.copyWithin(0, this.#r, this.#w);
+      this.#w -= this.#r;
+      this.#r = 0;
+    }
+    if (this.#w >= this.#buf.byteLength) {
+      throw Error("bufio: tried to fill full buffer");
+    }
+    for (let i2 = MAX_CONSECUTIVE_EMPTY_READS; i2 > 0; i2--) {
+      const rr = await this.#rd.read(this.#buf.subarray(this.#w));
+      if (rr === null) {
+        this.#eof = true;
+        return;
+      }
+      assert4(rr >= 0, "negative read");
+      this.#w += rr;
+      if (rr > 0) {
+        return;
+      }
+    }
+    throw new Error(
+      `No progress after ${MAX_CONSECUTIVE_EMPTY_READS} read() calls`
+    );
+  };
+  /** Discards any buffered data, resets all state, and switches
+   * the buffered reader to read from r.
+   */
+  reset(r) {
+    this.#reset(this.#buf, r);
+  }
+  #reset = (buf, rd) => {
+    this.#buf = buf;
+    this.#rd = rd;
+    this.#eof = false;
+  };
+  /** reads data into p.
+   * It returns the number of bytes read into p.
+   * The bytes are taken from at most one Read on the underlying Reader,
+   * hence n may be less than len(p).
+   * To read exactly len(p) bytes, use io.ReadFull(b, p).
+   */
+  async read(p) {
+    let rr = p.byteLength;
+    if (p.byteLength === 0)
+      return rr;
+    if (this.#r === this.#w) {
+      if (p.byteLength >= this.#buf.byteLength) {
+        const rr2 = await this.#rd.read(p);
+        const nread = rr2 ?? 0;
+        assert4(nread >= 0, "negative read");
+        return rr2;
+      }
+      this.#r = 0;
+      this.#w = 0;
+      rr = await this.#rd.read(this.#buf);
+      if (rr === 0 || rr === null)
+        return rr;
+      assert4(rr >= 0, "negative read");
+      this.#w += rr;
+    }
+    const copied = copy2(this.#buf.subarray(this.#r, this.#w), p, 0);
+    this.#r += copied;
+    return copied;
+  }
+  /** reads exactly `p.length` bytes into `p`.
+   *
+   * If successful, `p` is returned.
+   *
+   * If the end of the underlying stream has been reached, and there are no more
+   * bytes available in the buffer, `readFull()` returns `null` instead.
+   *
+   * An error is thrown if some bytes could be read, but not enough to fill `p`
+   * entirely before the underlying stream reported an error or EOF. Any error
+   * thrown will have a `partial` property that indicates the slice of the
+   * buffer that has been successfully filled with data.
+   *
+   * Ported from https://golang.org/pkg/io/#ReadFull
+   */
+  async readFull(p) {
+    let bytesRead = 0;
+    while (bytesRead < p.length) {
+      try {
+        const rr = await this.read(p.subarray(bytesRead));
+        if (rr === null) {
+          if (bytesRead === 0) {
+            return null;
+          } else {
+            throw new PartialReadError();
+          }
+        }
+        bytesRead += rr;
+      } catch (err) {
+        if (err instanceof PartialReadError) {
+          err.partial = p.subarray(0, bytesRead);
+        }
+        throw err;
+      }
+    }
+    return p;
+  }
+  /** Returns the next byte [0, 255] or `null`. */
+  async readByte() {
+    while (this.#r === this.#w) {
+      if (this.#eof)
+        return null;
+      await this.#fill();
+    }
+    const c = this.#buf[this.#r];
+    this.#r++;
+    return c;
+  }
+  /** readString() reads until the first occurrence of delim in the input,
+   * returning a string containing the data up to and including the delimiter.
+   * If ReadString encounters an error before finding a delimiter,
+   * it returns the data read before the error and the error itself
+   * (often `null`).
+   * ReadString returns err != nil if and only if the returned data does not end
+   * in delim.
+   * For simple uses, a Scanner may be more convenient.
+   */
+  async readString(delim) {
+    if (delim.length !== 1) {
+      throw new Error("Delimiter should be a single character");
+    }
+    const buffer = await this.readSlice(delim.charCodeAt(0));
+    if (buffer === null)
+      return null;
+    return new TextDecoder().decode(buffer);
+  }
+  /** `readLine()` is a low-level line-reading primitive. Most callers should
+   * use `readString('\n')` instead or use a Scanner.
+   *
+   * `readLine()` tries to return a single line, not including the end-of-line
+   * bytes. If the line was too long for the buffer then `more` is set and the
+   * beginning of the line is returned. The rest of the line will be returned
+   * from future calls. `more` will be false when returning the last fragment
+   * of the line. The returned buffer is only valid until the next call to
+   * `readLine()`.
+   *
+   * The text returned from ReadLine does not include the line end ("\r\n" or
+   * "\n").
+   *
+   * When the end of the underlying stream is reached, the final bytes in the
+   * stream are returned. No indication or error is given if the input ends
+   * without a final line end. When there are no more trailing bytes to read,
+   * `readLine()` returns `null`.
+   *
+   * Calling `unreadByte()` after `readLine()` will always unread the last byte
+   * read (possibly a character belonging to the line end) even if that byte is
+   * not part of the line returned by `readLine()`.
+   */
+  async readLine() {
+    let line = null;
+    try {
+      line = await this.readSlice(LF);
+    } catch (err) {
+      let partial;
+      if (err instanceof PartialReadError) {
+        partial = err.partial;
+        assert4(
+          partial instanceof Uint8Array,
+          "bufio: caught error from `readSlice()` without `partial` property"
+        );
+      }
+      if (!(err instanceof BufferFullError)) {
+        throw err;
+      }
+      partial = err.partial;
+      if (!this.#eof && partial && partial.byteLength > 0 && partial[partial.byteLength - 1] === CR) {
+        assert4(this.#r > 0, "bufio: tried to rewind past start of buffer");
+        this.#r--;
+        partial = partial.subarray(0, partial.byteLength - 1);
+      }
+      if (partial) {
+        return { line: partial, more: !this.#eof };
+      }
+    }
+    if (line === null) {
+      return null;
+    }
+    if (line.byteLength === 0) {
+      return { line, more: false };
+    }
+    if (line[line.byteLength - 1] == LF) {
+      let drop = 1;
+      if (line.byteLength > 1 && line[line.byteLength - 2] === CR) {
+        drop = 2;
+      }
+      line = line.subarray(0, line.byteLength - drop);
+    }
+    return { line, more: false };
+  }
+  /** `readSlice()` reads until the first occurrence of `delim` in the input,
+   * returning a slice pointing at the bytes in the buffer. The bytes stop
+   * being valid at the next read.
+   *
+   * If `readSlice()` encounters an error before finding a delimiter, or the
+   * buffer fills without finding a delimiter, it throws an error with a
+   * `partial` property that contains the entire buffer.
+   *
+   * If `readSlice()` encounters the end of the underlying stream and there are
+   * any bytes left in the buffer, the rest of the buffer is returned. In other
+   * words, EOF is always treated as a delimiter. Once the buffer is empty,
+   * it returns `null`.
+   *
+   * Because the data returned from `readSlice()` will be overwritten by the
+   * next I/O operation, most clients should use `readString()` instead.
+   */
+  async readSlice(delim) {
+    let s = 0;
+    let slice2;
+    while (true) {
+      let i2 = this.#buf.subarray(this.#r + s, this.#w).indexOf(delim);
+      if (i2 >= 0) {
+        i2 += s;
+        slice2 = this.#buf.subarray(this.#r, this.#r + i2 + 1);
+        this.#r += i2 + 1;
+        break;
+      }
+      if (this.#eof) {
+        if (this.#r === this.#w) {
+          return null;
+        }
+        slice2 = this.#buf.subarray(this.#r, this.#w);
+        this.#r = this.#w;
+        break;
+      }
+      if (this.buffered() >= this.#buf.byteLength) {
+        this.#r = this.#w;
+        const oldbuf = this.#buf;
+        const newbuf = this.#buf.slice(0);
+        this.#buf = newbuf;
+        throw new BufferFullError(oldbuf);
+      }
+      s = this.#w - this.#r;
+      try {
+        await this.#fill();
+      } catch (err) {
+        if (err instanceof PartialReadError) {
+          err.partial = slice2;
+        }
+        throw err;
+      }
+    }
+    return slice2;
+  }
+  /** `peek()` returns the next `n` bytes without advancing the reader. The
+   * bytes stop being valid at the next read call.
+   *
+   * When the end of the underlying stream is reached, but there are unread
+   * bytes left in the buffer, those bytes are returned. If there are no bytes
+   * left in the buffer, it returns `null`.
+   *
+   * If an error is encountered before `n` bytes are available, `peek()` throws
+   * an error with the `partial` property set to a slice of the buffer that
+   * contains the bytes that were available before the error occurred.
+   */
+  async peek(n) {
+    if (n < 0) {
+      throw Error("negative count");
+    }
+    let avail = this.#w - this.#r;
+    while (avail < n && avail < this.#buf.byteLength && !this.#eof) {
+      try {
+        await this.#fill();
+      } catch (err) {
+        if (err instanceof PartialReadError) {
+          err.partial = this.#buf.subarray(this.#r, this.#w);
+        }
+        throw err;
+      }
+      avail = this.#w - this.#r;
+    }
+    if (avail === 0 && this.#eof) {
+      return null;
+    } else if (avail < n && this.#eof) {
+      return this.#buf.subarray(this.#r, this.#r + avail);
+    } else if (avail < n) {
+      throw new BufferFullError(this.#buf.subarray(this.#r, this.#w));
+    }
+    return this.#buf.subarray(this.#r, this.#r + n);
+  }
+};
+
+// https://deno.land/std@0.191.0/bytes/concat.ts
+function concat(...buf) {
+  let length = 0;
+  for (const b of buf) {
+    length += b.length;
+  }
+  const output2 = new Uint8Array(length);
+  let index = 0;
+  for (const b of buf) {
+    output2.set(b, index);
+    index += b.length;
+  }
+  return output2;
+}
+
+// https://deno.land/std@0.191.0/io/read_lines.ts
+async function* readLines(reader, decoderOpts) {
+  const bufReader = new BufReader(reader);
+  let chunks = [];
+  const decoder3 = new TextDecoder(decoderOpts?.encoding, decoderOpts);
+  while (true) {
+    const res = await bufReader.readLine();
+    if (!res) {
+      if (chunks.length > 0) {
+        yield decoder3.decode(concat(...chunks));
+      }
+      break;
+    }
+    chunks.push(res.line);
+    if (!res.more) {
+      yield decoder3.decode(concat(...chunks));
+      chunks = [];
+    }
+  }
+}
+
+// https://deno.land/x/good@1.5.0.3/value.js
+var typedArrayClasses4 = [
+  Uint16Array,
+  Uint32Array,
+  Uint8Array,
+  Uint8ClampedArray,
+  Int16Array,
+  Int32Array,
+  Int8Array,
+  Float32Array,
+  Float64Array,
+  globalThis.BigInt64Array,
+  globalThis.BigUint64Array
+].filter((each2) => each2);
+var copyableClasses4 = /* @__PURE__ */ new Set([RegExp, Date, URL, ...typedArrayClasses4, globalThis.ArrayBuffer, globalThis.DataView]);
+var IteratorPrototype4 = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
+var ArrayIterator4 = Object.getPrototypeOf([][Symbol.iterator]);
+var MapIterator4 = Object.getPrototypeOf((/* @__PURE__ */ new Map())[Symbol.iterator]);
+var SetIterator4 = Object.getPrototypeOf((/* @__PURE__ */ new Set())[Symbol.iterator]);
+var AsyncFunction4 = class {
+};
+var GeneratorFunction4 = class {
+};
+var AsyncGeneratorFunction4 = class {
+};
+var SyncGenerator4 = class {
+};
+var AsyncGenerator4 = class {
+};
+try {
+  AsyncFunction4 = eval("(async function(){}).constructor");
+  GeneratorFunction4 = eval("(function*(){}).constructor");
+  AsyncGeneratorFunction4 = eval("(async function*(){}).constructor");
+  SyncGenerator4 = eval("((function*(){})()).constructor");
+  AsyncGenerator4 = eval("((async function*(){})()).constructor");
+} catch (error) {
+}
+var isPrimitive4 = (value) => !(value instanceof Object);
+var isPureObject4 = (value) => value instanceof Object && Object.getPrototypeOf(value).constructor == Object;
+var isPracticallyPrimitive4 = (value) => isPrimitive4(value) || value instanceof Date || value instanceof RegExp || value instanceof URL;
+var isBuiltInIterator4 = (value) => IteratorPrototype4.isPrototypeOf(value);
+var isGeneratorType4 = (value) => {
+  if (value instanceof Object) {
+    if (isBuiltInIterator4(value)) {
+      return true;
+    }
+    const constructor = value.constructor;
+    return constructor == SyncGenerator4 || constructor == AsyncGenerator4;
+  }
+  return false;
+};
+var isAsyncIterable4 = function(value) {
+  return value && typeof value[Symbol.asyncIterator] === "function";
+};
+var isSyncIterable4 = function(value) {
+  return value && typeof value[Symbol.iterator] === "function";
+};
+var isIterableObjectOrContainer2 = function(value) {
+  return value instanceof Object && (typeof value[Symbol.iterator] == "function" || typeof value[Symbol.asyncIterator] === "function");
+};
+var isTechnicallyIterable4 = function(value) {
+  return value instanceof Object || typeof value == "string";
+};
+var isSyncIterableObjectOrContainer4 = function(value) {
+  return value instanceof Object && typeof value[Symbol.iterator] == "function";
+};
+var deepCopySymbol4 = Symbol.for("deepCopy");
+var clonedFromSymbol4 = Symbol();
+var getThis4 = Symbol();
+Object.getPrototypeOf(function() {
+})[getThis4] = function() {
+  return this;
+};
+function deepCopyInner4(value, valueChain = [], originalToCopyMap = /* @__PURE__ */ new Map()) {
+  valueChain.push(value);
+  if (value == null) {
+    return value;
+  }
+  if (!(value instanceof Object)) {
+    return value;
+  }
+  if (originalToCopyMap.has(value)) {
+    return originalToCopyMap.get(value);
+  }
+  if (value[deepCopySymbol4] instanceof Function) {
+    const clonedValue = value[deepCopySymbol4](originalToCopyMap);
+    originalToCopyMap.set(value, clonedValue);
+    return clonedValue;
+  }
+  if (isGeneratorType4(value)) {
+    throw Error(`Sadly built-in generators cannot be deep copied.
+And I found a generator along this path:
+${valueChain.reverse().map((each2) => `${each2},
+`)}`);
+  }
+  let object, theThis, thisCopy;
+  if (value instanceof Date) {
+    object = new Date(value.getTime());
+  } else if (value instanceof RegExp) {
+    object = new RegExp(value);
+  } else if (value instanceof URL) {
+    object = new URL(value);
+  } else if (value instanceof Function) {
+    theThis = value[getThis4]();
+    object = value.bind(theThis);
+  } else if (copyableClasses4.has(value.constructor)) {
+    object = new value.constructor(value);
+  } else if (value instanceof Array) {
+    object = [];
+  } else if (value instanceof Set) {
+    object = /* @__PURE__ */ new Set();
+  } else if (value instanceof Map) {
+    object = /* @__PURE__ */ new Map();
+  }
+  originalToCopyMap.set(value, object);
+  if (object instanceof Function) {
+    thisCopy = deepCopyInner4(theThis, valueChain, originalToCopyMap);
+    object = object.bind(thisCopy);
+  }
+  const output2 = object;
+  try {
+    output2.constructor = value.constructor;
+  } catch (error) {
+  }
+  Object.setPrototypeOf(output2, Object.getPrototypeOf(value));
+  const propertyDefinitions = {};
+  for (const [key, description] of Object.entries(Object.getOwnPropertyDescriptors(value))) {
+    const { value: value2, get, set, ...options } = description;
+    const getIsFunc = get instanceof Function;
+    const setIsFunc = set instanceof Function;
+    if (getIsFunc || setIsFunc) {
+      propertyDefinitions[key] = {
+        ...options,
+        get: get ? function(...args) {
+          return get.apply(output2, args);
+        } : void 0,
+        set: set ? function(...args) {
+          return set.apply(output2, args);
+        } : void 0
+      };
+    } else {
+      if (key == "length" && output2 instanceof Array) {
+        continue;
+      }
+      propertyDefinitions[key] = {
+        ...options,
+        value: deepCopyInner4(value2, valueChain, originalToCopyMap)
+      };
+    }
+  }
+  Object.defineProperties(output2, propertyDefinitions);
+  return output2;
+}
+var deepCopy4 = (value) => deepCopyInner4(value);
+var shallowSortObject4 = (obj) => {
+  return Object.keys(obj).sort().reduce(
+    (newObj, key) => {
+      newObj[key] = obj[key];
+      return newObj;
+    },
+    {}
+  );
+};
+var deepSortObject4 = (obj, seen = /* @__PURE__ */ new Map()) => {
+  if (!(obj instanceof Object)) {
+    return obj;
+  } else if (seen.has(obj)) {
+    return seen.get(obj);
+  } else {
+    if (obj instanceof Array) {
+      const sortedChildren = [];
+      seen.set(obj, sortedChildren);
+      for (const each2 of obj) {
+        sortedChildren.push(deepSortObject4(each2, seen));
+      }
+      return sortedChildren;
+    } else {
+      const sorted = {};
+      seen.set(obj, sorted);
+      for (const eachKey of Object.keys(obj).sort()) {
+        sorted[eachKey] = deepSortObject4(obj[eachKey], seen);
+      }
+      return sorted;
+    }
+  }
+};
+var stableStringify4 = (value, ...args) => {
+  return JSON.stringify(deepSortObject4(value), ...args);
+};
+var allKeys4 = function(obj) {
+  let keys = [];
+  if (obj == null) {
+    return [];
+  }
+  if (!(obj instanceof Object)) {
+    obj = Object.getPrototypeOf(obj);
+  }
+  while (obj) {
+    keys = keys.concat(Reflect.ownKeys(obj));
+    obj = Object.getPrototypeOf(obj);
+  }
+  return keys;
+};
+var ownKeyDescriptions4 = Object.getOwnPropertyDescriptors;
+var allKeyDescriptions4 = function(value, options = { includingBuiltin: false }) {
+  var { includingBuiltin } = { ...options };
+  let descriptions = [];
+  if (value == null) {
+    return {};
+  }
+  if (!(value instanceof Object)) {
+    value = Object.getPrototypeOf(value);
+  }
+  const rootPrototype = Object.getPrototypeOf({});
+  let prevObj;
+  while (value && value != prevObj) {
+    if (!includingBuiltin && value == rootPrototype) {
+      break;
+    }
+    descriptions = descriptions.concat(Object.entries(Object.getOwnPropertyDescriptors(value)));
+    prevObj = value;
+    value = Object.getPrototypeOf(value);
+  }
+  descriptions.reverse();
+  return Object.fromEntries(descriptions);
+};
+
+// https://deno.land/x/quickr@0.6.54/main/file_system.js
+ensure({ denoVersion: "1.17.1" });
+var cache3 = {};
+var PathInfo = class {
+  constructor({ path: path10, _lstatData, _statData }) {
+    this.path = path10;
+    this._lstat = _lstatData;
+    this._data = _statData;
+  }
+  // 
+  // core data sources
+  // 
+  refresh() {
+    this._lstat = null;
+    this._data = null;
+  }
+  get lstat() {
+    if (!this._lstat) {
+      try {
+        this._lstat = Deno.lstatSync(this.path);
+      } catch (error) {
+        this._lstat = { doesntExist: true };
+      }
+    }
+    return this._lstat;
+  }
+  get stat() {
+    if (!this._stat) {
+      const lstat = this.lstat;
+      if (!lstat.isSymlink) {
+        this._stat = {
+          isBrokenLink: false,
+          isLoopOfLinks: false
+        };
+      } else {
+        try {
+          this._stat = Deno.statSync(this.path);
+        } catch (error) {
+          this._stat = {};
+          if (error.message.match(/^Too many levels of symbolic links/)) {
+            this._stat.isBrokenLink = true;
+            this._stat.isLoopOfLinks = true;
+          } else if (error.message.match(/^No such file or directory/)) {
+            this._stat.isBrokenLink = true;
+          } else {
+            throw error;
+          }
+        }
+      }
+    }
+    return this._stat;
+  }
+  // 
+  // main attributes
+  // 
+  get exists() {
+    const lstat = this.lstat;
+    return !lstat.doesntExist;
+  }
+  get name() {
+    return parse3(this.path).name;
+  }
+  get extension() {
+    return parse3(this.path).ext;
+  }
+  get basename() {
+    return this.path && basename3(this.path);
+  }
+  get parentPath() {
+    return this.path && dirname3(this.path);
+  }
+  relativePathFrom(parentPath) {
+    return relative3(parentPath, this.path);
+  }
+  get link() {
+    const lstat = this.lstat;
+    if (lstat.isSymlink) {
+      return Deno.readLinkSync(this.path);
+    } else {
+      return null;
+    }
+  }
+  get isSymlink() {
+    const lstat = this.lstat;
+    return !!lstat.isSymlink;
+  }
+  get isRelativeSymlink() {
+    const lstat = this.lstat;
+    const isNotSymlink = !lstat.isSymlink;
+    if (isNotSymlink) {
+      return false;
+    }
+    const relativeOrAbsolutePath = Deno.readLinkSync(this.path);
+    return !isAbsolute3(relativeOrAbsolutePath);
+  }
+  get isAbsoluteSymlink() {
+    const lstat = this.lstat;
+    const isNotSymlink = !lstat.isSymlink;
+    if (isNotSymlink) {
+      return false;
+    }
+    const relativeOrAbsolutePath = Deno.readLinkSync(this.path);
+    return isAbsolute3(relativeOrAbsolutePath);
+  }
+  get isBrokenLink() {
+    const stat = this.stat;
+    return !!stat.isBrokenLink;
+  }
+  get isLoopOfLinks() {
+    const stat = this.stat;
+    return !!stat.isLoopOfLinks;
+  }
+  get isFile() {
+    const lstat = this.lstat;
+    if (lstat.doesntExist) {
+      return false;
+    }
+    if (!lstat.isSymlink) {
+      return lstat.isFile;
+    } else {
+      return !!this.stat.isFile;
+    }
+  }
+  get isFolder() {
+    const lstat = this.lstat;
+    if (lstat.doesntExist) {
+      return false;
+    }
+    if (!lstat.isSymlink) {
+      return lstat.isDirectory;
+    } else {
+      return !!this.stat.isDirectory;
+    }
+  }
+  get sizeInBytes() {
+    const lstat = this.lstat;
+    return lstat.size;
+  }
+  get permissions() {
+    const { mode } = this.lstat;
+    return {
+      owner: {
+        //          rwxrwxrwx
+        canRead: !!(256 & mode),
+        canWrite: !!(128 & mode),
+        canExecute: !!(64 & mode)
+      },
+      group: {
+        canRead: !!(32 & mode),
+        canWrite: !!(16 & mode),
+        canExecute: !!(8 & mode)
+      },
+      others: {
+        canRead: !!(4 & mode),
+        canWrite: !!(2 & mode),
+        canExecute: !!(1 & mode)
+      }
+    };
+  }
+  // aliases
+  get isDirectory() {
+    return this.isFolder;
+  }
+  get dirname() {
+    return this.parentPath;
+  }
+  toJSON() {
+    return {
+      exists: this.exists,
+      name: this.name,
+      extension: this.extension,
+      basename: this.basename,
+      parentPath: this.parentPath,
+      isSymlink: this.isSymlink,
+      isBrokenLink: this.isBrokenLink,
+      isLoopOfLinks: this.isLoopOfLinks,
+      isFile: this.isFile,
+      isFolder: this.isFolder,
+      sizeInBytes: this.sizeInBytes,
+      permissions: this.permissions,
+      isDirectory: this.isDirectory,
+      dirname: this.dirname
+    };
+  }
+};
+var defaultOptionsHelper = (options) => ({
+  renameExtension: options.renameExtension || FileSystem.defaultRenameExtension,
+  overwrite: options.overwrite
+});
+var fileLockSymbol = Symbol.for("fileLock");
+var locker = globalThis[fileLockSymbol] || {};
+var grabPathLock = async (path10) => {
+  while (locker[path10]) {
+    await new Promise((resolve15) => setTimeout(resolve15, 70));
+  }
+  locker[path10] = true;
+};
+var pathStandardize = (path10) => {
+  path10 = path10.path || path10;
+  if (typeof path10 == "string" && path10.startsWith("file:///")) {
+    path10 = fromFileUrl3(path10);
+  }
+  return path10;
+};
+var FileSystem = {
+  defaultRenameExtension: ".old",
+  denoExecutablePath: Deno.execPath(),
+  parentPath: dirname3,
+  dirname: dirname3,
+  basename: basename3,
+  extname: extname3,
+  join: join4,
+  normalize: (path10) => normalize4(pathStandardize(path10)).replace(/\/$/, ""),
+  isAbsolutePath: isAbsolute3,
+  isRelativePath: (...args) => !isAbsolute3(...args),
+  makeRelativePath: ({ from, to }) => relative3(from.path || from, to.path || to),
+  makeAbsolutePath: (path10) => {
+    if (!isAbsolute3(path10)) {
+      return normalize4(join4(Deno.cwd(), path10));
+    } else {
+      return normalize4(path10);
+    }
+  },
+  pathDepth(path10) {
+    path10 = FileSystem.normalize(path10);
+    let count4 = 0;
+    for (const eachChar of path10.path || path10) {
+      if (eachChar == "/") {
+        count4++;
+      }
+    }
+    if (path10[0] == "/") {
+      count4--;
+    }
+    return count4 + 1;
+  },
+  pathPieces(path10) {
+    path10 = path10.path || path10;
+    const result2 = parse3(path10);
+    const folderList = [];
+    let dirname15 = result2.dir;
+    while (true) {
+      folderList.push(basename3(dirname15));
+      if (dirname15 == dirname3(dirname15)) {
+        break;
+      }
+      dirname15 = dirname3(dirname15);
+    }
+    folderList.reverse();
+    return [folderList, result2.name, result2.ext];
+  },
+  /**
+   * add to name, preserve file extension
+   *
+   * @example
+   * ```js
+   * let newName = FileSystem.extendName({ path: "a/blah.thing.js", string: ".old" })
+   * newName == "a/blah.old.thing.js"
+   * ```
+   *
+   * @param arg1.path - item path
+   * @param arg1.string - the string to append to the name
+   * @return {string} - the new path
+   */
+  extendName({ path: path10, string: string2 }) {
+    path10 = pathStandardize(path10);
+    const [name, ...extensions] = basename3(path10).split(".");
+    return `${dirname3(path10)}/${name}${string2}${extensions.length == 0 ? "" : `.${extensions.join(".")}`}`;
+  },
+  /**
+   * All Parent Paths
+   *
+   * @param {String} path - path doesnt need to exist
+   * @return {[String]} longest to shortest parent path
+   */
+  allParentPaths(path10) {
+    const pathStartsWithDotSlash = path10.startsWith("./");
+    path10 = FileSystem.normalize(path10);
+    if (path10 === ".") {
+      return [];
+    }
+    const dotGotRemoved = pathStartsWithDotSlash && !path10.startsWith("./");
+    let previousPath = null;
+    let allPaths = [];
+    while (1) {
+      previousPath = path10;
+      path10 = FileSystem.parentPath(path10);
+      if (previousPath === path10) {
+        break;
+      }
+      allPaths.push(path10);
+    }
+    allPaths.reverse();
+    allPaths = allPaths.filter((each2) => each2 != ".");
+    if (dotGotRemoved) {
+      allPaths.push(".");
+    }
+    return allPaths;
+  },
+  pathOfCaller(callerNumber = void 0) {
+    const err = new Error();
+    let filePaths = findAll(/^.+file:\/\/(\/[\w\W]*?):/gm, err.stack).map((each2) => each2[1]);
+    if (callerNumber) {
+      filePaths = filePaths.slice(callerNumber);
+    }
+    try {
+      const secondPath = filePaths[1];
+      if (secondPath) {
+        try {
+          if (Deno.statSync(secondPath).isFile) {
+            return secondPath;
+          }
+        } catch (error) {
+        }
+      }
+    } catch (error) {
+    }
+    return Deno.cwd();
+  },
+  get home() {
+    if (!cache3.home) {
+      if (Deno.build.os != "windows") {
+        cache3.home = Deno.env.get("HOME");
+      } else {
+        cache3.home = Deno.env.get("HOMEPATH");
+      }
+    }
+    return cache3.home;
+  },
+  get workingDirectory() {
+    return Deno.cwd();
+  },
+  set workingDirectory(value) {
+    Deno.chdir(value);
+  },
+  get cwd() {
+    return FileSystem.workingDirectory;
+  },
+  set cwd(value) {
+    return FileSystem.workingDirectory = value;
+  },
+  get pwd() {
+    return FileSystem.cwd;
+  },
+  set pwd(value) {
+    return FileSystem.cwd = value;
+  },
+  cd(path10) {
+    Deno.chdir(path10);
+  },
+  changeDirectory(path10) {
+    Deno.chdir(path10);
+  },
+  get thisFile() {
+    const err = new Error();
+    const filePaths = findAll(/^.+file:\/\/(\/[\w\W]*?):/gm, err.stack).map((each2) => each2[1]);
+    const firstPath = filePaths[0];
+    if (firstPath) {
+      try {
+        if (Deno.statSync(firstPath).isFile) {
+          return firstPath;
+        }
+      } catch (error) {
+      }
+    }
+    return ":<interpreter>:";
+  },
+  get thisFolder() {
+    const err = new Error();
+    const filePaths = findAll(/^.+file:\/\/(\/[\w\W]*?):/gm, err.stack).map((each2) => each2[1]);
+    const firstPath = filePaths[0];
+    if (firstPath) {
+      try {
+        if (Deno.statSync(firstPath).isFile) {
+          return dirname3(firstPath);
+        }
+      } catch (error) {
+      }
+    }
+    return Deno.cwd();
+  },
+  async read(path10) {
+    path10 = pathStandardize(path10);
+    await grabPathLock(path10);
+    let output2;
+    try {
+      output2 = await Deno.readTextFile(path10);
+    } catch (error) {
+    }
+    delete locker[path10];
+    return output2;
+  },
+  async readBytes(path10) {
+    path10 = pathStandardize(path10);
+    await grabPathLock(path10);
+    let output2;
+    try {
+      output2 = await Deno.readFile(path10);
+    } catch (error) {
+    }
+    delete locker[path10];
+    return output2;
+  },
+  async *readLinesIteratively(path10) {
+    path10 = pathStandardize(path10);
+    await grabPathLock(path10);
+    try {
+      const file = await Deno.open(path10);
+      try {
+        yield* readLines(file);
+      } finally {
+        Deno.close(file.rid);
+      }
+    } finally {
+      delete locker[path10];
+    }
+  },
+  async info(fileOrFolderPath, _cachedLstat = null) {
+    fileOrFolderPath = pathStandardize(fileOrFolderPath);
+    await grabPathLock(fileOrFolderPath);
+    try {
+      const lstat = _cachedLstat || await Deno.lstat(fileOrFolderPath).catch(() => ({ doesntExist: true }));
+      let stat = {};
+      if (!lstat.isSymlink) {
+        stat = {
+          isBrokenLink: false,
+          isLoopOfLinks: false
+        };
+      } else {
+        try {
+          stat = await Deno.stat(fileOrFolderPath);
+        } catch (error) {
+          if (error.message.match(/^Too many levels of symbolic links/)) {
+            stat.isBrokenLink = true;
+            stat.isLoopOfLinks = true;
+          } else if (error.message.match(/^No such file or directory/)) {
+            stat.isBrokenLink = true;
+          } else {
+            if (!error.message.match(/^PermissionDenied:/)) {
+              return { doesntExist: true, permissionDenied: true };
+            }
+            throw error;
+          }
+        }
+      }
+      return new PathInfo({ path: fileOrFolderPath, _lstatData: lstat, _statData: stat });
+    } finally {
+      delete locker[fileOrFolderPath];
+    }
+  },
+  async move({ path: path10, item, newParentFolder, newName, force = true, overwrite = false, renameExtension = null }) {
+    item = item || path10;
+    const oldPath = item.path || item;
+    const oldName = FileSystem.basename(oldPath);
+    const pathInfo = item instanceof Object || FileSystem.sync.info(oldPath);
+    const newPath = `${newParentFolder || FileSystem.parentPath(oldPath)}/${newName || oldName}`;
+    if (pathInfo.isSymlink && !item.isBrokenLink) {
+      const link2 = Deno.readLinkSync(pathInfo.path);
+      if (!isAbsolute3(link2)) {
+        const linkTargetBeforeMove = `${FileSystem.parentPath(pathInfo.path)}/${link2}`;
+        await FileSystem.relativeLink({
+          existingItem: linkTargetBeforeMove,
+          newItem: newPath,
+          force,
+          overwrite,
+          renameExtension
+        });
+        await FileSystem.remove(pathInfo);
+      }
+    }
+    if (force) {
+      FileSystem.sync.clearAPathFor(newPath, { overwrite, renameExtension });
+    }
+    await move(oldPath, newPath);
+  },
+  async remove(fileOrFolder) {
+    fileOrFolder = pathStandardize(fileOrFolder);
+    if (fileOrFolder instanceof Array) {
+      return Promise.all(fileOrFolder.map(FileSystem.remove));
+    }
+    fileOrFolder = fileOrFolder.path || fileOrFolder;
+    const pathInfo = await FileSystem.info(fileOrFolder);
+    if (pathInfo.isFile || pathInfo.isSymlink) {
+      return Deno.remove(pathInfo.path.replace(/\/+$/, ""));
+    } else if (pathInfo.exists) {
+      return Deno.remove(pathInfo.path.replace(/\/+$/, ""), { recursive: true });
+    }
+  },
+  async finalTargetOf(path10, options = {}) {
+    const { _parentsHaveBeenChecked, cache: cache4 } = { _parentsHaveBeenChecked: false, cache: {}, ...options };
+    const originalWasItem = path10 instanceof PathInfo;
+    path10 = path10.path || path10;
+    let result2 = await Deno.lstat(path10).catch(() => ({ doesntExist: true }));
+    if (result2.doesntExist) {
+      return null;
+    }
+    path10 = await FileSystem.makeHardPathTo(path10, { cache: cache4 });
+    const pathChain = [];
+    while (result2.isSymlink) {
+      const relativeOrAbsolutePath = await Deno.readLink(path10);
+      if (isAbsolute3(relativeOrAbsolutePath)) {
+        path10 = relativeOrAbsolutePath;
+      } else {
+        path10 = `${FileSystem.parentPath(path10)}/${relativeOrAbsolutePath}`;
+      }
+      result2 = await Deno.lstat(path10).catch(() => ({ doesntExist: true }));
+      if (result2.doesntExist) {
+        return null;
+      }
+      path10 = await FileSystem.makeHardPathTo(path10, { cache: cache4 });
+      if (pathChain.includes(path10)) {
+        return null;
+      }
+      pathChain.push(path10);
+    }
+    path10 = FileSystem.normalize(path10);
+    if (originalWasItem) {
+      return new PathInfo({ path: path10 });
+    } else {
+      return path10;
+    }
+  },
+  async nextTargetOf(path10, options = {}) {
+    const originalWasItem = path10 instanceof PathInfo;
+    const item = originalWasItem ? path10 : new PathInfo({ path: path10 });
+    const lstat = item.lstat;
+    if (lstat.isSymlink) {
+      const relativeOrAbsolutePath = Deno.readLinkSync(item.path);
+      if (isAbsolute3(relativeOrAbsolutePath)) {
+        if (originalWasItem) {
+          return new PathInfo({ path: relativeOrAbsolutePath });
+        } else {
+          return relativeOrAbsolutePath;
+        }
+      } else {
+        const path11 = `${await FileSystem.makeHardPathTo(dirname3(item.path))}/${relativeOrAbsolutePath}`;
+        if (originalWasItem) {
+          return new PathInfo({ path: path11 });
+        } else {
+          return path11;
+        }
+      }
+    } else {
+      if (originalWasItem) {
+        return item;
+      } else {
+        return item.path;
+      }
+    }
+  },
+  async ensureIsFile(path10, options = { overwrite: false, renameExtension: null }) {
+    const { overwrite, renameExtension } = defaultOptionsHelper(options);
+    await FileSystem.ensureIsFolder(FileSystem.parentPath(path10), { overwrite, renameExtension });
+    path10 = path10.path || path10;
+    const pathInfo = await FileSystem.info(path10);
+    if (pathInfo.isFile && !pathInfo.isDirectory) {
+      return path10;
+    } else {
+      await FileSystem.write({ path: path10, data: "" });
+      return path10;
+    }
+  },
+  async ensureIsFolder(path10, options = { overwrite: false, renameExtension: null }) {
+    const { overwrite, renameExtension } = defaultOptionsHelper(options);
+    path10 = path10.path || path10;
+    path10 = FileSystem.makeAbsolutePath(path10);
+    const parentPath = dirname3(path10);
+    if (parentPath == path10) {
+      return;
+    }
+    const parent = await FileSystem.info(parentPath);
+    if (!parent.isDirectory) {
+      FileSystem.sync.ensureIsFolder(parentPath, { overwrite, renameExtension });
+    }
+    let pathInfo = FileSystem.sync.info(path10);
+    if (pathInfo.exists && !pathInfo.isDirectory) {
+      if (overwrite) {
+        await FileSystem.remove(path10);
+      } else {
+        await FileSystem.moveOutOfTheWay(eachPath, { extension: renameExtension });
+      }
+    }
+    await Deno.mkdir(path10, { recursive: true });
+    return path10;
+  },
+  /**
+   * Move/Remove everything and Ensure parent folders
+   *
+   * @param path
+   * @param options.overwrite - if false, then things in the way will be moved instead of deleted
+   * @param options.renameExtension - the string to append when renaming files to get them out of the way
+   * 
+   * @note
+   *     very agressive: will change whatever is necessary to make sure a parent exists
+   * 
+   * @example
+   * ```js
+   * await FileSystem.clearAPathFor("./something")
+   * ```
+   */
+  async clearAPathFor(path10, options = { overwrite: false, renameExtension: null }) {
+    const { overwrite, renameExtension } = defaultOptionsHelper(options);
+    const originalPath = path10;
+    const paths = [];
+    while (dirname3(path10) !== path10) {
+      paths.push(path10);
+      path10 = dirname3(path10);
+    }
+    for (const eachPath2 of paths.reverse()) {
+      const info = await FileSystem.info(eachPath2);
+      if (!info.exists) {
+        break;
+      } else if (info.isFile) {
+        if (overwrite) {
+          await FileSystem.remove(eachPath2);
+        } else {
+          await FileSystem.moveOutOfTheWay(eachPath2, { extension: renameExtension });
+        }
+      }
+    }
+    await Deno.mkdir(dirname3(originalPath), { recursive: true });
+    return originalPath;
+  },
+  async moveOutOfTheWay(path10, options = { extension: null }) {
+    const extension = options?.extension || FileSystem.defaultRenameExtension;
+    const info = await FileSystem.info(path10);
+    if (info.exists) {
+      const newPath = path10 + extension;
+      await FileSystem.moveOutOfTheWay(newPath, { extension });
+      await move(path10, newPath);
+    }
+  },
+  /**
+   * find a root folder based on a child path
+   *
+   * @example
+   * ```js
+   *     import { FileSystem } from "https://deno.land/x/quickr/main/file_system.js"
+   * 
+   *     var gitParentFolderOrNull = await FileSystem.walkUpUntil(".git")
+   *     var gitParentFolderOrNull = await FileSystem.walkUpUntil({
+   *         subPath:".git",
+   *         startPath: FileSystem.pwd,
+   *     })
+   *
+   *     // below will result in that^ same folder (assuming all your .git folders have config files)
+   *     var gitParentFolderOrNull = await FileSystem.walkUpUntil(".git/config")
+   * 
+   *     // below will result in the same folder, but only if theres a local master branch
+   *     var gitParentFolderOrNull = await FileSystem.walkUpUntil(".git/refs/heads/master")
+   *```
+   */
+  async walkUpUntil(subPath, startPath = null) {
+    subPath = subPath instanceof PathInfo ? subPath.path : subPath;
+    if (subPath instanceof Object) {
+      var { subPath, startPath } = subPath;
+    }
+    let here;
+    if (!startPath) {
+      here = Deno.cwd();
+    } else if (isAbsolute3(startPath)) {
+      here = startPath;
+    } else {
+      here = join4(here, startPath);
+    }
+    while (1) {
+      let checkPath = join4(here, subPath);
+      const pathInfo = await Deno.lstat(checkPath).catch(() => ({ doesntExist: true }));
+      if (!pathInfo.doesntExist) {
+        return here;
+      }
+      if (here == dirname3(here)) {
+        return null;
+      } else {
+        here = dirname3(here);
+      }
+    }
+  },
+  // FIXME: make this work for folders with many options for how to handle symlinks
+  async copy({ from, to, preserveTimestamps = true, force = true, overwrite = false, renameExtension = null }) {
+    const existingItemDoesntExist = (await Deno.stat(from).catch(() => ({ doesntExist: true }))).doesntExist;
+    if (existingItemDoesntExist) {
+      throw Error(`
+Tried to copy from:${from}, to:${to}
+but "from" didn't seem to exist
+
+`);
+    }
+    if (force) {
+      FileSystem.sync.clearAPathFor(to, { overwrite, renameExtension });
+    }
+    return copy(from, to, { force, preserveTimestamps: true });
+  },
+  async relativeLink({ existingItem, newItem, force = true, overwrite = false, allowNonExistingTarget = false, renameExtension = null }) {
+    const existingItemPath = (existingItem.path || existingItem).replace(/\/+$/, "");
+    const newItemPath = FileSystem.normalize((newItem.path || newItem).replace(/\/+$/, ""));
+    const existingItemDoesntExist = (await Deno.lstat(existingItemPath).catch(() => ({ doesntExist: true }))).doesntExist;
+    if (!allowNonExistingTarget && existingItemDoesntExist) {
+      throw Error(`
+Tried to create a relativeLink between existingItem:${existingItemPath}, newItem:${newItemPath}
+but existingItem didn't actually exist`);
+    } else {
+      const parentOfNewItem = FileSystem.parentPath(newItemPath);
+      await FileSystem.ensureIsFolder(parentOfNewItem, { overwrite, renameExtension });
+      const hardPathToNewItem = `${await FileSystem.makeHardPathTo(parentOfNewItem)}/${FileSystem.basename(newItemPath)}`;
+      const hardPathToExistingItem = await FileSystem.makeHardPathTo(existingItemPath);
+      const pathFromNewToExisting = relative3(hardPathToNewItem, hardPathToExistingItem).replace(/^\.\.\//, "");
+      if (force) {
+        FileSystem.sync.clearAPathFor(hardPathToNewItem, { overwrite, renameExtension });
+      }
+      return Deno.symlink(
+        pathFromNewToExisting,
+        hardPathToNewItem
+      );
+    }
+  },
+  async absoluteLink({ existingItem, newItem, force = true, allowNonExistingTarget = false, overwrite = false, renameExtension = null }) {
+    existingItem = (existingItem.path || existingItem).replace(/\/+$/, "");
+    const newItemPath = FileSystem.normalize(newItem.path || newItem).replace(/\/+$/, "");
+    const existingItemDoesntExist = (await Deno.lstat(existingItem).catch(() => ({ doesntExist: true }))).doesntExist;
+    if (!allowNonExistingTarget && existingItemDoesntExist) {
+      throw Error(`
+Tried to create a relativeLink between existingItem:${existingItem}, newItemPath:${newItemPath}
+but existingItem didn't actually exist`);
+    } else {
+      const parentOfNewItem = FileSystem.parentPath(newItemPath);
+      await FileSystem.ensureIsFolder(parentOfNewItem, { overwrite, renameExtension });
+      const hardPathToNewItem = `${await FileSystem.makeHardPathTo(parentOfNewItem)}/${FileSystem.basename(newItemPath)}`;
+      if (force) {
+        FileSystem.sync.clearAPathFor(hardPathToNewItem, { overwrite, renameExtension });
+      }
+      return Deno.symlink(
+        FileSystem.makeAbsolutePath(existingItem),
+        newItemPath
+      );
+    }
+  },
+  async *iterateBasenamesIn(pathOrFileInfo) {
+    const info = pathOrFileInfo instanceof PathInfo ? pathOrFileInfo : await FileSystem.info(pathOrFileInfo);
+    if (info.isFolder) {
+      for await (const dirEntry of Deno.readDir(info.path)) {
+        yield dirEntry.name;
+      }
+    }
+  },
+  listBasenamesIn(pathOrFileInfo) {
+    return asyncIteratorToList3(FileSystem.iterateBasenamesIn(pathOrFileInfo));
+  },
+  async *iteratePathsIn(pathOrFileInfo, options = { recursively: false, shouldntInclude: null, shouldntExplore: null, searchOrder: "breadthFirstSearch", maxDepth: Infinity, dontFollowSymlinks: false, dontReturnSymlinks: false, maxDepthFromRoot: null }) {
+    let info;
+    try {
+      info = pathOrFileInfo instanceof PathInfo ? pathOrFileInfo : await FileSystem.info(pathOrFileInfo);
+    } catch (error) {
+      if (!error.message.match(/^PermissionDenied:/)) {
+        throw error;
+      }
+    }
+    const path10 = info.path;
+    const startingDepth = FileSystem.makeAbsolutePath(path10).split("/").length - 1;
+    options.recursively = options.recursively == false && options.maxDepth == 1 ? false : options.recursively;
+    if (options.maxDepthFromRoot == null) {
+      options.maxDepthFromRoot = Infinity;
+    }
+    if (options.maxDepth != Infinity && options.maxDepth != null) {
+      options.maxDepthFromRoot = startingDepth + options.maxDepth;
+    }
+    options.maxDepth = null;
+    if (startingDepth < options.maxDepthFromRoot) {
+      if (!options.recursively) {
+        if (info.isFolder) {
+          if (!options.shouldntInclude) {
+            for await (const each2 of Deno.readDir(path10)) {
+              if (options.dontReturnSymlinks && each2.isSymlink) {
+                continue;
+              }
+              yield join4(path10, each2.name);
+            }
+          } else {
+            const shouldntInclude = options.shouldntInclude;
+            for await (const each2 of Deno.readDir(path10)) {
+              const eachPath2 = join4(path10, each2.name);
+              if (options.dontReturnSymlinks && each2.isSymlink) {
+                continue;
+              }
+              const shouldntIncludeThis = shouldntInclude && await shouldntInclude(eachPath2);
+              if (!shouldntIncludeThis) {
+                yield eachPath2;
+              }
+            }
+          }
+        }
+      } else {
+        options = { exclude: /* @__PURE__ */ new Set(), searchOrder: "breadthFirstSearch", maxDepth: Infinity, ...options };
+        options.searchOrder = options.searchOrder || "breadthFirstSearch";
+        const { shouldntExplore, shouldntInclude } = options;
+        if (!["breadthFirstSearch", "depthFirstSearch"].includes(options.searchOrder)) {
+          throw Error(`when calling FileSystem.iterateItemsIn('${path10}', { searchOrder: ${options.searchOrder} })
+
+    The searchOrder currently can only be 'depthFirstSearch' or 'breadthFirstSearch'
+    However, it was not either of those: ${options.searchOrder}`);
+        }
+        const useBreadthFirstSearch = options.searchOrder == "breadthFirstSearch";
+        const shouldntExploreThis = shouldntExplore && await shouldntExplore(info.path, info);
+        if (!shouldntExploreThis && info.isFolder) {
+          options.exclude = options.exclude instanceof Set ? options.exclude : new Set(options.exclude);
+          if (!options.exclude.has(path10)) {
+            const followSymlinks = !options.dontFollowSymlinks;
+            const absolutePathVersion = FileSystem.makeAbsolutePath(path10);
+            options.exclude.add(absolutePathVersion);
+            const searchAfterwords = [];
+            for await (const entry of Deno.readDir(path10)) {
+              const eachPath2 = join4(path10, entry.name);
+              if (options.dontReturnSymlinks && each.isSymlink) {
+                continue;
+              }
+              const shouldntIncludeThis = shouldntInclude && await shouldntInclude(eachPath2);
+              if (!shouldntIncludeThis) {
+                yield eachPath2;
+              }
+              if (entry.isFile) {
+                continue;
+              }
+              if (followSymlinks && !entry.isDirectory) {
+                let isSymlinkToDirectory = false;
+                try {
+                  isSymlinkToDirectory = (await Deno.stat(eachPath2)).isDirectory;
+                } catch (error) {
+                }
+                if (!isSymlinkToDirectory) {
+                  continue;
+                }
+              }
+              if (useBreadthFirstSearch) {
+                searchAfterwords.push(eachPath2);
+              } else {
+                for await (const eachSubPath of FileSystem.iteratePathsIn(eachPath2, options)) {
+                  yield eachSubPath;
+                }
+              }
+            }
+            options.recursively = false;
+            while (searchAfterwords.length > 0) {
+              const next = searchAfterwords.shift();
+              for await (const eachSubPath of FileSystem.iteratePathsIn(next, options)) {
+                yield eachSubPath;
+                searchAfterwords.push(eachSubPath);
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  listPathsIn(pathOrFileInfo, options) {
+    return asyncIteratorToList3(FileSystem.iteratePathsIn(pathOrFileInfo, options));
+  },
+  async *iterateItemsIn(pathOrFileInfo, options = { recursively: false, shouldntInclude: null, shouldntExplore: null, searchOrder: "breadthFirstSearch", maxDepth: Infinity }) {
+    options = { exclude: /* @__PURE__ */ new Set(), searchOrder: "breadthFirstSearch", maxDepth: Infinity, ...options };
+    options.searchOrder = options.searchOrder || "breadthFirstSearch";
+    options.recursively = options.recursively == false && options.maxDepth == 1 ? false : options.recursively;
+    const { shouldntExplore, shouldntInclude } = options;
+    const info = pathOrFileInfo instanceof PathInfo ? pathOrFileInfo : await FileSystem.info(pathOrFileInfo);
+    const path10 = info.path;
+    if (!["breadthFirstSearch", "depthFirstSearch"].includes(options.searchOrder)) {
+      throw Error(`when calling FileSystem.iterateItemsIn('${path10}', { searchOrder: ${options.searchOrder} })
+
+    The searchOrder currently can only be 'depthFirstSearch' or 'breadthFirstSearch'
+    However, it was not either of those: ${options.searchOrder}`);
+    }
+    const useBreadthFirstSearch = options.searchOrder == "breadthFirstSearch";
+    const shouldntExploreThis = shouldntExplore && await shouldntExplore(info);
+    if (!shouldntExploreThis && options.maxDepth > 0 && info.isFolder) {
+      options.exclude = options.exclude instanceof Set ? options.exclude : new Set(options.exclude);
+      if (!options.exclude.has(path10)) {
+        const absolutePathVersion = FileSystem.makeAbsolutePath(path10);
+        options.exclude.add(absolutePathVersion);
+        options.maxDepth -= 1;
+        const searchAfterwords = [];
+        for await (const entry of Deno.readDir(path10)) {
+          const eachItem = await FileSystem.info(join4(path10, entry.name));
+          const shouldntIncludeThis = shouldntInclude && await shouldntInclude(eachItem);
+          if (!shouldntIncludeThis) {
+            yield eachItem;
+          }
+          if (options.recursively) {
+            if (eachItem.isFolder) {
+              if (useBreadthFirstSearch) {
+                searchAfterwords.push(eachItem);
+              } else {
+                for await (const eachSubPath of FileSystem.iterateItemsIn(eachItem, options)) {
+                  yield eachSubPath;
+                }
+              }
+            }
+          }
+        }
+        options.recursively = false;
+        while (searchAfterwords.length > 0) {
+          const next = searchAfterwords.shift();
+          for await (const eachSubItem of FileSystem.iterateItemsIn(next, options)) {
+            yield eachSubItem;
+            if (eachSubItem.isFolder) {
+              searchAfterwords.push(eachSubItem);
+            }
+          }
+        }
+      }
+    }
+  },
+  async listItemsIn(pathOrFileInfo, options) {
+    const outputPromises = [];
+    for await (const eachPath2 of FileSystem.iteratePathsIn(pathOrFileInfo, options)) {
+      outputPromises.push(FileSystem.info(eachPath2));
+    }
+    return Promise.all(outputPromises);
+  },
+  // includes symlinks if they link to files and pipes
+  async listFileItemsIn(pathOrFileInfo, options = { treatAllSymlinksAsFiles: false }) {
+    const { treatAllSymlinksAsFiles } = { treatAllSymlinksAsFiles: false, ...options };
+    const items = await FileSystem.listItemsIn(pathOrFileInfo, options);
+    if (treatAllSymlinksAsFiles) {
+      return items.filter((eachItem) => eachItem.isFile || treatAllSymlinksAsFiles && eachItem.isSymlink);
+    } else {
+      return items.filter((eachItem) => eachItem.isFile);
+    }
+  },
+  async listFilePathsIn(pathOrFileInfo, options = { treatAllSymlinksAsFiles: false }) {
+    return (await FileSystem.listFileItemsIn(pathOrFileInfo, options)).map((each2) => each2.path);
+  },
+  async listFileBasenamesIn(pathOrFileInfo, options = { treatAllSymlinksAsFiles: false }) {
+    return (await FileSystem.listFileItemsIn(pathOrFileInfo, options)).map((each2) => each2.basename);
+  },
+  async listFolderItemsIn(pathOrFileInfo, options = { ignoreSymlinks: false }) {
+    const { ignoreSymlinks } = { ignoreSymlinks: false, ...options };
+    const items = await FileSystem.listItemsIn(pathOrFileInfo, options);
+    if (ignoreSymlinks) {
+      return items.filter((eachItem) => eachItem.isFolder && !eachItem.isSymlink);
+    } else {
+      return items.filter((eachItem) => eachItem.isFolder);
+    }
+  },
+  async listFolderPathsIn(pathOrFileInfo, options = { ignoreSymlinks: false }) {
+    return (await FileSystem.listFolderItemsIn(pathOrFileInfo, options)).map((each2) => each2.path);
+  },
+  async listFolderBasenamesIn(pathOrFileInfo, options = { ignoreSymlinks: false }) {
+    return (await FileSystem.listFolderItemsIn(pathOrFileInfo, options)).map((each2) => each2.basename);
+  },
+  recursivelyIterateItemsIn(pathOrFileInfo, options = { onlyHardlinks: false, dontFollowSymlinks: false, searchOrder: "breadthFirstSearch", maxDepth: Infinity, shouldntExplore: null, shouldntInclude: null }) {
+    options.recursively = true;
+    if (options.onlyHardlinks) {
+      if (options.shouldntInclude) {
+        const originalshouldntInclude = options.shouldntInclude;
+        options.shouldntInclude = (each2) => each2.isSymlink || originalshouldntInclude(each2);
+      } else {
+        options.shouldntInclude = (each2) => each2.isSymlink;
+      }
+    }
+    if (options.dontFollowSymlinks) {
+      if (options.shouldntExplore) {
+        const originalShouldntExplore = options.shouldntInclude;
+        options.shouldntExplore = (each2) => each2.isSymlink || originalShouldntExplore(each2);
+      } else {
+        options.shouldntExplore = (each2) => each2.isSymlink;
+      }
+    }
+    return FileSystem.iterateItemsIn(pathOrFileInfo, options);
+  },
+  recursivelyIteratePathsIn(pathOrFileInfo, options = { onlyHardlinks: false, dontFollowSymlinks: false, searchOrder: "breadthFirstSearch", maxDepth: Infinity, shouldntExplore: null, shouldntInclude: null }) {
+    options.recursively = true;
+    if (options.onlyHardlinks) {
+      if (options.shouldntInclude) {
+        const originalshouldntInclude = options.shouldntInclude;
+        options.shouldntInclude = (each2) => each2.isSymlink || originalshouldntInclude(each2);
+      } else {
+        options.shouldntInclude = (each2) => each2.isSymlink;
+      }
+    }
+    return FileSystem.iteratePathsIn(pathOrFileInfo, options);
+  },
+  recursivelyListPathsIn(pathOrFileInfo, options = { onlyHardlinks: false, dontFollowSymlinks: false, searchOrder: "breadthFirstSearch", maxDepth: Infinity, shouldntExplore: null, shouldntInclude: null }) {
+    return asyncIteratorToList3(FileSystem.recursivelyIteratePathsIn(pathOrFileInfo, options));
+  },
+  recursivelyListItemsIn(pathOrFileInfo, options = { onlyHardlinks: false, dontFollowSymlinks: false, searchOrder: "breadthFirstSearch", maxDepth: Infinity, shouldntExplore: null, shouldntInclude: null }) {
+    return asyncIteratorToList3(FileSystem.recursivelyIterateItemsIn(pathOrFileInfo, options));
+  },
+  async *globIterator(pattern, options = { startPath: null }) {
+    pattern = FileSystem.normalize(pattern);
+    var { startPath, ...iteratePathsOptions } = options;
+    startPath = startPath || "./";
+    const originalStartPath = startPath;
+    startPath = FileSystem.makeAbsolutePath(startPath);
+    const firstGlob = pattern.indexOf("*");
+    if (firstGlob != -1) {
+      const startingString = pattern.slice(0, firstGlob);
+      const furthestConstantSlash = startingString.lastIndexOf("/");
+      if (furthestConstantSlash != -1) {
+        if (pattern[0] == "/") {
+          startPath = pattern.slice(0, furthestConstantSlash);
+        } else {
+          startPath = `${startPath}/${pattern.slice(0, furthestConstantSlash)}`;
+        }
+      }
+      pattern = pattern.slice(furthestConstantSlash + 1);
+    }
+    let maxDepthFromRoot;
+    if (pattern.match(/\*\*/)) {
+      maxDepthFromRoot = Infinity;
+    } else {
+      maxDepthFromRoot = `${FileSystem.makeAbsolutePath(startPath)}/${pattern}`.split("/").length - 1;
+    }
+    const fullPattern = `${startPath}/${pattern}`;
+    const regex3 = globToRegExp2(fullPattern);
+    const partials = fullPattern.split("/");
+    let partialPattern = partials.shift();
+    let partialRegexString = `^\\.$|${globToRegExp2(partialPattern).source}`;
+    for (const each2 of partials) {
+      partialPattern += "/" + each2;
+      partialRegexString += "|" + globToRegExp2(partialPattern).source;
+    }
+    const partialRegex = new RegExp(partialRegexString);
+    for await (const eachPath2 of FileSystem.iteratePathsIn(startPath, { recursively: true, maxDepthFromRoot, ...iteratePathsOptions, shouldntExplore: (eachPath3) => !eachPath3.match(partialRegex) })) {
+      if (eachPath2.match(regex3) || FileSystem.makeAbsolutePath(eachPath2).match(regex3)) {
+        yield FileSystem.makeRelativePath({
+          from: originalStartPath,
+          to: eachPath2
+        });
+      }
+    }
+  },
+  glob(pattern, options = { startPath: null }) {
+    return asyncIteratorToList3(FileSystem.globIterator(pattern, options));
+  },
+  async getPermissions({ path: path10 }) {
+    const { mode } = await Deno.lstat(path10);
+    return {
+      owner: {
+        //          rwxrwxrwx
+        canRead: !!(256 & mode),
+        canWrite: !!(128 & mode),
+        canExecute: !!(64 & mode)
+      },
+      group: {
+        canRead: !!(32 & mode),
+        canWrite: !!(16 & mode),
+        canExecute: !!(8 & mode)
+      },
+      others: {
+        canRead: !!(4 & mode),
+        canWrite: !!(2 & mode),
+        canExecute: !!(1 & mode)
+      }
+    };
+  },
+  /**
+  * Add/set file permissions
+  *
+  * @param {String} args.path - 
+  * @param {Object|Boolean} args.recursively - 
+  * @param {Object} args.permissions - 
+  * @param {Object} args.permissions.owner - 
+  * @param {Boolean} args.permissions.owner.canRead - 
+  * @param {Boolean} args.permissions.owner.canWrite - 
+  * @param {Boolean} args.permissions.owner.canExecute - 
+  * @param {Object} args.permissions.group - 
+  * @param {Boolean} args.permissions.group.canRead - 
+  * @param {Boolean} args.permissions.group.canWrite - 
+  * @param {Boolean} args.permissions.group.canExecute - 
+  * @param {Object} args.permissions.others - 
+  * @param {Boolean} args.permissions.others.canRead - 
+  * @param {Boolean} args.permissions.others.canWrite - 
+  * @param {Boolean} args.permissions.others.canExecute - 
+  * @return {null} 
+  *
+  * @example
+  * ```js
+  *  await FileSystem.addPermissions({
+  *      path: fileOrFolderPath,
+  *      permissions: {
+  *          owner: {
+  *              canExecute: true,
+  *          },
+  *      }
+  *  })
+  * ```
+  */
+  async addPermissions({ path: path10, permissions = { owner: {}, group: {}, others: {} }, recursively = false }) {
+    permissions = { owner: {}, group: {}, others: {}, ...permissions };
+    let permissionNumber = 0;
+    let fileInfo;
+    if (!(Object.keys(permissions.owner).length === Object.keys(permissions.group).length === Object.keys(permissions.others).length === 3)) {
+      fileInfo = await FileSystem.info(path10);
+      permissionNumber = fileInfo.lstat.mode & 511;
+    }
+    if (permissions.owner.canRead != null) {
+      if (permissions.owner.canRead) {
+        permissionNumber |= 256;
+      } else {
+        permissionNumber &= 767;
+      }
+    }
+    if (permissions.owner.canWrite != null) {
+      if (permissions.owner.canWrite) {
+        permissionNumber |= 128;
+      } else {
+        permissionNumber &= 895;
+      }
+    }
+    if (permissions.owner.canExecute != null) {
+      if (permissions.owner.canExecute) {
+        permissionNumber |= 64;
+      } else {
+        permissionNumber &= 959;
+      }
+    }
+    if (permissions.group.canRead != null) {
+      if (permissions.group.canRead) {
+        permissionNumber |= 32;
+      } else {
+        permissionNumber &= 991;
+      }
+    }
+    if (permissions.group.canWrite != null) {
+      if (permissions.group.canWrite) {
+        permissionNumber |= 16;
+      } else {
+        permissionNumber &= 1007;
+      }
+    }
+    if (permissions.group.canExecute != null) {
+      if (permissions.group.canExecute) {
+        permissionNumber |= 8;
+      } else {
+        permissionNumber &= 1015;
+      }
+    }
+    if (permissions.others.canRead != null) {
+      if (permissions.others.canRead) {
+        permissionNumber |= 4;
+      } else {
+        permissionNumber &= 1019;
+      }
+    }
+    if (permissions.others.canWrite != null) {
+      if (permissions.others.canWrite) {
+        permissionNumber |= 2;
+      } else {
+        permissionNumber &= 1021;
+      }
+    }
+    if (permissions.others.canExecute != null) {
+      if (permissions.others.canExecute) {
+        permissionNumber |= 1;
+      } else {
+        permissionNumber &= 1022;
+      }
+    }
+    if (recursively == false || fileInfo instanceof Object && fileInfo.isFile || !(fileInfo instanceof Object) && (await FileSystem.info(path10)).isFile) {
+      return Deno.chmod(path10.path || path10, permissionNumber);
+    } else {
+      const promises = [];
+      const paths = await FileSystem.recursivelyListPathsIn(path10, { onlyHardlinks: false, dontFollowSymlinks: false, ...recursively });
+      for (const eachPath2 of paths) {
+        promises.push(
+          Deno.chmod(eachPath2, permissionNumber).catch(console.error)
+        );
+      }
+      return new Promise(async (resolve15, reject) => {
+        for (const each2 of promises) {
+          await each2;
+        }
+        resolve15();
+      });
+    }
+  },
+  // alias
+  setPermissions(...args) {
+    return FileSystem.addPermissions(...args);
+  },
+  async write({ path: path10, data, force = true, overwrite = false, renameExtension = null }) {
+    path10 = pathStandardize(path10);
+    await grabPathLock(path10);
+    if (force) {
+      FileSystem.sync.ensureIsFolder(FileSystem.parentPath(path10), { overwrite, renameExtension });
+      const info = FileSystem.sync.info(path10);
+      if (info.isDirectory) {
+        FileSystem.sync.remove(path10);
+      }
+    }
+    let output2;
+    if (typeof data == "string") {
+      output2 = await Deno.writeTextFile(path10, data);
+    } else if (typedArrayClasses4.some((dataClass) => data instanceof dataClass)) {
+      output2 = await Deno.writeFile(path10, data);
+    } else if (isGeneratorType3(data) || data[Symbol.iterator] || data[Symbol.asyncIterator]) {
+      const file = await Deno.open(path10, { read: true, write: true, create: true, truncate: true });
+      const encoder3 = new TextEncoder();
+      const encode2 = encoder3.encode.bind(encoder3);
+      try {
+        let index = 0;
+        for await (let packet of data) {
+          if (typeof packet == "string") {
+            packet = encode2(packet);
+          }
+          await Deno.write(file.rid, packet);
+        }
+      } finally {
+        Deno.close(file.rid);
+      }
+    }
+    delete locker[path10];
+    return output2;
+  },
+  async append({ path: path10, data, force = true, overwrite = false, renameExtension = null }) {
+    path10 = pathStandardize(path10);
+    await grabPathLock(path10);
+    if (force) {
+      FileSystem.sync.ensureIsFolder(FileSystem.parentPath(path10), { overwrite, renameExtension });
+      const info = FileSystem.sync.info(path10);
+      if (info.isDirectory) {
+        FileSystem.sync.remove(path10);
+      }
+    }
+    const file = await Deno.open(path10, { read: true, write: true, create: true });
+    await file.seek(0, Deno.SeekMode.End);
+    if (typeof data == "string") {
+      await file.write(new TextEncoder().encode(data));
+    } else {
+      await file.write(data);
+    }
+    await file.close();
+    delete locker[path10];
+  },
+  async makeHardPathTo(path10, options = {}) {
+    var { cache: cache4 } = { cache: {}, ...options };
+    if (cache4[path10]) {
+      return cache4[path10];
+    }
+    const [folders, name, extension] = FileSystem.pathPieces(FileSystem.makeAbsolutePath(path10));
+    let topDownPath = ``;
+    for (const eachFolderName of folders) {
+      topDownPath += `/${eachFolderName}`;
+      if (cache4[topDownPath]) {
+        topDownPath = cache4[topDownPath];
+        continue;
+      }
+      const unchangedPath = topDownPath;
+      const info = await FileSystem.info(topDownPath);
+      if (info.isSymlink) {
+        const absolutePathToIntermediate = await FileSystem.finalTargetOf(info.path, { _parentsHaveBeenChecked: true, cache: cache4 });
+        if (absolutePathToIntermediate == null) {
+          return null;
+        }
+        topDownPath = topDownPath.slice(0, -(eachFolderName.length + 1));
+        const relativePath = FileSystem.makeRelativePath({
+          from: topDownPath,
+          to: absolutePathToIntermediate
+        });
+        topDownPath += `/${relativePath}`;
+        topDownPath = normalize4(topDownPath);
+      }
+      cache4[unchangedPath] = topDownPath;
+    }
+    const hardPath = normalize4(`${topDownPath}/${name}${extension}`);
+    cache4[path10] = hardPath;
+    return hardPath;
+  },
+  async walkUpImport(path10, start) {
+    const startPath = start || FileSystem.pathOfCaller(1);
+    const nearestPath = await FileSystem.walkUpUntil(path10, startPath);
+    if (nearestPath) {
+      const absolutePath = FileSystem.makeAbsolutePath(`${nearestPath}/${path10}`);
+      return import(toFileUrl3(absolutePath).href);
+    } else {
+      throw Error(`Tried to walkUpImport ${path10}, starting at ${startPath}, but was unable to find any files`);
+    }
+  },
+  sync: {
+    // things that are already sync
+    get parentPath() {
+      return FileSystem.parentPath;
+    },
+    get dirname() {
+      return FileSystem.dirname;
+    },
+    get basename() {
+      return FileSystem.basename;
+    },
+    get extname() {
+      return FileSystem.extname;
+    },
+    get join() {
+      return FileSystem.join;
+    },
+    get thisFile() {
+      return FileSystem.thisFile;
+    },
+    get thisFolder() {
+      return FileSystem.thisFolder;
+    },
+    get normalize() {
+      return FileSystem.normalize;
+    },
+    get isAbsolutePath() {
+      return FileSystem.isAbsolutePath;
+    },
+    get isRelativePath() {
+      return FileSystem.isRelativePath;
+    },
+    get makeRelativePath() {
+      return FileSystem.makeRelativePath;
+    },
+    get makeAbsolutePath() {
+      return FileSystem.makeAbsolutePath;
+    },
+    get pathDepth() {
+      return FileSystem.pathDepth;
+    },
+    get pathPieces() {
+      return FileSystem.pathPieces;
+    },
+    get extendName() {
+      return FileSystem.extendName;
+    },
+    get allParentPaths() {
+      return FileSystem.allParentPaths;
+    },
+    get pathOfCaller() {
+      return FileSystem.pathOfCaller;
+    },
+    get home() {
+      return FileSystem.home;
+    },
+    get workingDirectory() {
+      return FileSystem.workingDirectory;
+    },
+    get cwd() {
+      return FileSystem.cwd;
+    },
+    get pwd() {
+      return FileSystem.pwd;
+    },
+    get cd() {
+      return FileSystem.cd;
+    },
+    get changeDirectory() {
+      return FileSystem.changeDirectory;
+    },
+    set workingDirectory(value) {
+      return FileSystem.workingDirectory = value;
+    },
+    set cwd(value) {
+      return FileSystem.workingDirectory = value;
+    },
+    set pwd(value) {
+      return FileSystem.workingDirectory = value;
+    },
+    info(fileOrFolderPath, _cachedLstat = null) {
+      let lstat = _cachedLstat;
+      try {
+        lstat = Deno.lstatSync(fileOrFolderPath);
+      } catch (error) {
+        lstat = { doesntExist: true };
+      }
+      let stat = {};
+      if (!lstat.isSymlink) {
+        stat = {
+          isBrokenLink: false,
+          isLoopOfLinks: false
+        };
+      } else {
+        try {
+          stat = Deno.statSync(fileOrFolderPath);
+        } catch (error) {
+          if (error.message.match(/^Too many levels of symbolic links/)) {
+            stat.isBrokenLink = true;
+            stat.isLoopOfLinks = true;
+          } else if (error.message.match(/^No such file or directory/)) {
+            stat.isBrokenLink = true;
+          } else {
+            throw error;
+          }
+        }
+      }
+      return new PathInfo({ path: fileOrFolderPath, _lstatData: lstat, _statData: stat });
+    },
+    read(path10) {
+      path10 = pathStandardize(path10);
+      let output2;
+      try {
+        output2 = Deno.readTextFileSync(path10);
+      } catch (error) {
+      }
+      return output2;
+    },
+    readBytes(path10) {
+      path10 = pathStandardize(path10);
+      let output2;
+      try {
+        output2 = Deno.readFileSync(path10);
+      } catch (error) {
+      }
+      return output2;
+    },
+    *readLinesIteratively(path10) {
+      path10 = pathStandardize(path10);
+      const file = Deno.openSync(path10);
+      try {
+        yield* readLines(file);
+      } finally {
+        Deno.close(file.rid);
+      }
+    },
+    /**
+     * find a root folder based on a child path
+     *
+     * @example
+     * ```js
+     *     import { FileSystem } from "https://deno.land/x/quickr/main/file_system.js"
+     * 
+     *     var gitParentFolderOrNull = FileSystem.sync.walkUpUntil(".git")
+     *     var gitParentFolderOrNull = FileSystem.sync.walkUpUntil({
+     *         subPath:".git",
+     *         startPath: FileSystem.pwd,
+     *     })
+     *
+     *     // below will result in that^ same folder (assuming all your .git folders have config files)
+     *     var gitParentFolderOrNull = FileSystem.sync.walkUpUntil(".git/config")
+     * 
+     *     // below will result in the same folder, but only if theres a local master branch
+     *     var gitParentFolderOrNull = FileSystem.sync.walkUpUntil(".git/refs/heads/master")
+     *```
+     */
+    walkUpUntil(subPath, startPath = null) {
+      subPath = subPath instanceof PathInfo ? subPath.path : subPath;
+      if (subPath instanceof Object) {
+        var { subPath, startPath } = subPath;
+      }
+      let here;
+      if (!startPath) {
+        here = Deno.cwd();
+      } else if (isAbsolute3(startPath)) {
+        here = startPath;
+      } else {
+        here = join4(here, startPath);
+      }
+      while (1) {
+        let checkPath = join4(here, subPath);
+        const pathInfo = Deno.lstatSync(checkPath).catch(() => ({ doesntExist: true }));
+        if (!pathInfo.doesntExist) {
+          return here;
+        }
+        if (here == dirname3(here)) {
+          return null;
+        } else {
+          here = dirname3(here);
+        }
+      }
+    },
+    nextTargetOf(path10, options = {}) {
+      const originalWasItem = path10 instanceof PathInfo;
+      const item = originalWasItem ? path10 : new PathInfo({ path: path10 });
+      const lstat = item.lstat;
+      if (lstat.isSymlink) {
+        const relativeOrAbsolutePath = Deno.readLinkSync(item.path);
+        if (isAbsolute3(relativeOrAbsolutePath)) {
+          if (originalWasItem) {
+            return new PathInfo({ path: relativeOrAbsolutePath });
+          } else {
+            return relativeOrAbsolutePath;
+          }
+        } else {
+          const path11 = `${FileSystem.sync.makeHardPathTo(dirname3(item.path))}/${relativeOrAbsolutePath}`;
+          if (originalWasItem) {
+            return new PathInfo({ path: path11 });
+          } else {
+            return path11;
+          }
+        }
+      } else {
+        if (originalWasItem) {
+          return item;
+        } else {
+          return item.path;
+        }
+      }
+    },
+    finalTargetOf(path10, options = {}) {
+      const { _parentsHaveBeenChecked, cache: cache4 } = { _parentsHaveBeenChecked: false, cache: {}, ...options };
+      const originalWasItem = path10 instanceof PathInfo;
+      path10 = path10.path || path10;
+      let result2 = Deno.lstatSync(path10).catch(() => ({ doesntExist: true }));
+      if (result2.doesntExist) {
+        return null;
+      }
+      path10 = FileSystem.sync.makeHardPathTo(path10, { cache: cache4 });
+      const pathChain = [];
+      while (result2.isSymlink) {
+        const relativeOrAbsolutePath = Deno.readLinkSync(path10);
+        if (isAbsolute3(relativeOrAbsolutePath)) {
+          path10 = relativeOrAbsolutePath;
+        } else {
+          path10 = `${FileSystem.parentPath(path10)}/${relativeOrAbsolutePath}`;
+        }
+        result2 = Deno.lstatSync(path10).catch(() => ({ doesntExist: true }));
+        if (result2.doesntExist) {
+          return null;
+        }
+        path10 = FileSystem.sync.makeHardPathTo(path10, { cache: cache4 });
+        if (pathChain.includes(path10)) {
+          return null;
+        }
+        pathChain.push(path10);
+      }
+      path10 = FileSystem.normalize(path10);
+      if (originalWasItem) {
+        return new PathInfo({ path: path10 });
+      } else {
+        return path10;
+      }
+    },
+    makeHardPathTo(path10, options = {}) {
+      var { cache: cache4 } = { cache: {}, ...options };
+      if (cache4[path10]) {
+        return cache4[path10];
+      }
+      const [folders, name, extension] = FileSystem.pathPieces(FileSystem.makeAbsolutePath(path10));
+      let topDownPath = ``;
+      for (const eachFolderName of folders) {
+        topDownPath += `/${eachFolderName}`;
+        if (cache4[topDownPath]) {
+          topDownPath = cache4[topDownPath];
+          continue;
+        }
+        const unchangedPath = topDownPath;
+        const info = FileSystem.sync.info(topDownPath);
+        if (info.isSymlink) {
+          const absolutePathToIntermediate = FileSystem.sync.finalTargetOf(info.path, { _parentsHaveBeenChecked: true, cache: cache4 });
+          if (absolutePathToIntermediate == null) {
+            return null;
+          }
+          topDownPath = topDownPath.slice(0, -(eachFolderName.length + 1));
+          const relativePath = FileSystem.makeRelativePath({
+            from: topDownPath,
+            to: absolutePathToIntermediate
+          });
+          topDownPath += `/${relativePath}`;
+          topDownPath = normalize4(topDownPath);
+        }
+        cache4[unchangedPath] = topDownPath;
+      }
+      const hardPath = normalize4(`${topDownPath}/${name}${extension}`);
+      cache4[path10] = hardPath;
+      return hardPath;
+    },
+    remove(fileOrFolder) {
+      if (fileOrFolder instanceof Array) {
+        return fileOrFolder.map(FileSystem.sync.remove);
+      }
+      fileOrFolder = fileOrFolder.path || fileOrFolder;
+      let exists2 = false;
+      let item;
+      try {
+        item = Deno.lstatSync(fileOrFolder);
+        exists2 = true;
+      } catch (error) {
+      }
+      if (exists2) {
+        if (item.isFile || item.isSymlink) {
+          return Deno.removeSync(fileOrFolder.replace(/\/+$/, ""));
+        } else {
+          return Deno.removeSync(fileOrFolder.replace(/\/+$/, ""), { recursive: true });
+        }
+      }
+    },
+    moveOutOfTheWay(path10, options = { extension: null }) {
+      path10 = pathStandardize(path10);
+      const extension = options?.extension || FileSystem.defaultRenameExtension;
+      const info = FileSystem.sync.info(path10);
+      if (info.exists) {
+        const newPath = path10 + extension;
+        FileSystem.sync.moveOutOfTheWay(newPath, { extension });
+        moveSync(path10, newPath);
+      }
+    },
+    ensureIsFolder(path10, options = { overwrite: false, renameExtension: null }) {
+      path10 = pathStandardize(path10);
+      const { overwrite, renameExtension } = defaultOptionsHelper(options);
+      path10 = path10.path || path10;
+      path10 = FileSystem.makeAbsolutePath(path10);
+      const parentPath = dirname3(path10);
+      if (parentPath == path10) {
+        return;
+      }
+      const parent = FileSystem.sync.info(parentPath);
+      if (!parent.isDirectory) {
+        FileSystem.sync.ensureIsFolder(parentPath, { overwrite, renameExtension });
+      }
+      let pathInfo = FileSystem.sync.info(path10);
+      if (pathInfo.exists && !pathInfo.isDirectory) {
+        if (overwrite) {
+          FileSystem.sync.remove(path10);
+        } else {
+          FileSystem.sync.moveOutOfTheWay(path10, { extension: renameExtension });
+        }
+      }
+      Deno.mkdirSync(path10, { recursive: true });
+      return path10;
+    },
+    /**
+     * Move/Remove everything and Ensure parent folders
+     *
+     * @param path
+     * @param options.overwrite - if false, then things in the way will be moved instead of deleted
+     * @param options.extension - the string to append when renaming files to get them out of the way
+     * 
+     * @example
+     * ```js
+     *     FileSystem.sync.clearAPathFor("./something")
+     * ```
+     */
+    clearAPathFor(path10, options = { overwrite: false, renameExtension: null }) {
+      const { overwrite, renameExtension } = defaultOptionsHelper(options);
+      const originalPath = path10;
+      const paths = [];
+      while (dirname3(path10) !== path10) {
+        paths.push(path10);
+        path10 = dirname3(path10);
+      }
+      for (const eachPath2 of paths.reverse()) {
+        const info = FileSystem.sync.info(eachPath2);
+        if (!info.exists) {
+          break;
+        } else if (info.isFile) {
+          if (overwrite) {
+            FileSystem.sync.remove(eachPath2);
+          } else {
+            FileSystem.sync.moveOutOfTheWay(eachPath2, { extension: renameExtension });
+          }
+        }
+      }
+      Deno.mkdirSync(dirname3(originalPath), { recursive: true });
+      return originalPath;
+    },
+    append({ path: path10, data, force = true, overwrite = false, renameExtension = null }) {
+      path10 = pathStandardize(path10);
+      if (force) {
+        FileSystem.sync.ensureIsFolder(FileSystem.parentPath(path10), { overwrite, renameExtension });
+        const info = FileSystem.sync.info(path10);
+        if (info.isDirectory) {
+          FileSystem.sync.remove(path10);
+        }
+      }
+      const file = Deno.openSync(path10, { read: true, write: true, create: true });
+      file.seekSync(0, Deno.SeekMode.End);
+      if (typeof data == "string") {
+        file.writeSync(new TextEncoder().encode(data));
+      } else {
+        file.writeSync(data);
+      }
+      file.close();
+    },
+    write({ path: path10, data, force = true, overwrite = false, renameExtension = null }) {
+      path10 = pathStandardize(path10);
+      if (force) {
+        FileSystem.sync.ensureIsFolder(FileSystem.parentPath(path10), { overwrite, renameExtension });
+        const info = FileSystem.sync.info(path10);
+        if (info.isDirectory) {
+          FileSystem.sync.remove(path10);
+        }
+      }
+      let output2;
+      if (typeof data == "string") {
+        output2 = Deno.writeTextFileSync(path10, data);
+      } else if (typedArrayClasses4.some((dataClass) => data instanceof dataClass)) {
+        output2 = Deno.writeFileSync(path10, data);
+      } else if (isGeneratorType3(data) || data[Symbol.iterator] || data[Symbol.asyncIterator]) {
+        const file = Deno.openSync(path10, { read: true, write: true, create: true, truncate: true });
+        const encoder3 = new TextEncoder();
+        const encode2 = encoder3.encode.bind(encoder3);
+        try {
+          let index = 0;
+          for (let packet of data) {
+            if (typeof packet == "string") {
+              packet = encode2(packet);
+            }
+            Deno.writeSync(file.rid, packet);
+          }
+        } finally {
+          Deno.close(file.rid);
+        }
+      }
+      return output2;
+    }
+    // TODO:
+    // move
+    // ensureIsFile
+    // copy
+    // relativeLink
+    // absoluteLink
+    // iterateBasenamesIn
+    // iteratePathsIn
+    // iterateItemsIn
+    // listItemsIn
+    // listFileItemsIn
+    // listFilePathsIn
+    // listFileBasenamesIn
+    // listFolderItemsIn
+    // listFolderPathsIn
+    // listFolderBasenamesIn
+    // globIterator
+    // getPermissions
+    // addPermissions
+    // Note:
+    // cannot be sync:
+    // walkUpImport 
+  }
+};
+var glob = FileSystem.glob;
+
+// https://deno.land/std@0.121.0/io/buffer.ts
+var MIN_READ = 32 * 1024;
+var MAX_SIZE = 2 ** 32 - 2;
+var CR2 = "\r".charCodeAt(0);
+var LF2 = "\n".charCodeAt(0);
+
+// https://deno.land/std@0.121.0/streams/conversion.ts
+var DEFAULT_CHUNK_SIZE = 16640;
+var DEFAULT_BUFFER_SIZE = 32 * 1024;
+function isCloser(value) {
+  return typeof value === "object" && value != null && "close" in value && // deno-lint-ignore no-explicit-any
+  typeof value["close"] === "function";
+}
+function writableStreamFromWriter(writer, options = {}) {
+  const { autoClose = true } = options;
+  return new WritableStream({
+    async write(chunk, controller) {
+      try {
+        await writeAll(writer, chunk);
+      } catch (e) {
+        controller.error(e);
+        if (isCloser(writer) && autoClose) {
+          writer.close();
+        }
+      }
+    },
+    close() {
+      if (isCloser(writer) && autoClose) {
+        writer.close();
+      }
+    },
+    abort() {
+      if (isCloser(writer) && autoClose) {
+        writer.close();
+      }
+    }
+  });
+}
+function readableStreamFromReader(reader, options = {}) {
+  const {
+    autoClose = true,
+    chunkSize = DEFAULT_CHUNK_SIZE,
+    strategy
+  } = options;
+  return new ReadableStream({
+    async pull(controller) {
+      const chunk = new Uint8Array(chunkSize);
+      try {
+        const read = await reader.read(chunk);
+        if (read === null) {
+          if (isCloser(reader) && autoClose) {
+            reader.close();
+          }
+          controller.close();
+          return;
+        }
+        controller.enqueue(chunk.subarray(0, read));
+      } catch (e) {
+        controller.error(e);
+        if (isCloser(reader)) {
+          reader.close();
+        }
+      }
+    },
+    cancel() {
+      if (isCloser(reader) && autoClose) {
+        reader.close();
+      }
+    }
+  }, strategy);
+}
+async function writeAll(w, arr) {
+  let nwritten = 0;
+  while (nwritten < arr.length) {
+    nwritten += await w.write(arr.subarray(nwritten));
+  }
+}
+
+// https://deno.land/std@0.128.0/bytes/mod.ts
+function copy4(src, dst, off = 0) {
+  off = Math.max(0, Math.min(off, dst.byteLength));
+  const dstBytesAvailable = dst.byteLength - off;
+  if (src.byteLength > dstBytesAvailable) {
+    src = src.subarray(0, dstBytesAvailable);
+  }
+  dst.set(src, off);
+  return src.byteLength;
+}
+
+// https://deno.land/std@0.128.0/io/buffer.ts
+var MIN_READ2 = 32 * 1024;
+var MAX_SIZE2 = 2 ** 32 - 2;
+var Buffer3 = class {
+  #buf;
+  // contents are the bytes buf[off : len(buf)]
+  #off = 0;
+  // read at buf[off], write at buf[buf.byteLength]
+  constructor(ab) {
+    this.#buf = ab === void 0 ? new Uint8Array(0) : new Uint8Array(ab);
+  }
+  /** Returns a slice holding the unread portion of the buffer.
+   *
+   * The slice is valid for use only until the next buffer modification (that
+   * is, only until the next call to a method like `read()`, `write()`,
+   * `reset()`, or `truncate()`). If `options.copy` is false the slice aliases the buffer content at
+   * least until the next buffer modification, so immediate changes to the
+   * slice will affect the result of future reads.
+   * @param options Defaults to `{ copy: true }`
+   */
+  bytes(options = { copy: true }) {
+    if (options.copy === false)
+      return this.#buf.subarray(this.#off);
+    return this.#buf.slice(this.#off);
+  }
+  /** Returns whether the unread portion of the buffer is empty. */
+  empty() {
+    return this.#buf.byteLength <= this.#off;
+  }
+  /** A read only number of bytes of the unread portion of the buffer. */
+  get length() {
+    return this.#buf.byteLength - this.#off;
+  }
+  /** The read only capacity of the buffer's underlying byte slice, that is,
+   * the total space allocated for the buffer's data. */
+  get capacity() {
+    return this.#buf.buffer.byteLength;
+  }
+  /** Discards all but the first `n` unread bytes from the buffer but
+   * continues to use the same allocated storage. It throws if `n` is
+   * negative or greater than the length of the buffer. */
+  truncate(n) {
+    if (n === 0) {
+      this.reset();
+      return;
+    }
+    if (n < 0 || n > this.length) {
+      throw Error("bytes.Buffer: truncation out of range");
+    }
+    this.#reslice(this.#off + n);
+  }
+  reset() {
+    this.#reslice(0);
+    this.#off = 0;
+  }
+  #tryGrowByReslice(n) {
+    const l2 = this.#buf.byteLength;
+    if (n <= this.capacity - l2) {
+      this.#reslice(l2 + n);
+      return l2;
+    }
+    return -1;
+  }
+  #reslice(len) {
+    assert2(len <= this.#buf.buffer.byteLength);
+    this.#buf = new Uint8Array(this.#buf.buffer, 0, len);
+  }
+  /** Reads the next `p.length` bytes from the buffer or until the buffer is
+   * drained. Returns the number of bytes read. If the buffer has no data to
+   * return, the return is EOF (`null`). */
+  readSync(p) {
+    if (this.empty()) {
+      this.reset();
+      if (p.byteLength === 0) {
+        return 0;
+      }
+      return null;
+    }
+    const nread = copy4(this.#buf.subarray(this.#off), p);
+    this.#off += nread;
+    return nread;
+  }
+  /** Reads the next `p.length` bytes from the buffer or until the buffer is
+   * drained. Resolves to the number of bytes read. If the buffer has no
+   * data to return, resolves to EOF (`null`).
+   *
+   * NOTE: This methods reads bytes synchronously; it's provided for
+   * compatibility with `Reader` interfaces.
+   */
+  read(p) {
+    const rr = this.readSync(p);
+    return Promise.resolve(rr);
+  }
+  writeSync(p) {
+    const m = this.#grow(p.byteLength);
+    return copy4(p, this.#buf, m);
+  }
+  /** NOTE: This methods writes bytes synchronously; it's provided for
+   * compatibility with `Writer` interface. */
+  write(p) {
+    const n = this.writeSync(p);
+    return Promise.resolve(n);
+  }
+  #grow(n) {
+    const m = this.length;
+    if (m === 0 && this.#off !== 0) {
+      this.reset();
+    }
+    const i2 = this.#tryGrowByReslice(n);
+    if (i2 >= 0) {
+      return i2;
+    }
+    const c = this.capacity;
+    if (n <= Math.floor(c / 2) - m) {
+      copy4(this.#buf.subarray(this.#off), this.#buf);
+    } else if (c + n > MAX_SIZE2) {
+      throw new Error("The buffer cannot be grown beyond the maximum size.");
+    } else {
+      const buf = new Uint8Array(Math.min(2 * c + n, MAX_SIZE2));
+      copy4(this.#buf.subarray(this.#off), buf);
+      this.#buf = buf;
+    }
+    this.#off = 0;
+    this.#reslice(Math.min(m + n, MAX_SIZE2));
+    return m;
+  }
+  /** Grows the buffer's capacity, if necessary, to guarantee space for
+   * another `n` bytes. After `.grow(n)`, at least `n` bytes can be written to
+   * the buffer without another allocation. If `n` is negative, `.grow()` will
+   * throw. If the buffer can't grow it will throw an error.
+   *
+   * Based on Go Lang's
+   * [Buffer.Grow](https://golang.org/pkg/bytes/#Buffer.Grow). */
+  grow(n) {
+    if (n < 0) {
+      throw Error("Buffer.grow: negative count");
+    }
+    const m = this.#grow(n);
+    this.#reslice(m);
+  }
+  /** Reads data from `r` until EOF (`null`) and appends it to the buffer,
+   * growing the buffer as needed. It resolves to the number of bytes read.
+   * If the buffer becomes too large, `.readFrom()` will reject with an error.
+   *
+   * Based on Go Lang's
+   * [Buffer.ReadFrom](https://golang.org/pkg/bytes/#Buffer.ReadFrom). */
+  async readFrom(r) {
+    let n = 0;
+    const tmp = new Uint8Array(MIN_READ2);
+    while (true) {
+      const shouldGrow = this.capacity - this.length < MIN_READ2;
+      const buf = shouldGrow ? tmp : new Uint8Array(this.#buf.buffer, this.length);
+      const nread = await r.read(buf);
+      if (nread === null) {
+        return n;
+      }
+      if (shouldGrow)
+        this.writeSync(buf.subarray(0, nread));
+      else
+        this.#reslice(this.length + nread);
+      n += nread;
+    }
+  }
+  /** Reads data from `r` until EOF (`null`) and appends it to the buffer,
+   * growing the buffer as needed. It returns the number of bytes read. If the
+   * buffer becomes too large, `.readFromSync()` will throw an error.
+   *
+   * Based on Go Lang's
+   * [Buffer.ReadFrom](https://golang.org/pkg/bytes/#Buffer.ReadFrom). */
+  readFromSync(r) {
+    let n = 0;
+    const tmp = new Uint8Array(MIN_READ2);
+    while (true) {
+      const shouldGrow = this.capacity - this.length < MIN_READ2;
+      const buf = shouldGrow ? tmp : new Uint8Array(this.#buf.buffer, this.length);
+      const nread = r.readSync(buf);
+      if (nread === null) {
+        return n;
+      }
+      if (shouldGrow)
+        this.writeSync(buf.subarray(0, nread));
+      else
+        this.#reslice(this.length + nread);
+      n += nread;
+    }
+  }
+};
+var CR3 = "\r".charCodeAt(0);
+var LF3 = "\n".charCodeAt(0);
+
+// https://deno.land/std@0.128.0/io/readers.ts
+var StringReader = class extends Buffer3 {
+  constructor(s) {
+    super(new TextEncoder().encode(s).buffer);
+  }
+};
+
+// https://deno.land/std@0.128.0/streams/conversion.ts
+var DEFAULT_BUFFER_SIZE2 = 32 * 1024;
+
+// https://deno.land/std@0.128.0/fmt/colors.ts
+var { Deno: Deno3 } = globalThis;
+var noColor2 = typeof Deno3?.noColor === "boolean" ? Deno3.noColor : true;
+var ANSI_PATTERN2 = new RegExp(
+  [
+    "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
+    "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))"
+  ].join("|"),
+  "g"
+);
+
+// https://deno.land/std@0.128.0/io/files.ts
+var DEFAULT_BUFFER_SIZE3 = 32 * 1024;
+
+// https://deno.land/std@0.128.0/io/util.ts
+var DEFAULT_BUFFER_SIZE4 = 32 * 1024;
+var MAX_SAFE_INTEGER = BigInt(Number.MAX_SAFE_INTEGER);
+
+// https://deno.land/std@0.128.0/io/writers.ts
+var decoder = new TextDecoder();
+
+// https://deno.land/std@0.117.0/_util/os.ts
+var osType4 = (() => {
+  const { Deno: Deno4 } = globalThis;
+  if (typeof Deno4?.build?.os === "string") {
+    return Deno4.build.os;
+  }
+  const { navigator } = globalThis;
+  if (navigator?.appVersion?.includes?.("Win") ?? false) {
+    return "windows";
+  }
+  return "linux";
+})();
+var isWindows4 = osType4 === "windows";
+
+// https://deno.land/std@0.117.0/path/win32.ts
+var win32_exports4 = {};
+__export(win32_exports4, {
+  basename: () => basename9,
+  delimiter: () => delimiter9,
+  dirname: () => dirname9,
+  extname: () => extname9,
+  format: () => format9,
+  fromFileUrl: () => fromFileUrl9,
+  isAbsolute: () => isAbsolute9,
+  join: () => join12,
+  normalize: () => normalize12,
+  parse: () => parse9,
+  relative: () => relative9,
+  resolve: () => resolve9,
+  sep: () => sep9,
+  toFileUrl: () => toFileUrl9,
+  toNamespacedPath: () => toNamespacedPath9
+});
+
+// https://deno.land/std@0.117.0/path/_constants.ts
+var CHAR_UPPERCASE_A4 = 65;
+var CHAR_LOWERCASE_A4 = 97;
+var CHAR_UPPERCASE_Z4 = 90;
+var CHAR_LOWERCASE_Z4 = 122;
+var CHAR_DOT4 = 46;
+var CHAR_FORWARD_SLASH4 = 47;
+var CHAR_BACKWARD_SLASH4 = 92;
+var CHAR_COLON4 = 58;
+var CHAR_QUESTION_MARK4 = 63;
+
+// https://deno.land/std@0.117.0/path/_util.ts
+function assertPath4(path10) {
+  if (typeof path10 !== "string") {
+    throw new TypeError(
+      `Path must be a string. Received ${JSON.stringify(path10)}`
+    );
+  }
+}
+function isPosixPathSeparator4(code2) {
+  return code2 === CHAR_FORWARD_SLASH4;
+}
+function isPathSeparator4(code2) {
+  return isPosixPathSeparator4(code2) || code2 === CHAR_BACKWARD_SLASH4;
+}
+function isWindowsDeviceRoot4(code2) {
+  return code2 >= CHAR_LOWERCASE_A4 && code2 <= CHAR_LOWERCASE_Z4 || code2 >= CHAR_UPPERCASE_A4 && code2 <= CHAR_UPPERCASE_Z4;
+}
+function normalizeString4(path10, allowAboveRoot, separator, isPathSeparator6) {
+  let res = "";
+  let lastSegmentLength = 0;
+  let lastSlash = -1;
+  let dots = 0;
+  let code2;
+  for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
+    if (i2 < len)
+      code2 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code2))
+      break;
+    else
+      code2 = CHAR_FORWARD_SLASH4;
+    if (isPathSeparator6(code2)) {
+      if (lastSlash === i2 - 1 || dots === 1) {
+      } else if (lastSlash !== i2 - 1 && dots === 2) {
+        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT4 || res.charCodeAt(res.length - 2) !== CHAR_DOT4) {
+          if (res.length > 2) {
+            const lastSlashIndex = res.lastIndexOf(separator);
+            if (lastSlashIndex === -1) {
+              res = "";
+              lastSegmentLength = 0;
+            } else {
+              res = res.slice(0, lastSlashIndex);
+              lastSegmentLength = res.length - 1 - res.lastIndexOf(separator);
+            }
+            lastSlash = i2;
+            dots = 0;
+            continue;
+          } else if (res.length === 2 || res.length === 1) {
+            res = "";
+            lastSegmentLength = 0;
+            lastSlash = i2;
+            dots = 0;
+            continue;
+          }
+        }
+        if (allowAboveRoot) {
+          if (res.length > 0)
+            res += `${separator}..`;
+          else
+            res = "..";
+          lastSegmentLength = 2;
+        }
+      } else {
+        if (res.length > 0)
+          res += separator + path10.slice(lastSlash + 1, i2);
+        else
+          res = path10.slice(lastSlash + 1, i2);
+        lastSegmentLength = i2 - lastSlash - 1;
+      }
+      lastSlash = i2;
+      dots = 0;
+    } else if (code2 === CHAR_DOT4 && dots !== -1) {
+      ++dots;
+    } else {
+      dots = -1;
+    }
+  }
+  return res;
+}
+function _format4(sep15, pathObject) {
+  const dir = pathObject.dir || pathObject.root;
+  const base = pathObject.base || (pathObject.name || "") + (pathObject.ext || "");
+  if (!dir)
+    return base;
+  if (dir === pathObject.root)
+    return dir + base;
+  return dir + sep15 + base;
+}
+var WHITESPACE_ENCODINGS4 = {
+  "	": "%09",
+  "\n": "%0A",
+  "\v": "%0B",
+  "\f": "%0C",
+  "\r": "%0D",
+  " ": "%20"
+};
+function encodeWhitespace4(string2) {
+  return string2.replaceAll(/[\s]/g, (c) => {
+    return WHITESPACE_ENCODINGS4[c] ?? c;
+  });
+}
+
+// https://deno.land/std@0.117.0/_util/assert.ts
+var DenoStdInternalError4 = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "DenoStdInternalError";
+  }
+};
+function assert7(expr, msg = "") {
+  if (!expr) {
+    throw new DenoStdInternalError4(msg);
+  }
+}
+
+// https://deno.land/std@0.117.0/path/win32.ts
+var sep9 = "\\";
+var delimiter9 = ";";
+function resolve9(...pathSegments) {
+  let resolvedDevice = "";
+  let resolvedTail = "";
+  let resolvedAbsolute = false;
+  for (let i2 = pathSegments.length - 1; i2 >= -1; i2--) {
+    let path10;
+    const { Deno: Deno4 } = globalThis;
+    if (i2 >= 0) {
+      path10 = pathSegments[i2];
+    } else if (!resolvedDevice) {
+      if (typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a drive-letter-less path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+    } else {
+      if (typeof Deno4?.env?.get !== "function" || typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+      if (path10 === void 0 || path10.slice(0, 3).toLowerCase() !== `${resolvedDevice.toLowerCase()}\\`) {
+        path10 = `${resolvedDevice}\\`;
+      }
+    }
+    assertPath4(path10);
+    const len = path10.length;
+    if (len === 0)
+      continue;
+    let rootEnd = 0;
+    let device = "";
+    let isAbsolute15 = false;
+    const code2 = path10.charCodeAt(0);
+    if (len > 1) {
+      if (isPathSeparator4(code2)) {
+        isAbsolute15 = true;
+        if (isPathSeparator4(path10.charCodeAt(1))) {
+          let j = 2;
+          let last = j;
+          for (; j < len; ++j) {
+            if (isPathSeparator4(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            const firstPart = path10.slice(last, j);
+            last = j;
+            for (; j < len; ++j) {
+              if (!isPathSeparator4(path10.charCodeAt(j)))
+                break;
+            }
+            if (j < len && j !== last) {
+              last = j;
+              for (; j < len; ++j) {
+                if (isPathSeparator4(path10.charCodeAt(j)))
+                  break;
+              }
+              if (j === len) {
+                device = `\\\\${firstPart}\\${path10.slice(last)}`;
+                rootEnd = j;
+              } else if (j !== last) {
+                device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
+                rootEnd = j;
+              }
+            }
+          }
+        } else {
+          rootEnd = 1;
+        }
+      } else if (isWindowsDeviceRoot4(code2)) {
+        if (path10.charCodeAt(1) === CHAR_COLON4) {
+          device = path10.slice(0, 2);
+          rootEnd = 2;
+          if (len > 2) {
+            if (isPathSeparator4(path10.charCodeAt(2))) {
+              isAbsolute15 = true;
+              rootEnd = 3;
+            }
+          }
+        }
+      }
+    } else if (isPathSeparator4(code2)) {
+      rootEnd = 1;
+      isAbsolute15 = true;
+    }
+    if (device.length > 0 && resolvedDevice.length > 0 && device.toLowerCase() !== resolvedDevice.toLowerCase()) {
+      continue;
+    }
+    if (resolvedDevice.length === 0 && device.length > 0) {
+      resolvedDevice = device;
+    }
+    if (!resolvedAbsolute) {
+      resolvedTail = `${path10.slice(rootEnd)}\\${resolvedTail}`;
+      resolvedAbsolute = isAbsolute15;
+    }
+    if (resolvedAbsolute && resolvedDevice.length > 0)
+      break;
+  }
+  resolvedTail = normalizeString4(
+    resolvedTail,
+    !resolvedAbsolute,
+    "\\",
+    isPathSeparator4
+  );
+  return resolvedDevice + (resolvedAbsolute ? "\\" : "") + resolvedTail || ".";
+}
+function normalize12(path10) {
+  assertPath4(path10);
+  const len = path10.length;
+  if (len === 0)
+    return ".";
+  let rootEnd = 0;
+  let device;
+  let isAbsolute15 = false;
+  const code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator4(code2)) {
+      isAbsolute15 = true;
+      if (isPathSeparator4(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator4(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          const firstPart = path10.slice(last, j);
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator4(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator4(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              return `\\\\${firstPart}\\${path10.slice(last)}\\`;
+            } else if (j !== last) {
+              device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
+              rootEnd = j;
+            }
+          }
+        }
+      } else {
+        rootEnd = 1;
+      }
+    } else if (isWindowsDeviceRoot4(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON4) {
+        device = path10.slice(0, 2);
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator4(path10.charCodeAt(2))) {
+            isAbsolute15 = true;
+            rootEnd = 3;
+          }
+        }
+      }
+    }
+  } else if (isPathSeparator4(code2)) {
+    return "\\";
+  }
+  let tail;
+  if (rootEnd < len) {
+    tail = normalizeString4(
+      path10.slice(rootEnd),
+      !isAbsolute15,
+      "\\",
+      isPathSeparator4
+    );
+  } else {
+    tail = "";
+  }
+  if (tail.length === 0 && !isAbsolute15)
+    tail = ".";
+  if (tail.length > 0 && isPathSeparator4(path10.charCodeAt(len - 1))) {
+    tail += "\\";
+  }
+  if (device === void 0) {
+    if (isAbsolute15) {
+      if (tail.length > 0)
+        return `\\${tail}`;
+      else
+        return "\\";
+    } else if (tail.length > 0) {
+      return tail;
+    } else {
+      return "";
+    }
+  } else if (isAbsolute15) {
+    if (tail.length > 0)
+      return `${device}\\${tail}`;
+    else
+      return `${device}\\`;
+  } else if (tail.length > 0) {
+    return device + tail;
+  } else {
+    return device;
+  }
+}
+function isAbsolute9(path10) {
+  assertPath4(path10);
+  const len = path10.length;
+  if (len === 0)
+    return false;
+  const code2 = path10.charCodeAt(0);
+  if (isPathSeparator4(code2)) {
+    return true;
+  } else if (isWindowsDeviceRoot4(code2)) {
+    if (len > 2 && path10.charCodeAt(1) === CHAR_COLON4) {
+      if (isPathSeparator4(path10.charCodeAt(2)))
+        return true;
+    }
+  }
+  return false;
+}
+function join12(...paths) {
+  const pathsCount = paths.length;
+  if (pathsCount === 0)
+    return ".";
+  let joined;
+  let firstPart = null;
+  for (let i2 = 0; i2 < pathsCount; ++i2) {
+    const path10 = paths[i2];
+    assertPath4(path10);
+    if (path10.length > 0) {
+      if (joined === void 0)
+        joined = firstPart = path10;
+      else
+        joined += `\\${path10}`;
+    }
+  }
+  if (joined === void 0)
+    return ".";
+  let needsReplace = true;
+  let slashCount = 0;
+  assert7(firstPart != null);
+  if (isPathSeparator4(firstPart.charCodeAt(0))) {
+    ++slashCount;
+    const firstLen = firstPart.length;
+    if (firstLen > 1) {
+      if (isPathSeparator4(firstPart.charCodeAt(1))) {
+        ++slashCount;
+        if (firstLen > 2) {
+          if (isPathSeparator4(firstPart.charCodeAt(2)))
+            ++slashCount;
+          else {
+            needsReplace = false;
+          }
+        }
+      }
+    }
+  }
+  if (needsReplace) {
+    for (; slashCount < joined.length; ++slashCount) {
+      if (!isPathSeparator4(joined.charCodeAt(slashCount)))
+        break;
+    }
+    if (slashCount >= 2)
+      joined = `\\${joined.slice(slashCount)}`;
+  }
+  return normalize12(joined);
+}
+function relative9(from, to) {
+  assertPath4(from);
+  assertPath4(to);
+  if (from === to)
+    return "";
+  const fromOrig = resolve9(from);
+  const toOrig = resolve9(to);
+  if (fromOrig === toOrig)
+    return "";
+  from = fromOrig.toLowerCase();
+  to = toOrig.toLowerCase();
+  if (from === to)
+    return "";
+  let fromStart = 0;
+  let fromEnd = from.length;
+  for (; fromStart < fromEnd; ++fromStart) {
+    if (from.charCodeAt(fromStart) !== CHAR_BACKWARD_SLASH4)
+      break;
+  }
+  for (; fromEnd - 1 > fromStart; --fromEnd) {
+    if (from.charCodeAt(fromEnd - 1) !== CHAR_BACKWARD_SLASH4)
+      break;
+  }
+  const fromLen = fromEnd - fromStart;
+  let toStart = 0;
+  let toEnd = to.length;
+  for (; toStart < toEnd; ++toStart) {
+    if (to.charCodeAt(toStart) !== CHAR_BACKWARD_SLASH4)
+      break;
+  }
+  for (; toEnd - 1 > toStart; --toEnd) {
+    if (to.charCodeAt(toEnd - 1) !== CHAR_BACKWARD_SLASH4)
+      break;
+  }
+  const toLen = toEnd - toStart;
+  const length = fromLen < toLen ? fromLen : toLen;
+  let lastCommonSep = -1;
+  let i2 = 0;
+  for (; i2 <= length; ++i2) {
+    if (i2 === length) {
+      if (toLen > length) {
+        if (to.charCodeAt(toStart + i2) === CHAR_BACKWARD_SLASH4) {
+          return toOrig.slice(toStart + i2 + 1);
+        } else if (i2 === 2) {
+          return toOrig.slice(toStart + i2);
+        }
+      }
+      if (fromLen > length) {
+        if (from.charCodeAt(fromStart + i2) === CHAR_BACKWARD_SLASH4) {
+          lastCommonSep = i2;
+        } else if (i2 === 2) {
+          lastCommonSep = 3;
+        }
+      }
+      break;
+    }
+    const fromCode = from.charCodeAt(fromStart + i2);
+    const toCode = to.charCodeAt(toStart + i2);
+    if (fromCode !== toCode)
+      break;
+    else if (fromCode === CHAR_BACKWARD_SLASH4)
+      lastCommonSep = i2;
+  }
+  if (i2 !== length && lastCommonSep === -1) {
+    return toOrig;
+  }
+  let out = "";
+  if (lastCommonSep === -1)
+    lastCommonSep = 0;
+  for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
+    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_BACKWARD_SLASH4) {
+      if (out.length === 0)
+        out += "..";
+      else
+        out += "\\..";
+    }
+  }
+  if (out.length > 0) {
+    return out + toOrig.slice(toStart + lastCommonSep, toEnd);
+  } else {
+    toStart += lastCommonSep;
+    if (toOrig.charCodeAt(toStart) === CHAR_BACKWARD_SLASH4)
+      ++toStart;
+    return toOrig.slice(toStart, toEnd);
+  }
+}
+function toNamespacedPath9(path10) {
+  if (typeof path10 !== "string")
+    return path10;
+  if (path10.length === 0)
+    return "";
+  const resolvedPath = resolve9(path10);
+  if (resolvedPath.length >= 3) {
+    if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH4) {
+      if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH4) {
+        const code2 = resolvedPath.charCodeAt(2);
+        if (code2 !== CHAR_QUESTION_MARK4 && code2 !== CHAR_DOT4) {
+          return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
+        }
+      }
+    } else if (isWindowsDeviceRoot4(resolvedPath.charCodeAt(0))) {
+      if (resolvedPath.charCodeAt(1) === CHAR_COLON4 && resolvedPath.charCodeAt(2) === CHAR_BACKWARD_SLASH4) {
+        return `\\\\?\\${resolvedPath}`;
+      }
+    }
+  }
+  return path10;
+}
+function dirname9(path10) {
+  assertPath4(path10);
+  const len = path10.length;
+  if (len === 0)
+    return ".";
+  let rootEnd = -1;
+  let end = -1;
+  let matchedSlash = true;
+  let offset = 0;
+  const code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator4(code2)) {
+      rootEnd = offset = 1;
+      if (isPathSeparator4(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator4(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator4(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator4(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              return path10;
+            }
+            if (j !== last) {
+              rootEnd = offset = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot4(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON4) {
+        rootEnd = offset = 2;
+        if (len > 2) {
+          if (isPathSeparator4(path10.charCodeAt(2)))
+            rootEnd = offset = 3;
+        }
+      }
+    }
+  } else if (isPathSeparator4(code2)) {
+    return path10;
+  }
+  for (let i2 = len - 1; i2 >= offset; --i2) {
+    if (isPathSeparator4(path10.charCodeAt(i2))) {
+      if (!matchedSlash) {
+        end = i2;
+        break;
+      }
+    } else {
+      matchedSlash = false;
+    }
+  }
+  if (end === -1) {
+    if (rootEnd === -1)
+      return ".";
+    else
+      end = rootEnd;
+  }
+  return path10.slice(0, end);
+}
+function basename9(path10, ext = "") {
+  if (ext !== void 0 && typeof ext !== "string") {
+    throw new TypeError('"ext" argument must be a string');
+  }
+  assertPath4(path10);
+  let start = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2;
+  if (path10.length >= 2) {
+    const drive = path10.charCodeAt(0);
+    if (isWindowsDeviceRoot4(drive)) {
+      if (path10.charCodeAt(1) === CHAR_COLON4)
+        start = 2;
+    }
+  }
+  if (ext !== void 0 && ext.length > 0 && ext.length <= path10.length) {
+    if (ext.length === path10.length && ext === path10)
+      return "";
+    let extIdx = ext.length - 1;
+    let firstNonSlashEnd = -1;
+    for (i2 = path10.length - 1; i2 >= start; --i2) {
+      const code2 = path10.charCodeAt(i2);
+      if (isPathSeparator4(code2)) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else {
+        if (firstNonSlashEnd === -1) {
+          matchedSlash = false;
+          firstNonSlashEnd = i2 + 1;
+        }
+        if (extIdx >= 0) {
+          if (code2 === ext.charCodeAt(extIdx)) {
+            if (--extIdx === -1) {
+              end = i2;
+            }
+          } else {
+            extIdx = -1;
+            end = firstNonSlashEnd;
+          }
+        }
+      }
+    }
+    if (start === end)
+      end = firstNonSlashEnd;
+    else if (end === -1)
+      end = path10.length;
+    return path10.slice(start, end);
+  } else {
+    for (i2 = path10.length - 1; i2 >= start; --i2) {
+      if (isPathSeparator4(path10.charCodeAt(i2))) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else if (end === -1) {
+        matchedSlash = false;
+        end = i2 + 1;
+      }
+    }
+    if (end === -1)
+      return "";
+    return path10.slice(start, end);
+  }
+}
+function extname9(path10) {
+  assertPath4(path10);
+  let start = 0;
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let preDotState = 0;
+  if (path10.length >= 2 && path10.charCodeAt(1) === CHAR_COLON4 && isWindowsDeviceRoot4(path10.charCodeAt(0))) {
+    start = startPart = 2;
+  }
+  for (let i2 = path10.length - 1; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPathSeparator4(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT4) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return "";
+  }
+  return path10.slice(startDot, end);
+}
+function format9(pathObject) {
+  if (pathObject === null || typeof pathObject !== "object") {
+    throw new TypeError(
+      `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
+    );
+  }
+  return _format4("\\", pathObject);
+}
+function parse9(path10) {
+  assertPath4(path10);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  const len = path10.length;
+  if (len === 0)
+    return ret;
+  let rootEnd = 0;
+  let code2 = path10.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator4(code2)) {
+      rootEnd = 1;
+      if (isPathSeparator4(path10.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator4(path10.charCodeAt(j)))
+            break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator4(path10.charCodeAt(j)))
+              break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator4(path10.charCodeAt(j)))
+                break;
+            }
+            if (j === len) {
+              rootEnd = j;
+            } else if (j !== last) {
+              rootEnd = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot4(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON4) {
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator4(path10.charCodeAt(2))) {
+            if (len === 3) {
+              ret.root = ret.dir = path10;
+              return ret;
+            }
+            rootEnd = 3;
+          }
+        } else {
+          ret.root = ret.dir = path10;
+          return ret;
+        }
+      }
+    }
+  } else if (isPathSeparator4(code2)) {
+    ret.root = ret.dir = path10;
+    return ret;
+  }
+  if (rootEnd > 0)
+    ret.root = path10.slice(0, rootEnd);
+  let startDot = -1;
+  let startPart = rootEnd;
+  let end = -1;
+  let matchedSlash = true;
+  let i2 = path10.length - 1;
+  let preDotState = 0;
+  for (; i2 >= rootEnd; --i2) {
+    code2 = path10.charCodeAt(i2);
+    if (isPathSeparator4(code2)) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT4) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      ret.base = ret.name = path10.slice(startPart, end);
+    }
+  } else {
+    ret.name = path10.slice(startPart, startDot);
+    ret.base = path10.slice(startPart, end);
+    ret.ext = path10.slice(startDot, end);
+  }
+  if (startPart > 0 && startPart !== rootEnd) {
+    ret.dir = path10.slice(0, startPart - 1);
+  } else
+    ret.dir = ret.root;
+  return ret;
+}
+function fromFileUrl9(url) {
+  url = url instanceof URL ? url : new URL(url);
+  if (url.protocol != "file:") {
+    throw new TypeError("Must be a file URL.");
+  }
+  let path10 = decodeURIComponent(
+    url.pathname.replace(/\//g, "\\").replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
+  ).replace(/^\\*([A-Za-z]:)(\\|$)/, "$1\\");
+  if (url.hostname != "") {
+    path10 = `\\\\${url.hostname}${path10}`;
+  }
+  return path10;
+}
+function toFileUrl9(path10) {
+  if (!isAbsolute9(path10)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+  const [, hostname, pathname] = path10.match(
+    /^(?:[/\\]{2}([^/\\]+)(?=[/\\](?:[^/\\]|$)))?(.*)/
+  );
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace4(pathname.replace(/%/g, "%25"));
+  if (hostname != null && hostname != "localhost") {
+    url.hostname = hostname;
+    if (!url.hostname) {
+      throw new TypeError("Invalid hostname.");
+    }
+  }
+  return url;
+}
+
+// https://deno.land/std@0.117.0/path/posix.ts
+var posix_exports4 = {};
+__export(posix_exports4, {
+  basename: () => basename10,
+  delimiter: () => delimiter10,
+  dirname: () => dirname10,
+  extname: () => extname10,
+  format: () => format10,
+  fromFileUrl: () => fromFileUrl10,
+  isAbsolute: () => isAbsolute10,
+  join: () => join13,
+  normalize: () => normalize13,
+  parse: () => parse10,
+  relative: () => relative10,
+  resolve: () => resolve10,
+  sep: () => sep10,
+  toFileUrl: () => toFileUrl10,
+  toNamespacedPath: () => toNamespacedPath10
+});
+var sep10 = "/";
+var delimiter10 = ":";
+function resolve10(...pathSegments) {
+  let resolvedPath = "";
+  let resolvedAbsolute = false;
+  for (let i2 = pathSegments.length - 1; i2 >= -1 && !resolvedAbsolute; i2--) {
+    let path10;
+    if (i2 >= 0)
+      path10 = pathSegments[i2];
+    else {
+      const { Deno: Deno4 } = globalThis;
+      if (typeof Deno4?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path10 = Deno4.cwd();
+    }
+    assertPath4(path10);
+    if (path10.length === 0) {
+      continue;
+    }
+    resolvedPath = `${path10}/${resolvedPath}`;
+    resolvedAbsolute = path10.charCodeAt(0) === CHAR_FORWARD_SLASH4;
+  }
+  resolvedPath = normalizeString4(
+    resolvedPath,
+    !resolvedAbsolute,
+    "/",
+    isPosixPathSeparator4
+  );
+  if (resolvedAbsolute) {
+    if (resolvedPath.length > 0)
+      return `/${resolvedPath}`;
+    else
+      return "/";
+  } else if (resolvedPath.length > 0)
+    return resolvedPath;
+  else
+    return ".";
+}
+function normalize13(path10) {
+  assertPath4(path10);
+  if (path10.length === 0)
+    return ".";
+  const isAbsolute15 = path10.charCodeAt(0) === CHAR_FORWARD_SLASH4;
+  const trailingSeparator = path10.charCodeAt(path10.length - 1) === CHAR_FORWARD_SLASH4;
+  path10 = normalizeString4(path10, !isAbsolute15, "/", isPosixPathSeparator4);
+  if (path10.length === 0 && !isAbsolute15)
+    path10 = ".";
+  if (path10.length > 0 && trailingSeparator)
+    path10 += "/";
+  if (isAbsolute15)
+    return `/${path10}`;
+  return path10;
+}
+function isAbsolute10(path10) {
+  assertPath4(path10);
+  return path10.length > 0 && path10.charCodeAt(0) === CHAR_FORWARD_SLASH4;
+}
+function join13(...paths) {
+  if (paths.length === 0)
+    return ".";
+  let joined;
+  for (let i2 = 0, len = paths.length; i2 < len; ++i2) {
+    const path10 = paths[i2];
+    assertPath4(path10);
+    if (path10.length > 0) {
+      if (!joined)
+        joined = path10;
+      else
+        joined += `/${path10}`;
+    }
+  }
+  if (!joined)
+    return ".";
+  return normalize13(joined);
+}
+function relative10(from, to) {
+  assertPath4(from);
+  assertPath4(to);
+  if (from === to)
+    return "";
+  from = resolve10(from);
+  to = resolve10(to);
+  if (from === to)
+    return "";
+  let fromStart = 1;
+  const fromEnd = from.length;
+  for (; fromStart < fromEnd; ++fromStart) {
+    if (from.charCodeAt(fromStart) !== CHAR_FORWARD_SLASH4)
+      break;
+  }
+  const fromLen = fromEnd - fromStart;
+  let toStart = 1;
+  const toEnd = to.length;
+  for (; toStart < toEnd; ++toStart) {
+    if (to.charCodeAt(toStart) !== CHAR_FORWARD_SLASH4)
+      break;
+  }
+  const toLen = toEnd - toStart;
+  const length = fromLen < toLen ? fromLen : toLen;
+  let lastCommonSep = -1;
+  let i2 = 0;
+  for (; i2 <= length; ++i2) {
+    if (i2 === length) {
+      if (toLen > length) {
+        if (to.charCodeAt(toStart + i2) === CHAR_FORWARD_SLASH4) {
+          return to.slice(toStart + i2 + 1);
+        } else if (i2 === 0) {
+          return to.slice(toStart + i2);
+        }
+      } else if (fromLen > length) {
+        if (from.charCodeAt(fromStart + i2) === CHAR_FORWARD_SLASH4) {
+          lastCommonSep = i2;
+        } else if (i2 === 0) {
+          lastCommonSep = 0;
+        }
+      }
+      break;
+    }
+    const fromCode = from.charCodeAt(fromStart + i2);
+    const toCode = to.charCodeAt(toStart + i2);
+    if (fromCode !== toCode)
+      break;
+    else if (fromCode === CHAR_FORWARD_SLASH4)
+      lastCommonSep = i2;
+  }
+  let out = "";
+  for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
+    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_FORWARD_SLASH4) {
+      if (out.length === 0)
+        out += "..";
+      else
+        out += "/..";
+    }
+  }
+  if (out.length > 0)
+    return out + to.slice(toStart + lastCommonSep);
+  else {
+    toStart += lastCommonSep;
+    if (to.charCodeAt(toStart) === CHAR_FORWARD_SLASH4)
+      ++toStart;
+    return to.slice(toStart);
+  }
+}
+function toNamespacedPath10(path10) {
+  return path10;
+}
+function dirname10(path10) {
+  assertPath4(path10);
+  if (path10.length === 0)
+    return ".";
+  const hasRoot = path10.charCodeAt(0) === CHAR_FORWARD_SLASH4;
+  let end = -1;
+  let matchedSlash = true;
+  for (let i2 = path10.length - 1; i2 >= 1; --i2) {
+    if (path10.charCodeAt(i2) === CHAR_FORWARD_SLASH4) {
+      if (!matchedSlash) {
+        end = i2;
+        break;
+      }
+    } else {
+      matchedSlash = false;
+    }
+  }
+  if (end === -1)
+    return hasRoot ? "/" : ".";
+  if (hasRoot && end === 1)
+    return "//";
+  return path10.slice(0, end);
+}
+function basename10(path10, ext = "") {
+  if (ext !== void 0 && typeof ext !== "string") {
+    throw new TypeError('"ext" argument must be a string');
+  }
+  assertPath4(path10);
+  let start = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2;
+  if (ext !== void 0 && ext.length > 0 && ext.length <= path10.length) {
+    if (ext.length === path10.length && ext === path10)
+      return "";
+    let extIdx = ext.length - 1;
+    let firstNonSlashEnd = -1;
+    for (i2 = path10.length - 1; i2 >= 0; --i2) {
+      const code2 = path10.charCodeAt(i2);
+      if (code2 === CHAR_FORWARD_SLASH4) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else {
+        if (firstNonSlashEnd === -1) {
+          matchedSlash = false;
+          firstNonSlashEnd = i2 + 1;
+        }
+        if (extIdx >= 0) {
+          if (code2 === ext.charCodeAt(extIdx)) {
+            if (--extIdx === -1) {
+              end = i2;
+            }
+          } else {
+            extIdx = -1;
+            end = firstNonSlashEnd;
+          }
+        }
+      }
+    }
+    if (start === end)
+      end = firstNonSlashEnd;
+    else if (end === -1)
+      end = path10.length;
+    return path10.slice(start, end);
+  } else {
+    for (i2 = path10.length - 1; i2 >= 0; --i2) {
+      if (path10.charCodeAt(i2) === CHAR_FORWARD_SLASH4) {
+        if (!matchedSlash) {
+          start = i2 + 1;
+          break;
+        }
+      } else if (end === -1) {
+        matchedSlash = false;
+        end = i2 + 1;
+      }
+    }
+    if (end === -1)
+      return "";
+    return path10.slice(start, end);
+  }
+}
+function extname10(path10) {
+  assertPath4(path10);
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let preDotState = 0;
+  for (let i2 = path10.length - 1; i2 >= 0; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (code2 === CHAR_FORWARD_SLASH4) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT4) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    return "";
+  }
+  return path10.slice(startDot, end);
+}
+function format10(pathObject) {
+  if (pathObject === null || typeof pathObject !== "object") {
+    throw new TypeError(
+      `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
+    );
+  }
+  return _format4("/", pathObject);
+}
+function parse10(path10) {
+  assertPath4(path10);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  if (path10.length === 0)
+    return ret;
+  const isAbsolute15 = path10.charCodeAt(0) === CHAR_FORWARD_SLASH4;
+  let start;
+  if (isAbsolute15) {
+    ret.root = "/";
+    start = 1;
+  } else {
+    start = 0;
+  }
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i2 = path10.length - 1;
+  let preDotState = 0;
+  for (; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (code2 === CHAR_FORWARD_SLASH4) {
+      if (!matchedSlash) {
+        startPart = i2 + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i2 + 1;
+    }
+    if (code2 === CHAR_DOT4) {
+      if (startDot === -1)
+        startDot = i2;
+      else if (preDotState !== 1)
+        preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      if (startPart === 0 && isAbsolute15) {
+        ret.base = ret.name = path10.slice(1, end);
+      } else {
+        ret.base = ret.name = path10.slice(startPart, end);
+      }
+    }
+  } else {
+    if (startPart === 0 && isAbsolute15) {
+      ret.name = path10.slice(1, startDot);
+      ret.base = path10.slice(1, end);
+    } else {
+      ret.name = path10.slice(startPart, startDot);
+      ret.base = path10.slice(startPart, end);
+    }
+    ret.ext = path10.slice(startDot, end);
+  }
+  if (startPart > 0)
+    ret.dir = path10.slice(0, startPart - 1);
+  else if (isAbsolute15)
+    ret.dir = "/";
+  return ret;
+}
+function fromFileUrl10(url) {
+  url = url instanceof URL ? url : new URL(url);
+  if (url.protocol != "file:") {
+    throw new TypeError("Must be a file URL.");
+  }
+  return decodeURIComponent(
+    url.pathname.replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
+  );
+}
+function toFileUrl10(path10) {
+  if (!isAbsolute10(path10)) {
+    throw new TypeError("Must be an absolute path.");
+  }
+  const url = new URL("file:///");
+  url.pathname = encodeWhitespace4(
+    path10.replace(/%/g, "%25").replace(/\\/g, "%5C")
+  );
+  return url;
+}
+
+// https://deno.land/std@0.117.0/path/glob.ts
+var path6 = isWindows4 ? win32_exports4 : posix_exports4;
+var { join: join14, normalize: normalize14 } = path6;
+
+// https://deno.land/std@0.117.0/path/mod.ts
+var path7 = isWindows4 ? win32_exports4 : posix_exports4;
+var {
+  basename: basename11,
+  delimiter: delimiter11,
+  dirname: dirname11,
+  extname: extname11,
+  format: format11,
+  fromFileUrl: fromFileUrl11,
+  isAbsolute: isAbsolute11,
+  join: join15,
+  normalize: normalize15,
+  parse: parse11,
+  relative: relative11,
+  resolve: resolve11,
+  sep: sep11,
+  toFileUrl: toFileUrl11,
+  toNamespacedPath: toNamespacedPath11
+} = path7;
+
+// https://deno.land/x/good@0.7.8/value.js
+var primitiveArrayClasses = [Uint16Array, Uint32Array, Uint8Array, Uint8ClampedArray, Int16Array, Int32Array, Int8Array, Float32Array, Float64Array, globalThis.BigInt64Array, globalThis.BigUint64Array].filter((each2) => each2);
+var allKeys5 = function(obj) {
+  let keys = [];
+  if (obj == null) {
+    return [];
+  }
+  if (!(obj instanceof Object)) {
+    obj = Object.getPrototypeOf(obj);
+  }
+  while (obj) {
+    keys = keys.concat(Reflect.ownKeys(obj));
+    obj = Object.getPrototypeOf(obj);
+  }
+  return keys;
+};
+var ownKeyDescriptions5 = Object.getOwnPropertyDescriptors;
+var allKeyDescriptions5 = function(value, options = { includingBuiltin: false }) {
+  var { includingBuiltin } = { ...options };
+  let descriptions = [];
+  if (value == null) {
+    return {};
+  }
+  if (!(value instanceof Object)) {
+    value = Object.getPrototypeOf(value);
+  }
+  const rootPrototype = Object.getPrototypeOf({});
+  let prevObj;
+  while (value && value != prevObj) {
+    if (!includingBuiltin && value == rootPrototype) {
+      break;
+    }
+    descriptions = descriptions.concat(Object.entries(Object.getOwnPropertyDescriptors(value)));
+    prevObj = value;
+    value = Object.getPrototypeOf(value);
+  }
+  descriptions.reverse();
+  return Object.fromEntries(descriptions);
+};
+var MapIterator5 = Object.getPrototypeOf((/* @__PURE__ */ new Map()).keys());
+var SetIterator5 = Object.getPrototypeOf((/* @__PURE__ */ new Set()).keys());
+var GeneratorFunction5 = class {
+};
+var AsyncGeneratorFunction5 = class {
+};
+try {
+  GeneratorFunction5 = eval("((function*(){})()).constructor");
+  AsyncGeneratorFunction5 = eval("((async function*(){})()).constructor");
+} catch (error) {
+}
+var isGeneratorType5 = (value) => {
+  if (value instanceof Object) {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype == MapIterator5 || prototype == SetIterator5) {
+      return true;
+    }
+    const constructor = value.constructor;
+    return constructor == GeneratorFunction5 || constructor == AsyncGeneratorFunction5;
+  }
+  return false;
+};
+var deepCopySymbol5 = Symbol.for("deepCopy");
+var clonedFromSymbol5 = Symbol();
+var getThis5 = Symbol();
+Object.getPrototypeOf(function() {
+})[getThis5] = function() {
+  return this;
+};
+function deepCopyInner5(value, valueChain = [], originalToCopyMap = /* @__PURE__ */ new Map()) {
+  valueChain.push(value);
+  if (value == null) {
+    return value;
+  }
+  if (!(value instanceof Object)) {
+    return value;
+  }
+  if (originalToCopyMap.has(value)) {
+    return originalToCopyMap.get(value);
+  }
+  if (value[deepCopySymbol5] instanceof Function) {
+    const clonedValue = value[deepCopySymbol5]();
+    originalToCopyMap.set(value, clonedValue);
+    return clonedValue;
+  }
+  if (isGeneratorType5(value)) {
+    throw Error(`Sadly built-in generators cannot be deep copied.
+And I found a generator along this path:
+${valueChain.reverse().map((each2) => `${each2},
+`)}`);
+  }
+  let object, theThis, thisCopy;
+  if (value instanceof Date) {
+    object = new Date(value.getTime());
+  } else if (value instanceof RegExp) {
+    object = new RegExp(value);
+  } else if (value instanceof Function) {
+    theThis = value[getThis5]();
+    object = function(...args) {
+      return value.apply(thisCopy, args);
+    };
+  } else if (primitiveArrayClasses.includes(value.constructor)) {
+    object = new value.constructor([...value]);
+  } else if (value instanceof Array) {
+    object = [];
+  } else if (value instanceof Set) {
+    object = /* @__PURE__ */ new Set();
+  } else if (value instanceof Map) {
+    object = /* @__PURE__ */ new Map();
+  }
+  originalToCopyMap.set(value, object);
+  if (object instanceof Function) {
+    thisCopy = deepCopyInner5(theThis, valueChain, originalToCopyMap);
+  }
+  const output2 = object;
+  try {
+    output2.constructor = value.constructor;
+  } catch (error) {
+  }
+  Object.setPrototypeOf(output2, Object.getPrototypeOf(value));
+  const propertyDefinitions = {};
+  for (const [key, description] of Object.entries(Object.getOwnPropertyDescriptors(value))) {
+    const { value: value2, get, set, ...options } = description;
+    const getIsFunc = get instanceof Function;
+    const setIsFunc = set instanceof Function;
+    if (getIsFunc || setIsFunc) {
+      propertyDefinitions[key] = {
+        ...options,
+        get: get ? function(...args) {
+          return get.apply(output2, args);
+        } : void 0,
+        set: set ? function(...args) {
+          return set.apply(output2, args);
+        } : void 0
+      };
+    } else {
+      if (key == "length" && output2 instanceof Array) {
+        continue;
+      }
+      propertyDefinitions[key] = {
+        ...options,
+        value: deepCopyInner5(value2, valueChain, originalToCopyMap)
+      };
+    }
+  }
+  Object.defineProperties(output2, propertyDefinitions);
+  return output2;
+}
+var deepCopy5 = (value) => deepCopyInner5(value);
+var shallowSortObject5 = (obj) => {
+  return Object.keys(obj).sort().reduce(
+    (newObj, key) => {
+      newObj[key] = obj[key];
+      return newObj;
+    },
+    {}
+  );
+};
+var deepSortObject5 = (obj, seen = /* @__PURE__ */ new Map()) => {
+  if (!(obj instanceof Object)) {
+    return obj;
+  } else if (seen.has(obj)) {
+    return seen.get(obj);
+  } else {
+    if (obj instanceof Array) {
+      const sortedChildren = [];
+      seen.set(obj, sortedChildren);
+      for (const each2 of obj) {
+        sortedChildren.push(deepSortObject5(each2, seen));
+      }
+      return sortedChildren;
+    } else {
+      const sorted = {};
+      seen.set(obj, sorted);
+      for (const eachKey of Object.keys(obj).sort()) {
+        sorted[eachKey] = deepSortObject5(obj[eachKey], seen);
+      }
+      return sorted;
+    }
+  }
+};
+var stableStringify5 = (value, ...args) => {
+  return JSON.stringify(deepSortObject5(value), ...args);
+};
+
+// https://deno.land/x/good@0.7.8/debug.js
+var allKeysDescriptionsAsString = function(obj) {
+  const descriptors = allKeyDescriptions5(obj);
+  const stringKeys = descriptors.map(({ from, key, descriptor }) => [`${from.constructor instanceof Object && from.constructor.name || from}[${JSON.stringify(key)}]: `, key, descriptor]);
+  const maxLength2 = Math.max(...stringKeys.map((each2) => each2[0].length));
+  const paddedStringKeys = stringKeys.map(([string2, key, descriptor]) => [string2.padEnd(maxLength2, " "), key, descriptor]);
+  const booleanSpacer = (bool) => bool ? `true ` : `false`;
+  let descriptorsString = `[
+`;
+  for (const [stringKey, key, descriptor] of paddedStringKeys) {
+    let { value, writable, get, set, configurable, enumerable } = descriptor;
+    get = get instanceof Function ? `Function ` : `undefined`;
+    set = set instanceof Function ? `Function ` : `undefined`;
+    const isGetterSetter = get === `Function ` || set === `Function `;
+    if (isGetterSetter) {
+      try {
+        value = value[key];
+      } catch (error) {
+        value = error;
+      }
+    }
+    const isMethod = value instanceof Function;
+    descriptorsString += `${indent}${indent}${stringKey}{ get:${get}, set:${set}, isMethod:${booleanSpacer(isMethod)}, configurable:${booleanSpacer(configurable)}, enumerable:${booleanSpacer(enumerable)}, writable:${booleanSpacer(writable)}, value: ${value} },
+`;
+  }
+  return descriptorsString + `${indent}]`;
+};
+var debugValueAsString = (value) => {
+  const indent4 = `    `;
+  if (value === void 0) {
+    return JSON.stringify({
+      valueItself: value,
+      isUndefined: true,
+      isNull: false,
+      doubleEqualToNull: true,
+      tripleEqualToNull: false,
+      typeof: typeof value,
+      stringified: void 0,
+      objectIsFrozen: Object.isFrozen(value)
+    }, 0, indent4.length);
+  } else if (value === null) {
+    return JSON.stringify({
+      valueItself: value,
+      isUndefined: false,
+      isNull: true,
+      doubleEqualToNull: true,
+      tripleEqualToNull: true,
+      typeof: typeof value,
+      stringified: "null",
+      objectIsFrozen: Object.isFrozen(value)
+    }, 0, indent4.length);
+  } else {
+    const output2 = {
+      valueItself: value,
+      typeof: typeof value,
+      constructorName: value.constructor instanceof Object && value.constructor.name,
+      prototype: Object.getPrototypeOf(value),
+      stringified: Error,
+      instanceofObject: value instanceof Object,
+      ifStatementTreatsAs: value ? true : false,
+      doubleEqualToFalse: value == false,
+      doubleEqualToTrue: value == false,
+      objectIsFrozen: Object.isFrozen(value),
+      isNaN: value !== value,
+      isUndefined: false,
+      isNull: false,
+      doubleEqualToNull: value == null,
+      tripleEqualToNull: value === null,
+      valueOf: void 0,
+      toString: void 0,
+      isArray: value instanceof Array,
+      iterableUsingForIn: false,
+      iterableUsingForof: false,
+      keys: JSON.stringify(Object.keys(value).map((each2) => typeof each2 == "symbol" ? `${each2}` : each2), indent4.length * 2),
+      getOwnPropertyNames: JSON.stringify(Object.getOwnPropertyNames(value).map((each2) => typeof each2 == "symbol" ? `${each2}` : each2), indent4.length * 2),
+      allPropertyDescriptions: allKeysDescriptionsAsString(value)
+    };
+    if (value.valueOf instanceof Function) {
+      output2.valueOf = value.valueOf();
+    }
+    if (value.toString instanceof Function) {
+      output2.toString = value.toString();
+      if (typeof output2.toString == "string") {
+        output2.toString = JSON.stringify(output2.toString);
+      }
+    }
+    try {
+      output2.stringified = JSON.stringify(value);
+    } catch (error) {
+      output2.stringified = error;
+    }
+    try {
+      for (const each2 in value) {
+        break;
+      }
+      output2.iterableUsingForIn = true;
+    } catch (error) {
+    }
+    try {
+      for (const each2 of value) {
+        break;
+      }
+      output2.iterableUsingForOf = true;
+    } catch (error) {
+    }
+    return `
+{
+    valueItself: ${output2.valueItself},
+    typeof: ${output2.typeof},
+    constructorName: ${output2.constructorName},
+    prototype: ${output2.prototype},
+    stringified: ${output2.stringified},
+    instanceofObject: ${output2.instanceofObject},
+    ifStatementTreatsAs: ${output2.ifStatementTreatsAs},
+    doubleEqualToFalse: ${output2.doubleEqualToFalse},
+    doubleEqualToTrue: ${output2.doubleEqualToTrue},
+    objectIsFrozen: ${output2.objectIsFrozen},
+    isNaN: ${output2.isNaN},
+    isUndefined: ${output2.isUndefined},
+    isNull: ${output2.isNull},
+    doubleEqualToNull: ${output2.doubleEqualToNull},
+    tripleEqualToNull: ${output2.tripleEqualToNull},
+    valueOf: ${output2.valueOf},
+    toString: ${output2.toString},
+    isArray: ${output2.isArray},
+    iterableUsingForIn: ${output2.iterableUsingForIn},
+    iterableUsingForof: ${output2.iterableUsingForof},
+    keys: ${output2.keys},
+    getOwnPropertyNames: ${output2.getOwnPropertyNames},
+    allPropertyDescriptions: ${output2.allPropertyDescriptions},
+}
+`;
+  }
+};
+
+// https://deno.land/x/quickr@0.6.54/main/run.js
+var timeoutSymbol = Symbol("timeout");
+var envSymbol = Symbol("env");
+var cwdSymbol = Symbol("cwd");
+var stdinSymbol = Symbol("stdin");
+var stdoutSymbol = Symbol("stdout");
+var stderrSymbol = Symbol("stderr");
+var stdoutAndErrSymbol = Symbol("stdoutAndErr");
+var overwriteSymbol = Symbol("overwrite");
+var appendSymbol = Symbol("append");
+var asString = Symbol("asString");
+var throwIfFails = Symbol("throwIfFails");
+var zipInto = Symbol("zipInto");
+var mergeInto = Symbol("mergeInto");
+var returnAsString = Symbol("returnAsString");
+var Timeout = ({ gentlyBy, waitBeforeUsingForce }) => [timeoutSymbol, { gentlyBy, waitBeforeUsingForce }];
+var Env = (envVars) => [envSymbol, envVars];
+var Cwd = (newDirectory) => [cwdSymbol, newDirectory];
+var Stdin = (...streamsFilesOrStrings) => [stdinSymbol, streamsFilesOrStrings];
+var Stdout = (...pathsFilesStreamsOrSymbols) => [stdoutSymbol, pathsFilesStreamsOrSymbols];
+var Stderr = (...pathsFilesStreamsOrSymbols) => [stderrSymbol, pathsFilesStreamsOrSymbols];
+var Out = (...pathsFilesStreamsOrSymbols) => [stdoutAndErrSymbol, pathsFilesStreamsOrSymbols];
+var Overwrite = (fileOrFilePath) => [overwriteSymbol, fileOrFilePath];
+var AppendTo = (fileOrFilePath) => [appendSymbol, fileOrFilePath];
+var isReadable = (obj) => obj instanceof Object && obj.read instanceof Function;
+var isWritable = (obj) => obj instanceof Object && obj.write instanceof Function;
+var concatUint8Arrays = (arrays) => new Uint8Array(
+  // simplified from: https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
+  arrays.reduce((acc, curr) => (acc.push(...curr), acc), [])
+);
+var { isWindows: isWindows5, isLinux, isMac } = OperatingSystem.commonChecks;
+var alreadyOpenFiles = {};
+var ridToPath = {};
+var realDenoOpen = Deno.open.bind(Deno);
+Deno.open = function(...args) {
+  const path10 = FileSystem.makeAbsolutePath(args[0]);
+  if (!alreadyOpenFiles[path10]) {
+    alreadyOpenFiles[path10] = realDenoOpen(...args).then((file) => {
+      ridToPath[file.rid] = path10;
+      const realClose = file.close;
+      file.close = function(...args2) {
+        delete alreadyOpenFiles[path10];
+        realClose(...args2);
+      }.bind(file);
+      return file;
+    });
+  }
+  return alreadyOpenFiles[path10];
+}.bind(Deno);
+var realDenoOpenSync = Deno.openSync.bind(Deno);
+Deno.openSync = function(...args) {
+  const path10 = FileSystem.makeAbsolutePath(args[0]);
+  if (!alreadyOpenFiles[path10]) {
+    const file = realDenoOpenSync(...args);
+    ridToPath[file.rid] = path10;
+    const realClose = file.close;
+    file.close = function(...args2) {
+      delete alreadyOpenFiles[path10];
+      realClose(...args2);
+    }.bind(file);
+    alreadyOpenFiles[path10] = file;
+  }
+  return alreadyOpenFiles[path10];
+}.bind(Deno);
+var run2 = (maybeStrings, ...args) => {
+  let newArgs = [];
+  const argSplitter = /[ \t]+/;
+  if (maybeStrings instanceof Array) {
+    maybeStrings = [...maybeStrings];
+    const lastString = maybeStrings.pop();
+    for (const eachString of maybeStrings) {
+      const innerArgs = eachString.split(argSplitter);
+      for (const each2 of innerArgs) {
+        if (each2.length > 0) {
+          newArgs.push(each2);
+        }
+      }
+      newArgs.push(args.shift());
+    }
+    const endingArgsString = lastString.trim();
+    if (endingArgsString.length > 0) {
+      const endingArgs = endingArgsString.split(argSplitter);
+      for (const each2 of endingArgs) {
+        newArgs.push(each2);
+      }
+    }
+    args = newArgs;
+  } else {
+    args = [maybeStrings, ...args];
+  }
+  const commandMetaData = {
+    timeout: { gentlyBy: void 0, waitBeforeUsingForce: void 0 },
+    env: void 0,
+    cwd: void 0,
+    stdin: void 0,
+    stdout: void 0,
+    stderr: void 0,
+    outAndError: []
+  };
+  for (const each2 of args) {
+    if (typeof each2 == "symbol") {
+      if (each2 == throwIfFails) {
+        commandMetaData.throwIfFails = true;
+      }
+    }
+    if (each2 instanceof Array && typeof each2[0] == "symbol") {
+      const [symbol, value] = each2;
+      if (symbol === timeoutSymbol) {
+        Object.assign(commandMetaData.timeout, value);
+      }
+      if (symbol === envSymbol) {
+        commandMetaData.env = value;
+      }
+      if (symbol === cwdSymbol) {
+        commandMetaData.cwd = value;
+      }
+      if (symbol === stdinSymbol) {
+        commandMetaData.stdin = value;
+      }
+      if (symbol === stdoutSymbol) {
+        commandMetaData.stdout = value;
+      }
+      if (symbol === stderrSymbol) {
+        commandMetaData.stderr = value;
+      }
+      if (symbol === stdoutAndErrSymbol) {
+        commandMetaData.outAndError = value;
+      }
+    }
+  }
+  const runArg = {
+    cmd: args.filter((each2) => typeof each2 == "string"),
+    env: commandMetaData.env,
+    cwd: commandMetaData.cwd,
+    stdin: void 0,
+    stdout: void 0,
+    stderr: void 0
+  };
+  const syncStatus = { done: false, exitCode: void 0, success: void 0 };
+  const asyncPart = async () => {
+    if (
+      // either both should be null or both should be set
+      commandMetaData.timeout.gentlyBy == null !== (commandMetaData.timeout.waitBeforeUsingForce == null) || commandMetaData.timeout.gentlyBy != null && (!(commandMetaData.timeout.gentlyBy >= 0) || !(commandMetaData.timeout.waitBeforeUsingForce >= 0))
+    ) {
+      throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given a:
+    Timeout(${JSON.stringify(commandMetaData.timeout)})
+however both "gentlyBy" and "waitBeforeUsingForce" are needed.
+For example, if 
+    gentlyBy: 1000
+    waitBeforeUsingForce: 500
+it would be force killed 1.5sec after the process started.
+If you never want force to be used, do {waitBeforeUsingForce: Infinity}
+
+`);
+    }
+    if (runArg.cwd !== void 0) {
+      const folderExists = await Deno.stat(runArg.cwd).then(({ isDirectory: isDirectory2 }) => isDirectory2).catch(() => false);
+      if (!folderExists) {
+        throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given a Cwd (cwd) of:
+${JSON.stringify(runArg.cwd)}
+but that doesn't seem to be a path to a folder, so the command would fail.
+
+`);
+      }
+    }
+    let stdinWriter = void 0;
+    if (commandMetaData.stdin !== void 0) {
+      let stdinArgs = commandMetaData.stdin;
+      let index = 0;
+      for (const each2 of stdinArgs) {
+        if (each2 instanceof Promise) {
+          stdinArgs[index] = await each2;
+        }
+        ++index;
+      }
+      if (stdinArgs.length == 0) {
+        runArg.stdin = "piped";
+      } else if (stdinArgs.length == 1 && stdinArgs[0] == null) {
+        runArg.stdin = "null";
+      } else {
+        stdinArgs = stdinArgs.filter((each2) => each2 != null);
+        if (stdinArgs.length == 0) {
+          throw Error(`when calling run() with the command: 
+    ${JSON.stringify(runArg.cmd)}
+An Stdin() was given, but it wasn't given any arguments
+if you want Stdin to be nothing (instead of the default Stdin(Deno.stdin)) put Stdin(null)
+
+`);
+        } else {
+          runArg.stdin = "piped";
+          if (stdinArgs.every((each2) => typeof each2 == "string" || each2 instanceof Uint8Array)) {
+            const allUint8Arrays = stdinArgs.map((each2) => typeof each2 != "string" ? each2 : new TextEncoder().encode(each2));
+            stdinWriter = concatUint8Arrays(allUint8Arrays);
+          } else {
+            const first = stdinArgs[0];
+            let prev;
+            if (typeof first == "string") {
+              stdinWriter = readableStreamFromReader(new StringReader(first));
+              prev = "string";
+            } else if (first instanceof Uint8Array) {
+              stdinWriter = readableStreamFromReader(new Buffer(first));
+              prev = "uint8array";
+            } else if (first instanceof ReadableStream) {
+              stdinWriter = first;
+              prev = "readableStream";
+            } else if (isReadable(first)) {
+              stdinWriter = readableStreamFromReader(first);
+              prev = "readable";
+            } else {
+              throw Error(`when calling run() with the command: 
+    ${JSON.stringify(runArg.cmd)}
+An Stdin() was given, but there was a problem with one of the arguments.
+The argument can be a string, a file (Deno.open("./path")), bytes (Uint8Array), or any readable object (like Deno.stdin or the .stdout of another run command)
+but instead of any of those I received:
+    ${first}
+
+`);
+            }
+            for (const each2 of stdinArgs.slice(1)) {
+              if (each2 === mergeInto || each2 === zipInto) {
+                prev = each2;
+                continue;
+              }
+              let newStream;
+              if (typeof each2 == "string") {
+                newStream = readableStreamFromReader(new StringReader(each2));
+                current = "string";
+              } else if (each2 instanceof Uint8Array) {
+                newStream = readableStreamFromReader(new Buffer(each2));
+                current = "uint8";
+              } else if (each2 instanceof ReadableStream) {
+                newStream = each2;
+                current = "readableStream";
+              } else if (isReadable(each2)) {
+                newStream = readableStreamFromReader(each2);
+                current = "readable";
+              } else {
+                throw Error(`when calling run() with the command: 
+    ${JSON.stringify(runArg.cmd)}
+An Stdin() was given, but there was a problem with one of the arguments.
+The argument can be a string, a file (Deno.open("./path")), bytes (Uint8Array), or any readable object (like Deno.stdin or the .stdout of another run command)
+but instead of any of those I received:
+    ${each2}
+
+`);
+              }
+              if (prev !== zipInto && (prev === mergeInto || prev == "string" || prev == "uint8array" || current == "string" || current == "uint8array")) {
+                stdinWriter = stdinWriter.mergeReadableStreams(stdinWriter, newStream);
+              } else {
+                stdinWriter = stdinWriter.zipReadableStreams(stdinWriter, newStream);
+              }
+            }
+          }
+        }
+      }
+    }
+    const outStreamNames = ["stdout", "stderr"];
+    if (commandMetaData.outAndError.length > 0) {
+      for (const each2 of outStreamNames) {
+        if (!(commandMetaData[each2] instanceof Array)) {
+          commandMetaData[each2] = [];
+        }
+        commandMetaData[each2] = commandMetaData[each2].concat(commandMetaData.outAndError);
+      }
+    }
+    for (const each2 of outStreamNames) {
+      if (commandMetaData[each2] !== void 0) {
+        if (commandMetaData[each2].length == 0) {
+          runArg[each2] = "piped";
+        } else if (commandMetaData[each2].length == 1 && commandMetaData[each2][0] === null) {
+          runArg[each2] = "null";
+        } else {
+          runArg[each2] = "piped";
+          commandMetaData[each2] = [...new Set(commandMetaData[each2].filter((each3) => each3 != null))];
+        }
+      }
+    }
+    const openFiles = {};
+    const convertReturnStreamArg = async (arg) => {
+      if (arg === returnAsString) {
+        return arg;
+      }
+      if (arg instanceof Array) {
+        if (typeof arg[0] == "symbol") {
+          let [symbol, value] = arg;
+          if (symbol === overwriteSymbol) {
+            if (typeof value == "string") {
+              const path10 = FileSystem.makeAbsolutePath(value);
+              if (!openFiles[path10]) {
+                await FileSystem.clearAPathFor(value, { overwrite: true });
+                openFiles[path10] = await Deno.open(value, { write: true, truncate: true, create: true });
+              }
+              value = openFiles[path10];
+            }
+            if (value instanceof Deno.File) {
+              value.truncate();
+            } else {
+              throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given one of:
+    Stdout(Overwrite(arg))
+    Stdin(Overwrite(arg))
+    Out(Overwrite(arg))
+However the given arg was not a string path or a file object.
+Here's what I know about the argument:${debugValueAsString(value)}
+
+`);
+            }
+          } else if (symbol === appendSymbol) {
+            if (typeof value == "string") {
+              const path10 = FileSystem.makeAbsolutePath(value);
+              if (!openFiles[path10]) {
+                await FileSystem.ensureIsFolder(FileSystem.parentPath(value));
+                openFiles[path10] = await Deno.open(value, { write: true, create: true });
+              }
+              value = openFiles[path10];
+            }
+            if (value instanceof Deno.File) {
+              await Deno.seek(value.rid, 0, Deno.SeekMode.End);
+            } else {
+              throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given one of:
+    Stdout(AppendTo(arg))
+    Stdin(AppendTo(arg))
+    Out(AppendTo(arg))
+However the given arg was not a string path or a file object.
+Here's what I know about the argument:${debugValueAsString(value)}
+
+`);
+            }
+          }
+          arg = value;
+        }
+      }
+      if (arg instanceof WritableStream) {
+        return arg;
+      } else if (isWritable(arg)) {
+        return writableStreamFromWriter(arg);
+      } else if (typeof arg == "string") {
+        throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given one of:
+    Stdout(${JSON.stringify(arg)})
+    Stdin(${JSON.stringify(arg)})
+    Out(${JSON.stringify(arg)})
+if you want to have them write to a file:
+    dont:    Out(${JSON.stringify(arg)})
+    instead: Out(Overwrite(${JSON.stringify(arg)}))
+    or:      Out(AppendTo(${JSON.stringify(arg)}))
+
+`);
+      }
+    };
+    const alreadyComputed = /* @__PURE__ */ new Map();
+    const convertArgsToWritables = (...args2) => args2.map((eachArg) => {
+      let key;
+      if (eachArg instanceof Array) {
+        key = JSON.stringify(eachArg.map((each2) => {
+          if (typeof each2 == "symbol") {
+            return each2.toString();
+          } else if (each2 instanceof Deno.File) {
+            if (ridToPath[each2.id]) {
+              return FileSystem.makeAbsolutePath(ridToPath[each2.id]);
+            }
+            return `Deno.File(${each2.rid})`;
+          } else if (typeof each2 == "string") {
+            return FileSystem.makeAbsolutePath(each2);
+          } else {
+            return JSON.stringify(each2);
+          }
+        }));
+      } else {
+        key = JSON.stringify(eachArg);
+      }
+      if (alreadyComputed.has(key)) {
+        return alreadyComputed.get(key);
+      } else {
+        const output2 = convertReturnStreamArg(eachArg);
+        alreadyComputed.set(key, output2);
+        return output2;
+      }
+    });
+    const stdoutWritables = await Promise.all(convertArgsToWritables(...commandMetaData.stdout || []));
+    const stderrWritables = await Promise.all(convertArgsToWritables(...commandMetaData.stderr || []));
+    let process = {};
+    try {
+      process = Deno.run(runArg);
+    } catch (error) {
+      const rejection = new Promise((resolve15, reject) => reject(`
+${error}
+This was from a run() call, which was converted to Deno.run(${JSON.stringify(runArg, 0, 4)})`));
+      return [rejection, rejection, rejection];
+    }
+    if (commandMetaData.timeout.gentlyBy) {
+      let outcome = false;
+      process.status().then(() => outcome = true);
+      setTimeout(async () => {
+        if (!outcome) {
+          process.kill("SIGINT");
+          setTimeout(() => {
+            if (!outcome) {
+              process.kill("SIGKILL");
+            }
+          }, commandMetaData.timeout.waitBeforeUsingForce);
+        }
+      }, commandMetaData.timeout.gentlyBy);
+    }
+    let hasReturnString = false;
+    let stdoutAndStderrDoneWritingPromise = { then(func) {
+      func();
+    } };
+    const returnStringChunks = [];
+    if (runArg.stdout == "piped" || runArg.stderr == "piped") {
+      stdoutAndStderrDoneWritingPromise = deferredPromise();
+      let stdoutIsDone = false;
+      let stderrIsDone = false;
+      const writableToWriter = /* @__PURE__ */ new Map();
+      for (const eachWritable of stdoutWritables.concat(stderrWritables)) {
+        if (!writableToWriter.has(eachWritable)) {
+          if (eachWritable == returnAsString) {
+            hasReturnString = true;
+            const decoder3 = new TextDecoder();
+            writableToWriter.set(eachWritable, {
+              write(value) {
+                const stringValue = decoder3.decode(value);
+                returnStringChunks.push(stringValue);
+              }
+            });
+          } else {
+            writableToWriter.set(eachWritable, eachWritable.getWriter());
+          }
+        }
+      }
+      const stdoutWriters = stdoutWritables.map((each2) => writableToWriter.get(each2));
+      const stderrWriters = stderrWritables.map((each2) => writableToWriter.get(each2));
+      if (runArg.stdout != "piped") {
+        stdoutIsDone = true;
+      } else {
+        const reader = readableStreamFromReader(process.stdout).getReader();
+        setTimeout(async () => {
+          while (1) {
+            const { value, done } = await reader.read();
+            if (done) {
+              stdoutIsDone = true;
+              if (stderrIsDone) {
+                stdoutAndStderrDoneWritingPromise.resolve();
+              }
+              break;
+            }
+            for (const each2 of stdoutWriters) {
+              each2.write(value);
+            }
+          }
+        });
+      }
+      if (runArg.stderr != "piped") {
+        stderrIsDone = true;
+      } else {
+        const reader = readableStreamFromReader(process.stderr).getReader();
+        setTimeout(async () => {
+          while (1) {
+            const { value, done } = await reader.read();
+            if (done) {
+              stderrIsDone = true;
+              if (stdoutIsDone) {
+                stdoutAndStderrDoneWritingPromise.resolve();
+              }
+              break;
+            }
+            for (const each2 of stderrWriters) {
+              each2.write(value);
+            }
+          }
+        });
+      }
+    }
+    if (runArg.stdin == "piped") {
+      if (stdinWriter instanceof Uint8Array) {
+        process.stdin.write(stdinWriter).then(() => process.stdin.close());
+      } else if (stdinWriter instanceof ReadableStream) {
+        writableStreamFromWriter(process.stdin);
+      }
+    }
+    let statusPromise2 = process.status();
+    statusPromise2.then(({ code: code2, success }) => {
+      syncStatus.done = true;
+      syncStatus.exitCode = code2;
+      syncStatus.success = success;
+    });
+    let processFinishedValue;
+    if (hasReturnString) {
+      processFinishedValue = statusPromise2.then(() => stdoutAndStderrDoneWritingPromise.then(() => returnStringChunks.join("")));
+    } else {
+      processFinishedValue = statusPromise2.then(({ success, code: code2 }) => {
+        return {
+          isDone: true,
+          status: syncStatus,
+          sendSignal: () => 0,
+          success,
+          exitCode: code2,
+          pid: process.pid,
+          rid: process.rid,
+          kill: () => 0,
+          close: process.close,
+          stdin: runArg.stdin == "null" ? null : process.stdin || Deno.stdin,
+          stdout: process.stdout || Deno.stdout,
+          stderr: process.stderr || Deno.stderr
+        };
+      });
+    }
+    const returnValueOrError = new Promise(async (resolve15, reject) => {
+      if (commandMetaData.throwIfFails) {
+        const status = await statusPromise2;
+        if (!status.success) {
+          reject(await processFinishedValue);
+          return;
+        }
+      }
+      resolve15(processFinishedValue);
+    });
+    return [process, returnValueOrError, statusPromise2];
+  };
+  const asyncPartPromise = asyncPart();
+  const processPromise = asyncPartPromise.then(([process, processFinishedValue, statusPromise2]) => process).catch((err) => err);
+  const statusPromise = asyncPartPromise.then(([process, processFinishedValue, statusPromise2]) => statusPromise2).catch((err) => err);
+  const returnValuePromise = asyncPartPromise.then(([process, processFinishedValue, statusPromise2]) => processFinishedValue);
+  Object.defineProperties(returnValuePromise, {
+    status: { get() {
+      return syncStatus;
+    } },
+    isDone: { get() {
+      return syncStatus.done;
+    } },
+    sendSignal: { get() {
+      return (...args2) => processPromise.then((process) => process.kill(...args2)).catch((error) => error);
+    } },
+    kill: { get() {
+      return (signal = "SIGKILL") => processPromise.then((process) => process.kill(signal));
+    } },
+    close: { get() {
+      return (...args2) => processPromise.then((process) => process.close(...args2));
+    } },
+    success: { get() {
+      return statusPromise.then(({ success }) => success);
+    } },
+    exitCode: { get() {
+      return statusPromise.then(({ code: code2 }) => code2);
+    } },
+    outcome: { get() {
+      return statusPromise;
+    } },
+    rid: { get() {
+      return processPromise.then(({ rid }) => rid);
+    } },
+    pid: { get() {
+      return processPromise.then(({ pid }) => pid);
+    } },
+    stdout: { get() {
+      return processPromise.then(({ stdout }) => stdout || Deno.stdout);
+    } },
+    stderr: { get() {
+      return processPromise.then(({ stderr }) => stderr || Deno.stderr);
+    } },
+    stdin: {
+      get() {
+        const realStdinPromise = processPromise.then(({ stdin }) => stdin || Deno.stdin);
+        return {
+          send(rawDataOrString) {
+            if (typeof rawDataOrString == "string") {
+              return { ...realStdinPromise.then((realStdin) => realStdin.write(new TextEncoder().encode(rawDataOrString))), ...this };
+            } else {
+              return { ...realStdinPromise.then((realStdin) => realStdin.write(rawDataOrString)), ...this };
+            }
+          },
+          close(...args2) {
+            return realStdinPromise.then((realStdin) => (realStdin.close(...args2), this));
+          }
+        };
+      }
+    }
+  });
+  return returnValuePromise;
+};
+run2.Timeout = Timeout;
+run2.Env = Env;
+run2.Cwd = Cwd;
+run2.Stdin = Stdin;
+run2.Stdout = Stdout;
+run2.Stderr = Stderr;
+run2.Out = Out;
+run2.Overwrite = Overwrite;
+run2.AppendTo = AppendTo;
+run2.zipInto = zipInto;
+run2.mergeInto = mergeInto;
+run2.returnAsString = returnAsString;
+
+// https://deno.land/x/good@1.5.1.0/string.js
+var indent3 = ({ string: string2, by = "    ", noLead = false }) => (noLead ? "" : by) + string2.replace(/\n/g, "\n" + by);
+var toString2 = (value) => {
+  if (typeof value == "symbol") {
+    return toRepresentation3(value);
+  } else if (!(value instanceof Object)) {
+    return value != null ? value.toString() : `${value}`;
+  } else {
+    return toRepresentation3(value);
+  }
+};
+var reprSymbol2 = Symbol.for("representation");
+var denoInspectSymbol2 = Symbol.for("Deno.customInspect");
+var toRepresentation3 = (item) => {
+  const alreadySeen = /* @__PURE__ */ new Set();
+  const recursionWrapper = (item2) => {
+    if (item2 instanceof Object) {
+      if (alreadySeen.has(item2)) {
+        return `[Self Reference]`;
+      } else {
+        alreadySeen.add(item2);
+      }
+    }
+    let output2;
+    if (item2 === void 0) {
+      output2 = "undefined";
+    } else if (item2 === null) {
+      output2 = "null";
+    } else if (typeof item2 == "string") {
+      output2 = JSON.stringify(item2);
+    } else if (typeof item2 == "symbol") {
+      if (!item2.description) {
+        output2 = "Symbol()";
+      } else {
+        const globalVersion = Symbol.for(item2.description);
+        if (globalVersion == item2) {
+          output2 = `Symbol.for(${JSON.stringify(item2.description)})`;
+        } else {
+          output2 = `Symbol(${JSON.stringify(item2.description)})`;
+        }
+      }
+    } else if (item2 instanceof Date) {
+      output2 = `new Date(${item2.getTime()})`;
+    } else if (item2 instanceof Array) {
+      output2 = `[${item2.map((each2) => recursionWrapper(each2)).join(",")}]`;
+    } else if (item2 instanceof Set) {
+      output2 = `new Set(${[...item2].map((each2) => recursionWrapper(each2)).join(",")})`;
+    } else if (item2 instanceof Object && item2.constructor == Object) {
+      output2 = pureObjectRepr(item2);
+    } else if (item2 instanceof Map) {
+      let string2 = "new Map(";
+      for (const [key, value] of item2.entries()) {
+        const stringKey = recursionWrapper(key);
+        const stringValue = recursionWrapper(value);
+        if (!stringKey.match(/\n/g)) {
+          string2 += `
+  [${stringKey}, ${indent3({ string: stringValue, by: "  ", noLead: true })}],`;
+        } else {
+          string2 += `
+  [${indent3({ string: stringKey, by: "  ", noLead: true })},
+  ${indent3({ string: stringValue, by: "    ", noLead: true })}],`;
+        }
+      }
+      string2 += "\n)";
+      output2 = string2;
+    } else {
+      if (item2[reprSymbol2] instanceof Function) {
+        try {
+          output2 = item2[reprSymbol2]();
+          return output2;
+        } catch (error) {
+        }
+      }
+      if (item2[denoInspectSymbol2] instanceof Function) {
+        try {
+          output2 = item2[denoInspectSymbol2]();
+          return output2;
+        } catch (error) {
+        }
+      }
+      try {
+        output2 = item2.toString();
+        if (output2 !== "[object Object]") {
+          return output2;
+        }
+      } catch (error) {
+      }
+      try {
+        if (item2.constructor instanceof Function && item2.prototype && typeof item2.name == "string") {
+          output2 = `class ${item2.name} { /*...*/ }`;
+          return output2;
+        }
+      } catch (error) {
+      }
+      try {
+        if (item2.constructor instanceof Function && typeof item2.constructor.name == "string") {
+          output2 = `new ${item2.constructor.name}(${pureObjectRepr(item2)})`;
+          return output2;
+        }
+      } catch (error) {
+      }
+      return pureObjectRepr(item2);
+    }
+    return output2;
+  };
+  const pureObjectRepr = (item2) => {
+    let string2 = "{";
+    for (const [key, value] of Object.entries(item2)) {
+      const stringKey = recursionWrapper(key);
+      const stringValue = recursionWrapper(value);
+      string2 += `
+  ${stringKey}: ${indent3({ string: stringValue, by: "  ", noLead: true })},`;
+    }
+    string2 += "\n}";
+    return string2;
+  };
+  return recursionWrapper(item);
+};
+var wordList = (str) => {
+  const addedSeperator = str.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/[^a-zA-Z0-9 _.-]/, "_").toLowerCase();
+  const words = addedSeperator.split(/[ _.-]+/g);
+  return words;
+};
+var toCamelCase = (str) => {
+  const words = wordList(str);
+  const capatalizedWords = words.map((each2) => each2.replace(/^\w/, (group0) => group0.toUpperCase()));
+  capatalizedWords[0] = capatalizedWords[0].toLowerCase();
+  return capatalizedWords.join("");
+};
+var reservedCharMap = {
+  "&": "\\x26",
+  "!": "\\x21",
+  "#": "\\x23",
+  "$": "\\$",
+  "%": "\\x25",
+  "*": "\\*",
+  "+": "\\+",
+  ",": "\\x2c",
+  ".": "\\.",
+  ":": "\\x3a",
+  ";": "\\x3b",
+  "<": "\\x3c",
+  "=": "\\x3d",
+  ">": "\\x3e",
+  "?": "\\?",
+  "@": "\\x40",
+  "^": "\\^",
+  "`": "\\x60",
+  "~": "\\x7e",
+  "(": "\\(",
+  ")": "\\)",
+  "[": "\\[",
+  "]": "\\]",
+  "{": "\\{",
+  "}": "\\}",
+  "/": "\\/",
+  "-": "\\x2d",
+  "\\": "\\\\",
+  "|": "\\|"
+};
+var RX_REGEXP_ESCAPE = new RegExp(
+  `[${Object.values(reservedCharMap).join("")}]`,
+  "gu"
+);
+function escapeRegexMatch2(str) {
+  return str.replaceAll(
+    RX_REGEXP_ESCAPE,
+    (m) => reservedCharMap[m]
+  );
+}
+var regexpProxy2 = Symbol("regexpProxy");
+var realExec2 = RegExp.prototype.exec;
+RegExp.prototype.exec = function(...args) {
+  if (this[regexpProxy2]) {
+    return realExec2.apply(this[regexpProxy2], args);
+  }
+  return realExec2.apply(this, args);
+};
+var proxyRegExp2;
+var regexProxyOptions2 = Object.freeze({
+  get(original, key) {
+    if (typeof key == "string" && key.match(/^[igmusyv]+$/)) {
+      return proxyRegExp2(original, key);
+    }
+    if (key == regexpProxy2) {
+      return original;
+    }
+    return original[key];
+  },
+  set(original, key, value) {
+    original[key] = value;
+    return true;
+  }
+});
+proxyRegExp2 = (parent, flags) => {
+  const regex3 = new RegExp(parent, flags);
+  const output2 = new Proxy(regex3, regexProxyOptions2);
+  Object.setPrototypeOf(output2, Object.getPrototypeOf(regex3));
+  return output2;
+};
+function regexWithStripWarning2(shouldStrip) {
+  return (strings, ...values) => {
+    let newRegexString = "";
+    for (const [string2, value] of zip(strings, values)) {
+      newRegexString += string2;
+      if (value instanceof RegExp) {
+        if (!shouldStrip && value.flags.replace(/g/, "").length > 0) {
+          console.warn(`Warning: flags inside of regex:
+    The RegExp trigging this warning is: ${value}
+    When calling the regex interpolater (e.g. regex\`something\${stuff}\`)
+    one of the \${} values (the one above) was a RegExp with a flag enabled
+    e.g. /stuff/i  <- i = ignoreCase flag enabled
+    When the /stuff/i gets interpolated, its going to loose its flags
+    (thats what I'm warning you about)
+    
+    To disable/ignore this warning do:
+        regex.stripFlags\`something\${/stuff/i}\`
+    If you want to add flags to the output of regex\`something\${stuff}\` do:
+        regex\`something\${stuff}\`.i   // ignoreCase
+        regex\`something\${stuff}\`.ig  // ignoreCase and global
+        regex\`something\${stuff}\`.gi  // functionally equivlent
+`);
+        }
+        newRegexString += `(?:${value.source})`;
+      } else if (value != null) {
+        newRegexString += escapeRegexMatch2(toString2(value));
+      }
+    }
+    return proxyRegExp2(newRegexString, "");
+  };
+}
+var regex2 = regexWithStripWarning2(false);
+regex2.stripFlags = regexWithStripWarning2(true);
+var textDecoder2 = new TextDecoder("utf-8");
+var textEncoder2 = new TextEncoder("utf-8");
+var utf8BytesToString2 = textDecoder2.decode.bind(textDecoder2);
+var stringToUtf8Bytes2 = textEncoder2.encode.bind(textEncoder2);
 
 // subrepos/cliffy/ansi/ansi_escapes.ts
 var ansi_escapes_exports = {};
@@ -5734,7 +15305,7 @@ function encode(data) {
 var ESC = "\x1B";
 var CSI = `${ESC}[`;
 var OSC = `${ESC}]`;
-var SEP = ";";
+var SEP5 = ";";
 var bel = "\x07";
 var cursorPosition = `${CSI}6n`;
 function cursorTo(x, y) {
@@ -5810,15 +15381,15 @@ function link(text, url) {
   return [
     OSC,
     "8",
-    SEP,
-    SEP,
+    SEP5,
+    SEP5,
     url,
     bel,
     text,
     OSC,
     "8",
-    SEP,
-    SEP,
+    SEP5,
+    SEP5,
     bel
   ].join("");
 }
@@ -5838,7 +15409,7 @@ function image(buffer, options) {
 
 // subrepos/cliffy/ansi/cursor_position.ts
 var encoder = new TextEncoder();
-var decoder = new TextDecoder();
+var decoder2 = new TextDecoder();
 function getCursorPosition({
   reader = Deno.stdin,
   writer = Deno.stdout
@@ -5848,7 +15419,7 @@ function getCursorPosition({
   writer.writeSync(encoder.encode(cursorPosition));
   reader.readSync(data);
   reader.setRaw(false);
-  const [y, x] = decoder.decode(data).match(/\[(\d+);(\d+)R/)?.slice(1, 3).map(Number) ?? [0, 0];
+  const [y, x] = decoder2.decode(data).match(/\[(\d+);(\d+)R/)?.slice(1, 3).map(Number) ?? [0, 0];
   return { x, y };
 }
 
@@ -6009,7 +15580,7 @@ var SpecialKeyMap = {
 // subrepos/cliffy/keycode/key_code.ts
 var kUTF16SurrogateThreshold = 65536;
 var kEscape = "\x1B";
-function parse(data) {
+function parse12(data) {
   let index = -1;
   const keys = [];
   const input = data instanceof Uint8Array ? new TextDecoder().decode(data) : data;
@@ -6137,10 +15708,10 @@ function charLengthAt(str, i2) {
 }
 
 // https://deno.land/std@0.196.0/_util/os.ts
-var osType = (() => {
-  const { Deno: Deno3 } = globalThis;
-  if (typeof Deno3?.build?.os === "string") {
-    return Deno3.build.os;
+var osType5 = (() => {
+  const { Deno: Deno4 } = globalThis;
+  if (typeof Deno4?.build?.os === "string") {
+    return Deno4.build.os;
   }
   const { navigator } = globalThis;
   if (navigator?.appVersion?.includes?.("Win")) {
@@ -6148,73 +15719,73 @@ var osType = (() => {
   }
   return "linux";
 })();
-var isWindows = osType === "windows";
+var isWindows6 = osType5 === "windows";
 
 // https://deno.land/std@0.196.0/path/win32.ts
-var win32_exports = {};
-__export(win32_exports, {
-  basename: () => basename,
-  delimiter: () => delimiter,
-  dirname: () => dirname,
-  extname: () => extname,
-  format: () => format,
-  fromFileUrl: () => fromFileUrl,
-  isAbsolute: () => isAbsolute,
-  join: () => join,
-  normalize: () => normalize,
-  parse: () => parse2,
-  relative: () => relative,
-  resolve: () => resolve,
-  sep: () => sep,
-  toFileUrl: () => toFileUrl,
-  toNamespacedPath: () => toNamespacedPath
+var win32_exports5 = {};
+__export(win32_exports5, {
+  basename: () => basename12,
+  delimiter: () => delimiter12,
+  dirname: () => dirname12,
+  extname: () => extname12,
+  format: () => format12,
+  fromFileUrl: () => fromFileUrl12,
+  isAbsolute: () => isAbsolute12,
+  join: () => join16,
+  normalize: () => normalize16,
+  parse: () => parse13,
+  relative: () => relative12,
+  resolve: () => resolve12,
+  sep: () => sep12,
+  toFileUrl: () => toFileUrl12,
+  toNamespacedPath: () => toNamespacedPath12
 });
 
 // https://deno.land/std@0.196.0/path/_constants.ts
-var CHAR_UPPERCASE_A = 65;
-var CHAR_LOWERCASE_A = 97;
-var CHAR_UPPERCASE_Z = 90;
-var CHAR_LOWERCASE_Z = 122;
-var CHAR_DOT = 46;
-var CHAR_FORWARD_SLASH = 47;
-var CHAR_BACKWARD_SLASH = 92;
-var CHAR_COLON = 58;
-var CHAR_QUESTION_MARK = 63;
+var CHAR_UPPERCASE_A5 = 65;
+var CHAR_LOWERCASE_A5 = 97;
+var CHAR_UPPERCASE_Z5 = 90;
+var CHAR_LOWERCASE_Z5 = 122;
+var CHAR_DOT5 = 46;
+var CHAR_FORWARD_SLASH5 = 47;
+var CHAR_BACKWARD_SLASH5 = 92;
+var CHAR_COLON5 = 58;
+var CHAR_QUESTION_MARK5 = 63;
 
 // https://deno.land/std@0.196.0/path/_util.ts
-function assertPath(path3) {
-  if (typeof path3 !== "string") {
+function assertPath5(path10) {
+  if (typeof path10 !== "string") {
     throw new TypeError(
-      `Path must be a string. Received ${JSON.stringify(path3)}`
+      `Path must be a string. Received ${JSON.stringify(path10)}`
     );
   }
 }
-function isPosixPathSeparator(code2) {
-  return code2 === CHAR_FORWARD_SLASH;
+function isPosixPathSeparator5(code2) {
+  return code2 === CHAR_FORWARD_SLASH5;
 }
-function isPathSeparator(code2) {
-  return isPosixPathSeparator(code2) || code2 === CHAR_BACKWARD_SLASH;
+function isPathSeparator5(code2) {
+  return isPosixPathSeparator5(code2) || code2 === CHAR_BACKWARD_SLASH5;
 }
-function isWindowsDeviceRoot(code2) {
-  return code2 >= CHAR_LOWERCASE_A && code2 <= CHAR_LOWERCASE_Z || code2 >= CHAR_UPPERCASE_A && code2 <= CHAR_UPPERCASE_Z;
+function isWindowsDeviceRoot5(code2) {
+  return code2 >= CHAR_LOWERCASE_A5 && code2 <= CHAR_LOWERCASE_Z5 || code2 >= CHAR_UPPERCASE_A5 && code2 <= CHAR_UPPERCASE_Z5;
 }
-function normalizeString(path3, allowAboveRoot, separator, isPathSeparator2) {
+function normalizeString5(path10, allowAboveRoot, separator, isPathSeparator6) {
   let res = "";
   let lastSegmentLength = 0;
   let lastSlash = -1;
   let dots = 0;
   let code2;
-  for (let i2 = 0, len = path3.length; i2 <= len; ++i2) {
+  for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
     if (i2 < len)
-      code2 = path3.charCodeAt(i2);
-    else if (isPathSeparator2(code2))
+      code2 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code2))
       break;
     else
-      code2 = CHAR_FORWARD_SLASH;
-    if (isPathSeparator2(code2)) {
+      code2 = CHAR_FORWARD_SLASH5;
+    if (isPathSeparator6(code2)) {
       if (lastSlash === i2 - 1 || dots === 1) {
       } else if (lastSlash !== i2 - 1 && dots === 2) {
-        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT || res.charCodeAt(res.length - 2) !== CHAR_DOT) {
+        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT5 || res.charCodeAt(res.length - 2) !== CHAR_DOT5) {
           if (res.length > 2) {
             const lastSlashIndex = res.lastIndexOf(separator);
             if (lastSlashIndex === -1) {
@@ -6244,14 +15815,14 @@ function normalizeString(path3, allowAboveRoot, separator, isPathSeparator2) {
         }
       } else {
         if (res.length > 0)
-          res += separator + path3.slice(lastSlash + 1, i2);
+          res += separator + path10.slice(lastSlash + 1, i2);
         else
-          res = path3.slice(lastSlash + 1, i2);
+          res = path10.slice(lastSlash + 1, i2);
         lastSegmentLength = i2 - lastSlash - 1;
       }
       lastSlash = i2;
       dots = 0;
-    } else if (code2 === CHAR_DOT && dots !== -1) {
+    } else if (code2 === CHAR_DOT5 && dots !== -1) {
       ++dots;
     } else {
       dots = -1;
@@ -6259,18 +15830,18 @@ function normalizeString(path3, allowAboveRoot, separator, isPathSeparator2) {
   }
   return res;
 }
-function _format(sep4, pathObject) {
+function _format5(sep15, pathObject) {
   const dir = pathObject.dir || pathObject.root;
   const base = pathObject.base || (pathObject.name || "") + (pathObject.ext || "");
   if (!dir)
     return base;
-  if (base === sep4)
+  if (base === sep15)
     return dir;
   if (dir === pathObject.root)
     return dir + base;
-  return dir + sep4 + base;
+  return dir + sep15 + base;
 }
-var WHITESPACE_ENCODINGS = {
+var WHITESPACE_ENCODINGS5 = {
   "	": "%09",
   "\n": "%0A",
   "\v": "%0B",
@@ -6278,16 +15849,16 @@ var WHITESPACE_ENCODINGS = {
   "\r": "%0D",
   " ": "%20"
 };
-function encodeWhitespace(string2) {
+function encodeWhitespace5(string2) {
   return string2.replaceAll(/[\s]/g, (c) => {
-    return WHITESPACE_ENCODINGS[c] ?? c;
+    return WHITESPACE_ENCODINGS5[c] ?? c;
   });
 }
-function lastPathSegment(path3, isSep, start = 0) {
+function lastPathSegment2(path10, isSep, start = 0) {
   let matchedNonSeparator = false;
-  let end = path3.length;
-  for (let i2 = path3.length - 1; i2 >= start; --i2) {
-    if (isSep(path3.charCodeAt(i2))) {
+  let end = path10.length;
+  for (let i2 = path10.length - 1; i2 >= start; --i2) {
+    if (isSep(path10.charCodeAt(i2))) {
       if (matchedNonSeparator) {
         start = i2 + 1;
         break;
@@ -6297,9 +15868,9 @@ function lastPathSegment(path3, isSep, start = 0) {
       end = i2 + 1;
     }
   }
-  return path3.slice(start, end);
+  return path10.slice(start, end);
 }
-function stripTrailingSeparators(segment, isSep) {
+function stripTrailingSeparators2(segment, isSep) {
   if (segment.length <= 1) {
     return segment;
   }
@@ -6313,7 +15884,7 @@ function stripTrailingSeparators(segment, isSep) {
   }
   return segment.slice(0, end);
 }
-function stripSuffix(name, suffix) {
+function stripSuffix2(name, suffix) {
   if (suffix.length >= name.length) {
     return name;
   }
@@ -6327,67 +15898,67 @@ function stripSuffix(name, suffix) {
 }
 
 // https://deno.land/std@0.196.0/path/win32.ts
-var sep = "\\";
-var delimiter = ";";
-function resolve(...pathSegments) {
+var sep12 = "\\";
+var delimiter12 = ";";
+function resolve12(...pathSegments) {
   let resolvedDevice = "";
   let resolvedTail = "";
   let resolvedAbsolute = false;
   for (let i2 = pathSegments.length - 1; i2 >= -1; i2--) {
-    let path3;
-    const { Deno: Deno3 } = globalThis;
+    let path10;
+    const { Deno: Deno4 } = globalThis;
     if (i2 >= 0) {
-      path3 = pathSegments[i2];
+      path10 = pathSegments[i2];
     } else if (!resolvedDevice) {
-      if (typeof Deno3?.cwd !== "function") {
+      if (typeof Deno4?.cwd !== "function") {
         throw new TypeError("Resolved a drive-letter-less path without a CWD.");
       }
-      path3 = Deno3.cwd();
+      path10 = Deno4.cwd();
     } else {
-      if (typeof Deno3?.env?.get !== "function" || typeof Deno3?.cwd !== "function") {
+      if (typeof Deno4?.env?.get !== "function" || typeof Deno4?.cwd !== "function") {
         throw new TypeError("Resolved a relative path without a CWD.");
       }
-      path3 = Deno3.cwd();
-      if (path3 === void 0 || path3.slice(0, 3).toLowerCase() !== `${resolvedDevice.toLowerCase()}\\`) {
-        path3 = `${resolvedDevice}\\`;
+      path10 = Deno4.cwd();
+      if (path10 === void 0 || path10.slice(0, 3).toLowerCase() !== `${resolvedDevice.toLowerCase()}\\`) {
+        path10 = `${resolvedDevice}\\`;
       }
     }
-    assertPath(path3);
-    const len = path3.length;
+    assertPath5(path10);
+    const len = path10.length;
     if (len === 0)
       continue;
     let rootEnd = 0;
     let device = "";
-    let isAbsolute4 = false;
-    const code2 = path3.charCodeAt(0);
+    let isAbsolute15 = false;
+    const code2 = path10.charCodeAt(0);
     if (len > 1) {
-      if (isPathSeparator(code2)) {
-        isAbsolute4 = true;
-        if (isPathSeparator(path3.charCodeAt(1))) {
+      if (isPathSeparator5(code2)) {
+        isAbsolute15 = true;
+        if (isPathSeparator5(path10.charCodeAt(1))) {
           let j = 2;
           let last = j;
           for (; j < len; ++j) {
-            if (isPathSeparator(path3.charCodeAt(j)))
+            if (isPathSeparator5(path10.charCodeAt(j)))
               break;
           }
           if (j < len && j !== last) {
-            const firstPart = path3.slice(last, j);
+            const firstPart = path10.slice(last, j);
             last = j;
             for (; j < len; ++j) {
-              if (!isPathSeparator(path3.charCodeAt(j)))
+              if (!isPathSeparator5(path10.charCodeAt(j)))
                 break;
             }
             if (j < len && j !== last) {
               last = j;
               for (; j < len; ++j) {
-                if (isPathSeparator(path3.charCodeAt(j)))
+                if (isPathSeparator5(path10.charCodeAt(j)))
                   break;
               }
               if (j === len) {
-                device = `\\\\${firstPart}\\${path3.slice(last)}`;
+                device = `\\\\${firstPart}\\${path10.slice(last)}`;
                 rootEnd = j;
               } else if (j !== last) {
-                device = `\\\\${firstPart}\\${path3.slice(last, j)}`;
+                device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
                 rootEnd = j;
               }
             }
@@ -6395,21 +15966,21 @@ function resolve(...pathSegments) {
         } else {
           rootEnd = 1;
         }
-      } else if (isWindowsDeviceRoot(code2)) {
-        if (path3.charCodeAt(1) === CHAR_COLON) {
-          device = path3.slice(0, 2);
+      } else if (isWindowsDeviceRoot5(code2)) {
+        if (path10.charCodeAt(1) === CHAR_COLON5) {
+          device = path10.slice(0, 2);
           rootEnd = 2;
           if (len > 2) {
-            if (isPathSeparator(path3.charCodeAt(2))) {
-              isAbsolute4 = true;
+            if (isPathSeparator5(path10.charCodeAt(2))) {
+              isAbsolute15 = true;
               rootEnd = 3;
             }
           }
         }
       }
-    } else if (isPathSeparator(code2)) {
+    } else if (isPathSeparator5(code2)) {
       rootEnd = 1;
-      isAbsolute4 = true;
+      isAbsolute15 = true;
     }
     if (device.length > 0 && resolvedDevice.length > 0 && device.toLowerCase() !== resolvedDevice.toLowerCase()) {
       continue;
@@ -6418,56 +15989,56 @@ function resolve(...pathSegments) {
       resolvedDevice = device;
     }
     if (!resolvedAbsolute) {
-      resolvedTail = `${path3.slice(rootEnd)}\\${resolvedTail}`;
-      resolvedAbsolute = isAbsolute4;
+      resolvedTail = `${path10.slice(rootEnd)}\\${resolvedTail}`;
+      resolvedAbsolute = isAbsolute15;
     }
     if (resolvedAbsolute && resolvedDevice.length > 0)
       break;
   }
-  resolvedTail = normalizeString(
+  resolvedTail = normalizeString5(
     resolvedTail,
     !resolvedAbsolute,
     "\\",
-    isPathSeparator
+    isPathSeparator5
   );
   return resolvedDevice + (resolvedAbsolute ? "\\" : "") + resolvedTail || ".";
 }
-function normalize(path3) {
-  assertPath(path3);
-  const len = path3.length;
+function normalize16(path10) {
+  assertPath5(path10);
+  const len = path10.length;
   if (len === 0)
     return ".";
   let rootEnd = 0;
   let device;
-  let isAbsolute4 = false;
-  const code2 = path3.charCodeAt(0);
+  let isAbsolute15 = false;
+  const code2 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator(code2)) {
-      isAbsolute4 = true;
-      if (isPathSeparator(path3.charCodeAt(1))) {
+    if (isPathSeparator5(code2)) {
+      isAbsolute15 = true;
+      if (isPathSeparator5(path10.charCodeAt(1))) {
         let j = 2;
         let last = j;
         for (; j < len; ++j) {
-          if (isPathSeparator(path3.charCodeAt(j)))
+          if (isPathSeparator5(path10.charCodeAt(j)))
             break;
         }
         if (j < len && j !== last) {
-          const firstPart = path3.slice(last, j);
+          const firstPart = path10.slice(last, j);
           last = j;
           for (; j < len; ++j) {
-            if (!isPathSeparator(path3.charCodeAt(j)))
+            if (!isPathSeparator5(path10.charCodeAt(j)))
               break;
           }
           if (j < len && j !== last) {
             last = j;
             for (; j < len; ++j) {
-              if (isPathSeparator(path3.charCodeAt(j)))
+              if (isPathSeparator5(path10.charCodeAt(j)))
                 break;
             }
             if (j === len) {
-              return `\\\\${firstPart}\\${path3.slice(last)}\\`;
+              return `\\\\${firstPart}\\${path10.slice(last)}\\`;
             } else if (j !== last) {
-              device = `\\\\${firstPart}\\${path3.slice(last, j)}`;
+              device = `\\\\${firstPart}\\${path10.slice(last, j)}`;
               rootEnd = j;
             }
           }
@@ -6475,39 +16046,39 @@ function normalize(path3) {
       } else {
         rootEnd = 1;
       }
-    } else if (isWindowsDeviceRoot(code2)) {
-      if (path3.charCodeAt(1) === CHAR_COLON) {
-        device = path3.slice(0, 2);
+    } else if (isWindowsDeviceRoot5(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON5) {
+        device = path10.slice(0, 2);
         rootEnd = 2;
         if (len > 2) {
-          if (isPathSeparator(path3.charCodeAt(2))) {
-            isAbsolute4 = true;
+          if (isPathSeparator5(path10.charCodeAt(2))) {
+            isAbsolute15 = true;
             rootEnd = 3;
           }
         }
       }
     }
-  } else if (isPathSeparator(code2)) {
+  } else if (isPathSeparator5(code2)) {
     return "\\";
   }
   let tail;
   if (rootEnd < len) {
-    tail = normalizeString(
-      path3.slice(rootEnd),
-      !isAbsolute4,
+    tail = normalizeString5(
+      path10.slice(rootEnd),
+      !isAbsolute15,
       "\\",
-      isPathSeparator
+      isPathSeparator5
     );
   } else {
     tail = "";
   }
-  if (tail.length === 0 && !isAbsolute4)
+  if (tail.length === 0 && !isAbsolute15)
     tail = ".";
-  if (tail.length > 0 && isPathSeparator(path3.charCodeAt(len - 1))) {
+  if (tail.length > 0 && isPathSeparator5(path10.charCodeAt(len - 1))) {
     tail += "\\";
   }
   if (device === void 0) {
-    if (isAbsolute4) {
+    if (isAbsolute15) {
       if (tail.length > 0)
         return `\\${tail}`;
       else
@@ -6517,7 +16088,7 @@ function normalize(path3) {
     } else {
       return "";
     }
-  } else if (isAbsolute4) {
+  } else if (isAbsolute15) {
     if (tail.length > 0)
       return `${device}\\${tail}`;
     else
@@ -6528,36 +16099,36 @@ function normalize(path3) {
     return device;
   }
 }
-function isAbsolute(path3) {
-  assertPath(path3);
-  const len = path3.length;
+function isAbsolute12(path10) {
+  assertPath5(path10);
+  const len = path10.length;
   if (len === 0)
     return false;
-  const code2 = path3.charCodeAt(0);
-  if (isPathSeparator(code2)) {
+  const code2 = path10.charCodeAt(0);
+  if (isPathSeparator5(code2)) {
     return true;
-  } else if (isWindowsDeviceRoot(code2)) {
-    if (len > 2 && path3.charCodeAt(1) === CHAR_COLON) {
-      if (isPathSeparator(path3.charCodeAt(2)))
+  } else if (isWindowsDeviceRoot5(code2)) {
+    if (len > 2 && path10.charCodeAt(1) === CHAR_COLON5) {
+      if (isPathSeparator5(path10.charCodeAt(2)))
         return true;
     }
   }
   return false;
 }
-function join(...paths) {
+function join16(...paths) {
   const pathsCount = paths.length;
   if (pathsCount === 0)
     return ".";
   let joined;
   let firstPart = null;
   for (let i2 = 0; i2 < pathsCount; ++i2) {
-    const path3 = paths[i2];
-    assertPath(path3);
-    if (path3.length > 0) {
+    const path10 = paths[i2];
+    assertPath5(path10);
+    if (path10.length > 0) {
       if (joined === void 0)
-        joined = firstPart = path3;
+        joined = firstPart = path10;
       else
-        joined += `\\${path3}`;
+        joined += `\\${path10}`;
     }
   }
   if (joined === void 0)
@@ -6565,14 +16136,14 @@ function join(...paths) {
   let needsReplace = true;
   let slashCount = 0;
   assert(firstPart != null);
-  if (isPathSeparator(firstPart.charCodeAt(0))) {
+  if (isPathSeparator5(firstPart.charCodeAt(0))) {
     ++slashCount;
     const firstLen = firstPart.length;
     if (firstLen > 1) {
-      if (isPathSeparator(firstPart.charCodeAt(1))) {
+      if (isPathSeparator5(firstPart.charCodeAt(1))) {
         ++slashCount;
         if (firstLen > 2) {
-          if (isPathSeparator(firstPart.charCodeAt(2)))
+          if (isPathSeparator5(firstPart.charCodeAt(2)))
             ++slashCount;
           else {
             needsReplace = false;
@@ -6583,21 +16154,21 @@ function join(...paths) {
   }
   if (needsReplace) {
     for (; slashCount < joined.length; ++slashCount) {
-      if (!isPathSeparator(joined.charCodeAt(slashCount)))
+      if (!isPathSeparator5(joined.charCodeAt(slashCount)))
         break;
     }
     if (slashCount >= 2)
       joined = `\\${joined.slice(slashCount)}`;
   }
-  return normalize(joined);
+  return normalize16(joined);
 }
-function relative(from, to) {
-  assertPath(from);
-  assertPath(to);
+function relative12(from, to) {
+  assertPath5(from);
+  assertPath5(to);
   if (from === to)
     return "";
-  const fromOrig = resolve(from);
-  const toOrig = resolve(to);
+  const fromOrig = resolve12(from);
+  const toOrig = resolve12(to);
   if (fromOrig === toOrig)
     return "";
   from = fromOrig.toLowerCase();
@@ -6607,22 +16178,22 @@ function relative(from, to) {
   let fromStart = 0;
   let fromEnd = from.length;
   for (; fromStart < fromEnd; ++fromStart) {
-    if (from.charCodeAt(fromStart) !== CHAR_BACKWARD_SLASH)
+    if (from.charCodeAt(fromStart) !== CHAR_BACKWARD_SLASH5)
       break;
   }
   for (; fromEnd - 1 > fromStart; --fromEnd) {
-    if (from.charCodeAt(fromEnd - 1) !== CHAR_BACKWARD_SLASH)
+    if (from.charCodeAt(fromEnd - 1) !== CHAR_BACKWARD_SLASH5)
       break;
   }
   const fromLen = fromEnd - fromStart;
   let toStart = 0;
   let toEnd = to.length;
   for (; toStart < toEnd; ++toStart) {
-    if (to.charCodeAt(toStart) !== CHAR_BACKWARD_SLASH)
+    if (to.charCodeAt(toStart) !== CHAR_BACKWARD_SLASH5)
       break;
   }
   for (; toEnd - 1 > toStart; --toEnd) {
-    if (to.charCodeAt(toEnd - 1) !== CHAR_BACKWARD_SLASH)
+    if (to.charCodeAt(toEnd - 1) !== CHAR_BACKWARD_SLASH5)
       break;
   }
   const toLen = toEnd - toStart;
@@ -6632,14 +16203,14 @@ function relative(from, to) {
   for (; i2 <= length; ++i2) {
     if (i2 === length) {
       if (toLen > length) {
-        if (to.charCodeAt(toStart + i2) === CHAR_BACKWARD_SLASH) {
+        if (to.charCodeAt(toStart + i2) === CHAR_BACKWARD_SLASH5) {
           return toOrig.slice(toStart + i2 + 1);
         } else if (i2 === 2) {
           return toOrig.slice(toStart + i2);
         }
       }
       if (fromLen > length) {
-        if (from.charCodeAt(fromStart + i2) === CHAR_BACKWARD_SLASH) {
+        if (from.charCodeAt(fromStart + i2) === CHAR_BACKWARD_SLASH5) {
           lastCommonSep = i2;
         } else if (i2 === 2) {
           lastCommonSep = 3;
@@ -6651,7 +16222,7 @@ function relative(from, to) {
     const toCode = to.charCodeAt(toStart + i2);
     if (fromCode !== toCode)
       break;
-    else if (fromCode === CHAR_BACKWARD_SLASH)
+    else if (fromCode === CHAR_BACKWARD_SLASH5)
       lastCommonSep = i2;
   }
   if (i2 !== length && lastCommonSep === -1) {
@@ -6661,7 +16232,7 @@ function relative(from, to) {
   if (lastCommonSep === -1)
     lastCommonSep = 0;
   for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
-    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_BACKWARD_SLASH) {
+    if (i2 === fromEnd || from.charCodeAt(i2) === CHAR_BACKWARD_SLASH5) {
       if (out.length === 0)
         out += "..";
       else
@@ -6672,67 +16243,67 @@ function relative(from, to) {
     return out + toOrig.slice(toStart + lastCommonSep, toEnd);
   } else {
     toStart += lastCommonSep;
-    if (toOrig.charCodeAt(toStart) === CHAR_BACKWARD_SLASH)
+    if (toOrig.charCodeAt(toStart) === CHAR_BACKWARD_SLASH5)
       ++toStart;
     return toOrig.slice(toStart, toEnd);
   }
 }
-function toNamespacedPath(path3) {
-  if (typeof path3 !== "string")
-    return path3;
-  if (path3.length === 0)
+function toNamespacedPath12(path10) {
+  if (typeof path10 !== "string")
+    return path10;
+  if (path10.length === 0)
     return "";
-  const resolvedPath = resolve(path3);
+  const resolvedPath = resolve12(path10);
   if (resolvedPath.length >= 3) {
-    if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH) {
-      if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH) {
+    if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH5) {
+      if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH5) {
         const code2 = resolvedPath.charCodeAt(2);
-        if (code2 !== CHAR_QUESTION_MARK && code2 !== CHAR_DOT) {
+        if (code2 !== CHAR_QUESTION_MARK5 && code2 !== CHAR_DOT5) {
           return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
         }
       }
-    } else if (isWindowsDeviceRoot(resolvedPath.charCodeAt(0))) {
-      if (resolvedPath.charCodeAt(1) === CHAR_COLON && resolvedPath.charCodeAt(2) === CHAR_BACKWARD_SLASH) {
+    } else if (isWindowsDeviceRoot5(resolvedPath.charCodeAt(0))) {
+      if (resolvedPath.charCodeAt(1) === CHAR_COLON5 && resolvedPath.charCodeAt(2) === CHAR_BACKWARD_SLASH5) {
         return `\\\\?\\${resolvedPath}`;
       }
     }
   }
-  return path3;
+  return path10;
 }
-function dirname(path3) {
-  assertPath(path3);
-  const len = path3.length;
+function dirname12(path10) {
+  assertPath5(path10);
+  const len = path10.length;
   if (len === 0)
     return ".";
   let rootEnd = -1;
   let end = -1;
   let matchedSlash = true;
   let offset = 0;
-  const code2 = path3.charCodeAt(0);
+  const code2 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator(code2)) {
+    if (isPathSeparator5(code2)) {
       rootEnd = offset = 1;
-      if (isPathSeparator(path3.charCodeAt(1))) {
+      if (isPathSeparator5(path10.charCodeAt(1))) {
         let j = 2;
         let last = j;
         for (; j < len; ++j) {
-          if (isPathSeparator(path3.charCodeAt(j)))
+          if (isPathSeparator5(path10.charCodeAt(j)))
             break;
         }
         if (j < len && j !== last) {
           last = j;
           for (; j < len; ++j) {
-            if (!isPathSeparator(path3.charCodeAt(j)))
+            if (!isPathSeparator5(path10.charCodeAt(j)))
               break;
           }
           if (j < len && j !== last) {
             last = j;
             for (; j < len; ++j) {
-              if (isPathSeparator(path3.charCodeAt(j)))
+              if (isPathSeparator5(path10.charCodeAt(j)))
                 break;
             }
             if (j === len) {
-              return path3;
+              return path10;
             }
             if (j !== last) {
               rootEnd = offset = j + 1;
@@ -6740,20 +16311,20 @@ function dirname(path3) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot(code2)) {
-      if (path3.charCodeAt(1) === CHAR_COLON) {
+    } else if (isWindowsDeviceRoot5(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON5) {
         rootEnd = offset = 2;
         if (len > 2) {
-          if (isPathSeparator(path3.charCodeAt(2)))
+          if (isPathSeparator5(path10.charCodeAt(2)))
             rootEnd = offset = 3;
         }
       }
     }
-  } else if (isPathSeparator(code2)) {
-    return path3;
+  } else if (isPathSeparator5(code2)) {
+    return path10;
   }
   for (let i2 = len - 1; i2 >= offset; --i2) {
-    if (isPathSeparator(path3.charCodeAt(i2))) {
+    if (isPathSeparator5(path10.charCodeAt(i2))) {
       if (!matchedSlash) {
         end = i2;
         break;
@@ -6768,43 +16339,43 @@ function dirname(path3) {
     else
       end = rootEnd;
   }
-  return stripTrailingSeparators(path3.slice(0, end), isPosixPathSeparator);
+  return stripTrailingSeparators2(path10.slice(0, end), isPosixPathSeparator5);
 }
-function basename(path3, suffix = "") {
-  assertPath(path3);
-  if (path3.length === 0)
-    return path3;
+function basename12(path10, suffix = "") {
+  assertPath5(path10);
+  if (path10.length === 0)
+    return path10;
   if (typeof suffix !== "string") {
     throw new TypeError(
       `Suffix must be a string. Received ${JSON.stringify(suffix)}`
     );
   }
   let start = 0;
-  if (path3.length >= 2) {
-    const drive = path3.charCodeAt(0);
-    if (isWindowsDeviceRoot(drive)) {
-      if (path3.charCodeAt(1) === CHAR_COLON)
+  if (path10.length >= 2) {
+    const drive = path10.charCodeAt(0);
+    if (isWindowsDeviceRoot5(drive)) {
+      if (path10.charCodeAt(1) === CHAR_COLON5)
         start = 2;
     }
   }
-  const lastSegment = lastPathSegment(path3, isPathSeparator, start);
-  const strippedSegment = stripTrailingSeparators(lastSegment, isPathSeparator);
-  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+  const lastSegment = lastPathSegment2(path10, isPathSeparator5, start);
+  const strippedSegment = stripTrailingSeparators2(lastSegment, isPathSeparator5);
+  return suffix ? stripSuffix2(strippedSegment, suffix) : strippedSegment;
 }
-function extname(path3) {
-  assertPath(path3);
+function extname12(path10) {
+  assertPath5(path10);
   let start = 0;
   let startDot = -1;
   let startPart = 0;
   let end = -1;
   let matchedSlash = true;
   let preDotState = 0;
-  if (path3.length >= 2 && path3.charCodeAt(1) === CHAR_COLON && isWindowsDeviceRoot(path3.charCodeAt(0))) {
+  if (path10.length >= 2 && path10.charCodeAt(1) === CHAR_COLON5 && isWindowsDeviceRoot5(path10.charCodeAt(0))) {
     start = startPart = 2;
   }
-  for (let i2 = path3.length - 1; i2 >= start; --i2) {
-    const code2 = path3.charCodeAt(i2);
-    if (isPathSeparator(code2)) {
+  for (let i2 = path10.length - 1; i2 >= start; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPathSeparator5(code2)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -6815,7 +16386,7 @@ function extname(path3) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT) {
+    if (code2 === CHAR_DOT5) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -6829,44 +16400,44 @@ function extname(path3) {
   preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
     return "";
   }
-  return path3.slice(startDot, end);
+  return path10.slice(startDot, end);
 }
-function format(pathObject) {
+function format12(pathObject) {
   if (pathObject === null || typeof pathObject !== "object") {
     throw new TypeError(
       `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
     );
   }
-  return _format("\\", pathObject);
+  return _format5("\\", pathObject);
 }
-function parse2(path3) {
-  assertPath(path3);
+function parse13(path10) {
+  assertPath5(path10);
   const ret = { root: "", dir: "", base: "", ext: "", name: "" };
-  const len = path3.length;
+  const len = path10.length;
   if (len === 0)
     return ret;
   let rootEnd = 0;
-  let code2 = path3.charCodeAt(0);
+  let code2 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator(code2)) {
+    if (isPathSeparator5(code2)) {
       rootEnd = 1;
-      if (isPathSeparator(path3.charCodeAt(1))) {
+      if (isPathSeparator5(path10.charCodeAt(1))) {
         let j = 2;
         let last = j;
         for (; j < len; ++j) {
-          if (isPathSeparator(path3.charCodeAt(j)))
+          if (isPathSeparator5(path10.charCodeAt(j)))
             break;
         }
         if (j < len && j !== last) {
           last = j;
           for (; j < len; ++j) {
-            if (!isPathSeparator(path3.charCodeAt(j)))
+            if (!isPathSeparator5(path10.charCodeAt(j)))
               break;
           }
           if (j < len && j !== last) {
             last = j;
             for (; j < len; ++j) {
-              if (isPathSeparator(path3.charCodeAt(j)))
+              if (isPathSeparator5(path10.charCodeAt(j)))
                 break;
             }
             if (j === len) {
@@ -6877,40 +16448,40 @@ function parse2(path3) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot(code2)) {
-      if (path3.charCodeAt(1) === CHAR_COLON) {
+    } else if (isWindowsDeviceRoot5(code2)) {
+      if (path10.charCodeAt(1) === CHAR_COLON5) {
         rootEnd = 2;
         if (len > 2) {
-          if (isPathSeparator(path3.charCodeAt(2))) {
+          if (isPathSeparator5(path10.charCodeAt(2))) {
             if (len === 3) {
-              ret.root = ret.dir = path3;
+              ret.root = ret.dir = path10;
               ret.base = "\\";
               return ret;
             }
             rootEnd = 3;
           }
         } else {
-          ret.root = ret.dir = path3;
+          ret.root = ret.dir = path10;
           return ret;
         }
       }
     }
-  } else if (isPathSeparator(code2)) {
-    ret.root = ret.dir = path3;
+  } else if (isPathSeparator5(code2)) {
+    ret.root = ret.dir = path10;
     ret.base = "\\";
     return ret;
   }
   if (rootEnd > 0)
-    ret.root = path3.slice(0, rootEnd);
+    ret.root = path10.slice(0, rootEnd);
   let startDot = -1;
   let startPart = rootEnd;
   let end = -1;
   let matchedSlash = true;
-  let i2 = path3.length - 1;
+  let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= rootEnd; --i2) {
-    code2 = path3.charCodeAt(i2);
-    if (isPathSeparator(code2)) {
+    code2 = path10.charCodeAt(i2);
+    if (isPathSeparator5(code2)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -6921,7 +16492,7 @@ function parse2(path3) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT) {
+    if (code2 === CHAR_DOT5) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -6934,42 +16505,42 @@ function parse2(path3) {
   preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
   preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
     if (end !== -1) {
-      ret.base = ret.name = path3.slice(startPart, end);
+      ret.base = ret.name = path10.slice(startPart, end);
     }
   } else {
-    ret.name = path3.slice(startPart, startDot);
-    ret.base = path3.slice(startPart, end);
-    ret.ext = path3.slice(startDot, end);
+    ret.name = path10.slice(startPart, startDot);
+    ret.base = path10.slice(startPart, end);
+    ret.ext = path10.slice(startDot, end);
   }
   ret.base = ret.base || "\\";
   if (startPart > 0 && startPart !== rootEnd) {
-    ret.dir = path3.slice(0, startPart - 1);
+    ret.dir = path10.slice(0, startPart - 1);
   } else
     ret.dir = ret.root;
   return ret;
 }
-function fromFileUrl(url) {
+function fromFileUrl12(url) {
   url = url instanceof URL ? url : new URL(url);
   if (url.protocol != "file:") {
     throw new TypeError("Must be a file URL.");
   }
-  let path3 = decodeURIComponent(
+  let path10 = decodeURIComponent(
     url.pathname.replace(/\//g, "\\").replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
   ).replace(/^\\*([A-Za-z]:)(\\|$)/, "$1\\");
   if (url.hostname != "") {
-    path3 = `\\\\${url.hostname}${path3}`;
+    path10 = `\\\\${url.hostname}${path10}`;
   }
-  return path3;
+  return path10;
 }
-function toFileUrl(path3) {
-  if (!isAbsolute(path3)) {
+function toFileUrl12(path10) {
+  if (!isAbsolute12(path10)) {
     throw new TypeError("Must be an absolute path.");
   }
-  const [, hostname, pathname] = path3.match(
+  const [, hostname, pathname] = path10.match(
     /^(?:[/\\]{2}([^/\\]+)(?=[/\\](?:[^/\\]|$)))?(.*)/
   );
   const url = new URL("file:///");
-  url.pathname = encodeWhitespace(pathname.replace(/%/g, "%25"));
+  url.pathname = encodeWhitespace5(pathname.replace(/%/g, "%25"));
   if (hostname != null && hostname != "localhost") {
     url.hostname = hostname;
     if (!url.hostname) {
@@ -6980,52 +16551,52 @@ function toFileUrl(path3) {
 }
 
 // https://deno.land/std@0.196.0/path/posix.ts
-var posix_exports = {};
-__export(posix_exports, {
-  basename: () => basename2,
-  delimiter: () => delimiter2,
-  dirname: () => dirname2,
-  extname: () => extname2,
-  format: () => format2,
-  fromFileUrl: () => fromFileUrl2,
-  isAbsolute: () => isAbsolute2,
-  join: () => join2,
-  normalize: () => normalize2,
-  parse: () => parse3,
-  relative: () => relative2,
-  resolve: () => resolve2,
-  sep: () => sep2,
-  toFileUrl: () => toFileUrl2,
-  toNamespacedPath: () => toNamespacedPath2
+var posix_exports5 = {};
+__export(posix_exports5, {
+  basename: () => basename13,
+  delimiter: () => delimiter13,
+  dirname: () => dirname13,
+  extname: () => extname13,
+  format: () => format13,
+  fromFileUrl: () => fromFileUrl13,
+  isAbsolute: () => isAbsolute13,
+  join: () => join17,
+  normalize: () => normalize17,
+  parse: () => parse14,
+  relative: () => relative13,
+  resolve: () => resolve13,
+  sep: () => sep13,
+  toFileUrl: () => toFileUrl13,
+  toNamespacedPath: () => toNamespacedPath13
 });
-var sep2 = "/";
-var delimiter2 = ":";
-function resolve2(...pathSegments) {
+var sep13 = "/";
+var delimiter13 = ":";
+function resolve13(...pathSegments) {
   let resolvedPath = "";
   let resolvedAbsolute = false;
   for (let i2 = pathSegments.length - 1; i2 >= -1 && !resolvedAbsolute; i2--) {
-    let path3;
+    let path10;
     if (i2 >= 0)
-      path3 = pathSegments[i2];
+      path10 = pathSegments[i2];
     else {
-      const { Deno: Deno3 } = globalThis;
-      if (typeof Deno3?.cwd !== "function") {
+      const { Deno: Deno4 } = globalThis;
+      if (typeof Deno4?.cwd !== "function") {
         throw new TypeError("Resolved a relative path without a CWD.");
       }
-      path3 = Deno3.cwd();
+      path10 = Deno4.cwd();
     }
-    assertPath(path3);
-    if (path3.length === 0) {
+    assertPath5(path10);
+    if (path10.length === 0) {
       continue;
     }
-    resolvedPath = `${path3}/${resolvedPath}`;
-    resolvedAbsolute = isPosixPathSeparator(path3.charCodeAt(0));
+    resolvedPath = `${path10}/${resolvedPath}`;
+    resolvedAbsolute = isPosixPathSeparator5(path10.charCodeAt(0));
   }
-  resolvedPath = normalizeString(
+  resolvedPath = normalizeString5(
     resolvedPath,
     !resolvedAbsolute,
     "/",
-    isPosixPathSeparator
+    isPosixPathSeparator5
   );
   if (resolvedAbsolute) {
     if (resolvedPath.length > 0)
@@ -7037,65 +16608,65 @@ function resolve2(...pathSegments) {
   else
     return ".";
 }
-function normalize2(path3) {
-  assertPath(path3);
-  if (path3.length === 0)
+function normalize17(path10) {
+  assertPath5(path10);
+  if (path10.length === 0)
     return ".";
-  const isAbsolute4 = isPosixPathSeparator(path3.charCodeAt(0));
-  const trailingSeparator = isPosixPathSeparator(
-    path3.charCodeAt(path3.length - 1)
+  const isAbsolute15 = isPosixPathSeparator5(path10.charCodeAt(0));
+  const trailingSeparator = isPosixPathSeparator5(
+    path10.charCodeAt(path10.length - 1)
   );
-  path3 = normalizeString(path3, !isAbsolute4, "/", isPosixPathSeparator);
-  if (path3.length === 0 && !isAbsolute4)
-    path3 = ".";
-  if (path3.length > 0 && trailingSeparator)
-    path3 += "/";
-  if (isAbsolute4)
-    return `/${path3}`;
-  return path3;
+  path10 = normalizeString5(path10, !isAbsolute15, "/", isPosixPathSeparator5);
+  if (path10.length === 0 && !isAbsolute15)
+    path10 = ".";
+  if (path10.length > 0 && trailingSeparator)
+    path10 += "/";
+  if (isAbsolute15)
+    return `/${path10}`;
+  return path10;
 }
-function isAbsolute2(path3) {
-  assertPath(path3);
-  return path3.length > 0 && isPosixPathSeparator(path3.charCodeAt(0));
+function isAbsolute13(path10) {
+  assertPath5(path10);
+  return path10.length > 0 && isPosixPathSeparator5(path10.charCodeAt(0));
 }
-function join2(...paths) {
+function join17(...paths) {
   if (paths.length === 0)
     return ".";
   let joined;
   for (let i2 = 0, len = paths.length; i2 < len; ++i2) {
-    const path3 = paths[i2];
-    assertPath(path3);
-    if (path3.length > 0) {
+    const path10 = paths[i2];
+    assertPath5(path10);
+    if (path10.length > 0) {
       if (!joined)
-        joined = path3;
+        joined = path10;
       else
-        joined += `/${path3}`;
+        joined += `/${path10}`;
     }
   }
   if (!joined)
     return ".";
-  return normalize2(joined);
+  return normalize17(joined);
 }
-function relative2(from, to) {
-  assertPath(from);
-  assertPath(to);
+function relative13(from, to) {
+  assertPath5(from);
+  assertPath5(to);
   if (from === to)
     return "";
-  from = resolve2(from);
-  to = resolve2(to);
+  from = resolve13(from);
+  to = resolve13(to);
   if (from === to)
     return "";
   let fromStart = 1;
   const fromEnd = from.length;
   for (; fromStart < fromEnd; ++fromStart) {
-    if (!isPosixPathSeparator(from.charCodeAt(fromStart)))
+    if (!isPosixPathSeparator5(from.charCodeAt(fromStart)))
       break;
   }
   const fromLen = fromEnd - fromStart;
   let toStart = 1;
   const toEnd = to.length;
   for (; toStart < toEnd; ++toStart) {
-    if (!isPosixPathSeparator(to.charCodeAt(toStart)))
+    if (!isPosixPathSeparator5(to.charCodeAt(toStart)))
       break;
   }
   const toLen = toEnd - toStart;
@@ -7105,13 +16676,13 @@ function relative2(from, to) {
   for (; i2 <= length; ++i2) {
     if (i2 === length) {
       if (toLen > length) {
-        if (isPosixPathSeparator(to.charCodeAt(toStart + i2))) {
+        if (isPosixPathSeparator5(to.charCodeAt(toStart + i2))) {
           return to.slice(toStart + i2 + 1);
         } else if (i2 === 0) {
           return to.slice(toStart + i2);
         }
       } else if (fromLen > length) {
-        if (isPosixPathSeparator(from.charCodeAt(fromStart + i2))) {
+        if (isPosixPathSeparator5(from.charCodeAt(fromStart + i2))) {
           lastCommonSep = i2;
         } else if (i2 === 0) {
           lastCommonSep = 0;
@@ -7123,12 +16694,12 @@ function relative2(from, to) {
     const toCode = to.charCodeAt(toStart + i2);
     if (fromCode !== toCode)
       break;
-    else if (isPosixPathSeparator(fromCode))
+    else if (isPosixPathSeparator5(fromCode))
       lastCommonSep = i2;
   }
   let out = "";
   for (i2 = fromStart + lastCommonSep + 1; i2 <= fromEnd; ++i2) {
-    if (i2 === fromEnd || isPosixPathSeparator(from.charCodeAt(i2))) {
+    if (i2 === fromEnd || isPosixPathSeparator5(from.charCodeAt(i2))) {
       if (out.length === 0)
         out += "..";
       else
@@ -7139,21 +16710,21 @@ function relative2(from, to) {
     return out + to.slice(toStart + lastCommonSep);
   else {
     toStart += lastCommonSep;
-    if (isPosixPathSeparator(to.charCodeAt(toStart)))
+    if (isPosixPathSeparator5(to.charCodeAt(toStart)))
       ++toStart;
     return to.slice(toStart);
   }
 }
-function toNamespacedPath2(path3) {
-  return path3;
+function toNamespacedPath13(path10) {
+  return path10;
 }
-function dirname2(path3) {
-  if (path3.length === 0)
+function dirname13(path10) {
+  if (path10.length === 0)
     return ".";
   let end = -1;
   let matchedNonSeparator = false;
-  for (let i2 = path3.length - 1; i2 >= 1; --i2) {
-    if (isPosixPathSeparator(path3.charCodeAt(i2))) {
+  for (let i2 = path10.length - 1; i2 >= 1; --i2) {
+    if (isPosixPathSeparator5(path10.charCodeAt(i2))) {
       if (matchedNonSeparator) {
         end = i2;
         break;
@@ -7163,39 +16734,39 @@ function dirname2(path3) {
     }
   }
   if (end === -1) {
-    return isPosixPathSeparator(path3.charCodeAt(0)) ? "/" : ".";
+    return isPosixPathSeparator5(path10.charCodeAt(0)) ? "/" : ".";
   }
-  return stripTrailingSeparators(
-    path3.slice(0, end),
-    isPosixPathSeparator
+  return stripTrailingSeparators2(
+    path10.slice(0, end),
+    isPosixPathSeparator5
   );
 }
-function basename2(path3, suffix = "") {
-  assertPath(path3);
-  if (path3.length === 0)
-    return path3;
+function basename13(path10, suffix = "") {
+  assertPath5(path10);
+  if (path10.length === 0)
+    return path10;
   if (typeof suffix !== "string") {
     throw new TypeError(
       `Suffix must be a string. Received ${JSON.stringify(suffix)}`
     );
   }
-  const lastSegment = lastPathSegment(path3, isPosixPathSeparator);
-  const strippedSegment = stripTrailingSeparators(
+  const lastSegment = lastPathSegment2(path10, isPosixPathSeparator5);
+  const strippedSegment = stripTrailingSeparators2(
     lastSegment,
-    isPosixPathSeparator
+    isPosixPathSeparator5
   );
-  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+  return suffix ? stripSuffix2(strippedSegment, suffix) : strippedSegment;
 }
-function extname2(path3) {
-  assertPath(path3);
+function extname13(path10) {
+  assertPath5(path10);
   let startDot = -1;
   let startPart = 0;
   let end = -1;
   let matchedSlash = true;
   let preDotState = 0;
-  for (let i2 = path3.length - 1; i2 >= 0; --i2) {
-    const code2 = path3.charCodeAt(i2);
-    if (isPosixPathSeparator(code2)) {
+  for (let i2 = path10.length - 1; i2 >= 0; --i2) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPosixPathSeparator5(code2)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -7206,7 +16777,7 @@ function extname2(path3) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT) {
+    if (code2 === CHAR_DOT5) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -7220,24 +16791,24 @@ function extname2(path3) {
   preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
     return "";
   }
-  return path3.slice(startDot, end);
+  return path10.slice(startDot, end);
 }
-function format2(pathObject) {
+function format13(pathObject) {
   if (pathObject === null || typeof pathObject !== "object") {
     throw new TypeError(
       `The "pathObject" argument must be of type Object. Received type ${typeof pathObject}`
     );
   }
-  return _format("/", pathObject);
+  return _format5("/", pathObject);
 }
-function parse3(path3) {
-  assertPath(path3);
+function parse14(path10) {
+  assertPath5(path10);
   const ret = { root: "", dir: "", base: "", ext: "", name: "" };
-  if (path3.length === 0)
+  if (path10.length === 0)
     return ret;
-  const isAbsolute4 = isPosixPathSeparator(path3.charCodeAt(0));
+  const isAbsolute15 = isPosixPathSeparator5(path10.charCodeAt(0));
   let start;
-  if (isAbsolute4) {
+  if (isAbsolute15) {
     ret.root = "/";
     start = 1;
   } else {
@@ -7247,11 +16818,11 @@ function parse3(path3) {
   let startPart = 0;
   let end = -1;
   let matchedSlash = true;
-  let i2 = path3.length - 1;
+  let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= start; --i2) {
-    const code2 = path3.charCodeAt(i2);
-    if (isPosixPathSeparator(code2)) {
+    const code2 = path10.charCodeAt(i2);
+    if (isPosixPathSeparator5(code2)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -7262,7 +16833,7 @@ function parse3(path3) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT) {
+    if (code2 === CHAR_DOT5) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -7275,33 +16846,33 @@ function parse3(path3) {
   preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
   preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
     if (end !== -1) {
-      if (startPart === 0 && isAbsolute4) {
-        ret.base = ret.name = path3.slice(1, end);
+      if (startPart === 0 && isAbsolute15) {
+        ret.base = ret.name = path10.slice(1, end);
       } else {
-        ret.base = ret.name = path3.slice(startPart, end);
+        ret.base = ret.name = path10.slice(startPart, end);
       }
     }
     ret.base = ret.base || "/";
   } else {
-    if (startPart === 0 && isAbsolute4) {
-      ret.name = path3.slice(1, startDot);
-      ret.base = path3.slice(1, end);
+    if (startPart === 0 && isAbsolute15) {
+      ret.name = path10.slice(1, startDot);
+      ret.base = path10.slice(1, end);
     } else {
-      ret.name = path3.slice(startPart, startDot);
-      ret.base = path3.slice(startPart, end);
+      ret.name = path10.slice(startPart, startDot);
+      ret.base = path10.slice(startPart, end);
     }
-    ret.ext = path3.slice(startDot, end);
+    ret.ext = path10.slice(startDot, end);
   }
   if (startPart > 0) {
-    ret.dir = stripTrailingSeparators(
-      path3.slice(0, startPart - 1),
-      isPosixPathSeparator
+    ret.dir = stripTrailingSeparators2(
+      path10.slice(0, startPart - 1),
+      isPosixPathSeparator5
     );
-  } else if (isAbsolute4)
+  } else if (isAbsolute15)
     ret.dir = "/";
   return ret;
 }
-function fromFileUrl2(url) {
+function fromFileUrl13(url) {
   url = url instanceof URL ? url : new URL(url);
   if (url.protocol != "file:") {
     throw new TypeError("Must be a file URL.");
@@ -7310,39 +16881,39 @@ function fromFileUrl2(url) {
     url.pathname.replace(/%(?![0-9A-Fa-f]{2})/g, "%25")
   );
 }
-function toFileUrl2(path3) {
-  if (!isAbsolute2(path3)) {
+function toFileUrl13(path10) {
+  if (!isAbsolute13(path10)) {
     throw new TypeError("Must be an absolute path.");
   }
   const url = new URL("file:///");
-  url.pathname = encodeWhitespace(
-    path3.replace(/%/g, "%25").replace(/\\/g, "%5C")
+  url.pathname = encodeWhitespace5(
+    path10.replace(/%/g, "%25").replace(/\\/g, "%5C")
   );
   return url;
 }
 
 // https://deno.land/std@0.196.0/path/glob.ts
-var path = isWindows ? win32_exports : posix_exports;
-var { join: join3, normalize: normalize3 } = path;
+var path8 = isWindows6 ? win32_exports5 : posix_exports5;
+var { join: join18, normalize: normalize18 } = path8;
 
 // https://deno.land/std@0.196.0/path/mod.ts
-var path2 = isWindows ? win32_exports : posix_exports;
+var path9 = isWindows6 ? win32_exports5 : posix_exports5;
 var {
-  basename: basename3,
-  delimiter: delimiter3,
-  dirname: dirname3,
-  extname: extname3,
-  format: format3,
-  fromFileUrl: fromFileUrl3,
-  isAbsolute: isAbsolute3,
-  join: join4,
-  normalize: normalize4,
-  parse: parse4,
-  relative: relative3,
-  resolve: resolve3,
-  toFileUrl: toFileUrl3,
-  toNamespacedPath: toNamespacedPath3
-} = path2;
+  basename: basename14,
+  delimiter: delimiter14,
+  dirname: dirname14,
+  extname: extname14,
+  format: format14,
+  fromFileUrl: fromFileUrl14,
+  isAbsolute: isAbsolute14,
+  join: join19,
+  normalize: normalize19,
+  parse: parse15,
+  relative: relative14,
+  resolve: resolve14,
+  toFileUrl: toFileUrl14,
+  toNamespacedPath: toNamespacedPath14
+} = path9;
 
 // subrepos/cliffy/prompt/_figures.ts
 var main = {
@@ -7573,7 +17144,7 @@ var GenericPrompt = class _GenericPrompt {
   /** Read user input from stdin and pars ansi codes. */
   #readKey = async () => {
     const data = await this.#readChar();
-    return data.length ? parse(data) : [];
+    return data.length ? parse12(data) : [];
   };
   /** Read user input from stdin. */
   #readChar = async () => {
@@ -7772,7 +17343,7 @@ function distance2(a, b) {
 }
 
 // subrepos/cliffy/prompt/_generic_suggestions.ts
-var sep3 = Deno.build.os === "windows" ? "\\" : "/";
+var sep14 = Deno.build.os === "windows" ? "\\" : "/";
 var GenericSuggestions = class extends GenericInput {
   suggestionsIndex = -1;
   suggestionsOffset = 0;
@@ -7868,8 +17439,8 @@ var GenericSuggestions = class extends GenericInput {
     if (!this.#isFileModeEnabled()) {
       return [];
     }
-    const path3 = await Deno.stat(input).then((file) => file.isDirectory ? input : dirname3(input)).catch(() => dirname3(input));
-    return await listDir(path3, this.settings.files);
+    const path10 = await Deno.stat(input).then((file) => file.isDirectory ? input : dirname14(input)).catch(() => dirname14(input));
+    return await listDir(path10, this.settings.files);
   }
   async getSuggestions() {
     const input = this.getCurrentInputValue();
@@ -8049,12 +17620,12 @@ var GenericSuggestions = class extends GenericInput {
     const suggestion = this.suggestions[this.suggestionsIndex]?.toString();
     if (this.settings.complete) {
       input = await this.settings.complete(input, suggestion);
-    } else if (this.#isFileModeEnabled() && input.at(-1) !== sep3 && await isDirectory(input) && (this.getCurrentInputValue().at(-1) !== "." || this.getCurrentInputValue().endsWith(".."))) {
-      input += sep3;
+    } else if (this.#isFileModeEnabled() && input.at(-1) !== sep14 && await isDirectory(input) && (this.getCurrentInputValue().at(-1) !== "." || this.getCurrentInputValue().endsWith(".."))) {
+      input += sep14;
     } else if (suggestion) {
       input = suggestion;
     }
-    return this.#isFileModeEnabled() ? normalize4(input) : input;
+    return this.#isFileModeEnabled() ? normalize19(input) : input;
   }
   /** Select previous suggestion. */
   selectPreviousSuggestion() {
@@ -8109,16 +17680,16 @@ var GenericSuggestions = class extends GenericInput {
 function uniqueSuggestions(value, index, self) {
   return typeof value !== "undefined" && value !== "" && self.indexOf(value) === index;
 }
-function isDirectory(path3) {
-  return Deno.stat(path3).then((file) => file.isDirectory).catch(() => false);
+function isDirectory(path10) {
+  return Deno.stat(path10).then((file) => file.isDirectory).catch(() => false);
 }
-async function listDir(path3, mode) {
+async function listDir(path10, mode) {
   const fileNames = [];
-  for await (const file of Deno.readDir(path3 || ".")) {
+  for await (const file of Deno.readDir(path10 || ".")) {
     if (mode === true && (file.name.startsWith(".") || file.name.endsWith("~"))) {
       continue;
     }
-    const filePath = join4(path3, file.name);
+    const filePath = join19(path10, file.name);
     if (mode instanceof RegExp && !mode.test(filePath)) {
       continue;
     }
@@ -8166,7 +17737,7 @@ var Input = class extends GenericSuggestions {
   }
   /** Get input value. */
   getValue() {
-    return this.settings.files ? normalize4(this.inputValue) : this.inputValue;
+    return this.settings.files ? normalize19(this.inputValue) : this.inputValue;
   }
   /**
    * Validate input value.
@@ -8207,13 +17778,13 @@ function selectOne({ message, showList, showInfo, options, optionDescriptions })
   let optionStrings;
   if (options instanceof Array) {
     optionStrings = options;
-    options = Object.fromEntries(optionStrings.map((each) => [each, each]));
+    options = Object.fromEntries(optionStrings.map((each2) => [each2, each2]));
   } else {
     optionStrings = Object.keys(options);
   }
   const { rows, columns } = Deno.consoleSize();
   const maxOptionWidth = columns - 3;
-  const longest2 = Math.max(...optionStrings.map((each) => each.length));
+  const longest2 = Math.max(...optionStrings.map((each2) => each2.length));
   const operations = {};
   const suggestions = optionStrings;
   const suggestionDescriptions = [];
@@ -8311,7 +17882,7 @@ cachedTextDecoder.decode();
 function getStringFromWasm0(ptr, len) {
   return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
-function parse5(html) {
+function parse16(html) {
   try {
     const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
     var ptr0 = passStringToWasm0(
@@ -8401,7 +17972,7 @@ async function init(input) {
 var deno_wasm_default = init;
 
 // https://deno.land/x/deno_dom@v0.1.43/src/parser.ts
-var parse6 = (_html) => {
+var parse17 = (_html) => {
   console.error("Error: deno-dom: No parser registered");
   Deno.exit(1);
 };
@@ -8409,12 +17980,12 @@ var parseFrag = (_html, _contextLocalName) => {
   console.error("Error: deno-dom: No parser registered");
   Deno.exit(1);
 };
-var originalParse = parse6;
+var originalParse = parse17;
 function register(func, fragFunc) {
-  if (parse6 !== originalParse) {
+  if (parse17 !== originalParse) {
     return;
   }
-  parse6 = func;
+  parse17 = func;
   parseFrag = fragFunc;
 }
 
@@ -8989,14 +18560,14 @@ var Node = class _Node extends EventTarget {
     return Boolean(this.childNodes.length);
   }
   cloneNode(deep = false) {
-    const copy = this._shallowClone();
-    copy._setOwnerDocument(this.ownerDocument);
+    const copy6 = this._shallowClone();
+    copy6._setOwnerDocument(this.ownerDocument);
     if (deep) {
       for (const child of this.childNodes) {
-        copy.appendChild(child.cloneNode(true));
+        copy6.appendChild(child.cloneNode(true));
       }
     }
-    return copy;
+    return copy6;
   }
   _shallowClone() {
     throw new Error("Illegal invocation");
@@ -11637,19 +21208,19 @@ function SetupSizzle(window2) {
   }
   function createCache() {
     var keys = [];
-    function cache3(key, value) {
+    function cache4(key, value) {
       if (keys.push(key + " ") > Expr.cacheLength) {
-        delete cache3[keys.shift()];
+        delete cache4[keys.shift()];
       }
-      return cache3[key + " "] = value;
+      return cache4[key + " "] = value;
     }
-    return cache3;
+    return cache4;
   }
   function markFunction(fn) {
     fn[expando] = true;
     return fn;
   }
-  function assert2(fn) {
+  function assert8(fn) {
     return true;
     var el = document2.createElement("fieldset");
     try {
@@ -11670,9 +21241,9 @@ function SetupSizzle(window2) {
     }
   }
   function siblingCheck(a, b) {
-    var cur = b && a, diff = cur && a.nodeType === 1 && b.nodeType === 1 && a.sourceIndex - b.sourceIndex;
-    if (diff) {
-      return diff;
+    var cur = b && a, diff2 = cur && a.nodeType === 1 && b.nodeType === 1 && a.sourceIndex - b.sourceIndex;
+    if (diff2) {
+      return diff2;
     }
     if (cur) {
       while (cur = cur.nextSibling) {
@@ -11753,22 +21324,22 @@ function SetupSizzle(window2) {
         subWindow.attachEvent("onunload", unloadHandler);
       }
     }
-    support.scope = assert2(function(el) {
+    support.scope = assert8(function(el) {
       docElem.appendChild(el).appendChild(document2.createElement("div"));
       return typeof el.querySelectorAll !== "undefined" && !el.querySelectorAll(":scope fieldset div").length;
     });
-    support.attributes = assert2(function(el) {
+    support.attributes = assert8(function(el) {
       el.className = "i";
       return !el.getAttribute("className");
     });
-    support.getElementsByTagName = assert2(function(el) {
+    support.getElementsByTagName = assert8(function(el) {
       el.appendChild(document2.createComment(""));
       return !el.getElementsByTagName("*").length;
     });
     support.getElementsByClassName = rnative.test(
       document2.getElementsByClassName
     );
-    support.getById = assert2(function(el) {
+    support.getById = assert8(function(el) {
       docElem.appendChild(el).id = expando;
       return !document2.getElementsByName || !document2.getElementsByName(expando).length;
     });
@@ -11844,7 +21415,7 @@ function SetupSizzle(window2) {
     rbuggyMatches = [];
     rbuggyQSA = [];
     if (support.qsa = rnative.test(document2.querySelectorAll)) {
-      assert2(function(el) {
+      assert8(function(el) {
         var input;
         docElem.appendChild(el).innerHTML = "<a id='" + expando + "'></a><select id='" + expando + "-\r\\' msallowcapture=''><option selected=''></option></select>";
         if (el.querySelectorAll("[msallowcapture^='']").length) {
@@ -11873,7 +21444,7 @@ function SetupSizzle(window2) {
         el.querySelectorAll("\\\f");
         rbuggyQSA.push("[\\r\\n\\f]");
       });
-      assert2(function(el) {
+      assert8(function(el) {
         el.innerHTML = "<a href='' disabled='disabled'></a><select disabled='disabled'><option/></select>";
         var input = document2.createElement("input");
         input.setAttribute("type", "hidden");
@@ -11895,7 +21466,7 @@ function SetupSizzle(window2) {
     if (support.matchesSelector = rnative.test(
       matches = docElem.matches || docElem.webkitMatchesSelector || docElem.mozMatchesSelector || docElem.oMatchesSelector || docElem.msMatchesSelector
     )) {
-      assert2(function(el) {
+      assert8(function(el) {
         support.disconnectedMatch = matches.call(el, "*");
         matches.call(el, "[s!='']:x");
         rbuggyMatches.push("!=", pseudos);
@@ -12151,7 +21722,7 @@ function SetupSizzle(window2) {
             return !!elem.parentNode;
           }
         ) : function(elem, _context, xml) {
-          var cache3, uniqueCache, outerCache, node, nodeIndex, start, dir = simple !== forward ? "nextSibling" : "previousSibling", parent = elem.parentNode, name = ofType && elem.nodeName.toLowerCase(), useCache = !xml && !ofType, diff = false;
+          var cache4, uniqueCache, outerCache, node, nodeIndex, start, dir = simple !== forward ? "nextSibling" : "previousSibling", parent = elem.parentNode, name = ofType && elem.nodeName.toLowerCase(), useCache = !xml && !ofType, diff2 = false;
           if (parent) {
             if (simple) {
               while (dir) {
@@ -12170,14 +21741,14 @@ function SetupSizzle(window2) {
               node = parent;
               outerCache = node[expando] || (node[expando] = {});
               uniqueCache = outerCache[node.uniqueID] || (outerCache[node.uniqueID] = {});
-              cache3 = uniqueCache[type] || [];
-              nodeIndex = cache3[0] === dirruns && cache3[1];
-              diff = nodeIndex && cache3[2];
+              cache4 = uniqueCache[type] || [];
+              nodeIndex = cache4[0] === dirruns && cache4[1];
+              diff2 = nodeIndex && cache4[2];
               node = nodeIndex && parent.childNodes[nodeIndex];
               while (node = ++nodeIndex && node && node[dir] || // Fallback to seeking `elem` from the start
-              (diff = nodeIndex = 0) || start.pop()) {
-                if (node.nodeType === 1 && ++diff && node === elem) {
-                  uniqueCache[type] = [dirruns, nodeIndex, diff];
+              (diff2 = nodeIndex = 0) || start.pop()) {
+                if (node.nodeType === 1 && ++diff2 && node === elem) {
+                  uniqueCache[type] = [dirruns, nodeIndex, diff2];
                   break;
                 }
               }
@@ -12186,17 +21757,17 @@ function SetupSizzle(window2) {
                 node = elem;
                 outerCache = node[expando] || (node[expando] = {});
                 uniqueCache = outerCache[node.uniqueID] || (outerCache[node.uniqueID] = {});
-                cache3 = uniqueCache[type] || [];
-                nodeIndex = cache3[0] === dirruns && cache3[1];
-                diff = nodeIndex;
+                cache4 = uniqueCache[type] || [];
+                nodeIndex = cache4[0] === dirruns && cache4[1];
+                diff2 = nodeIndex;
               }
-              if (diff === false) {
-                while (node = ++nodeIndex && node && node[dir] || (diff = nodeIndex = 0) || start.pop()) {
-                  if ((ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1) && ++diff) {
+              if (diff2 === false) {
+                while (node = ++nodeIndex && node && node[dir] || (diff2 = nodeIndex = 0) || start.pop()) {
+                  if ((ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1) && ++diff2) {
                     if (useCache) {
                       outerCache = node[expando] || (node[expando] = {});
                       uniqueCache = outerCache[node.uniqueID] || (outerCache[node.uniqueID] = {});
-                      uniqueCache[type] = [dirruns, diff];
+                      uniqueCache[type] = [dirruns, diff2];
                     }
                     if (node === elem) {
                       break;
@@ -12205,8 +21776,8 @@ function SetupSizzle(window2) {
                 }
               }
             }
-            diff -= last;
-            return diff === first || diff % first === 0 && diff / first >= 0;
+            diff2 -= last;
+            return diff2 === first || diff2 % first === 0 && diff2 / first >= 0;
           }
         };
       },
@@ -12772,10 +22343,10 @@ function SetupSizzle(window2) {
   support.sortStable = expando.split("").sort(sortOrder).join("") === expando;
   support.detectDuplicates = !!hasDuplicate;
   setDocument();
-  support.sortDetached = assert2(function(el) {
+  support.sortDetached = assert8(function(el) {
     return el.compareDocumentPosition(document2.createElement("fieldset")) & 1;
   });
-  if (!assert2(function(el) {
+  if (!assert8(function(el) {
     el.innerHTML = "<a href='#'></a>";
     return el.firstChild.getAttribute("href") === "#";
   })) {
@@ -12785,7 +22356,7 @@ function SetupSizzle(window2) {
       }
     });
   }
-  if (!support.attributes || !assert2(function(el) {
+  if (!support.attributes || !assert8(function(el) {
     el.innerHTML = "<input/>";
     el.firstChild.setAttribute("value", "");
     return el.firstChild.getAttribute("value") === "";
@@ -12796,7 +22367,7 @@ function SetupSizzle(window2) {
       }
     });
   }
-  if (!assert2(function(el) {
+  if (!assert8(function(el) {
     return el.getAttribute("disabled") == null;
   })) {
     addHandle(booleans, function(elem, name, isXML2) {
@@ -13032,9 +22603,9 @@ var Document2 = class _Document extends Node {
     return fragment;
   }
   importNode(node, deep = false) {
-    const copy = node.cloneNode(deep);
-    copy._setOwnerDocument(this);
-    return copy;
+    const copy6 = node.cloneNode(deep);
+    copy6._setOwnerDocument(this);
+    return copy6;
   }
   adoptNode(node) {
     if (node instanceof _Document) {
@@ -13128,7 +22699,7 @@ utils_types_default.Document = Document2;
 
 // https://deno.land/x/deno_dom@v0.1.43/src/deserialize.ts
 function nodesFromString(html) {
-  const parsed = JSON.parse(parse6(html));
+  const parsed = JSON.parse(parse17(html));
   const node = nodeFromArray(parsed, null);
   return node;
 }
@@ -13255,12 +22826,12 @@ Object.defineProperty(Array, "isArray", {
 // https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts
 await deno_wasm_default();
 register(
-  parse5,
+  parse16,
   parse_frag
 );
 
 // tools/search_tools.js
-var versionToList = (version) => `${version}`.split(".").map((each) => each.split(/(?<=\d)(?=\D)/)).flat(1).map((each) => each.match(/^\d+$/) ? each - 0 : each);
+var versionToList = (version) => `${version}`.split(".").map((each2) => each2.split(/(?<=\d)(?=\D)/)).flat(1).map((each2) => each2.match(/^\d+$/) ? each2 - 0 : each2);
 var rikudoeSage = {
   async searchBasePackage(query) {
     try {
@@ -13290,19 +22861,19 @@ var devbox = {
         throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))`);
       }
       const searchResults = [...list.querySelectorAll("li")];
-      return searchResults.map((each) => {
-        const dataDiv = each.querySelector("div");
+      return searchResults.map((each2) => {
+        const dataDiv = each2.querySelector("div");
         const output2 = {
-          attrPath: each.querySelector("h3").innerText
+          attrPath: each2.querySelector("h3").innerText
         };
         if (dataDiv) {
           let key;
-          for (const each2 of [...dataDiv.children]) {
-            if (each2.tagName == "DT") {
-              key = each2.innerText.trim();
+          for (const each3 of [...dataDiv.children]) {
+            if (each3.tagName == "DT") {
+              key = each3.innerText.trim();
             }
-            if (key && each2.tagName == "DD") {
-              output2[key] = each2.innerText;
+            if (key && each3.tagName == "DD") {
+              output2[key] = each3.innerText;
             }
           }
         }
@@ -13328,16 +22899,16 @@ var devbox = {
     const prefixForVersionString = "Version ";
     for (const eachVersion of versionElements) {
       const divs = [...eachVersion.querySelectorAll("div")];
-      const versionStringDiv = divs.filter((each) => each.innerText.startsWith(prefixForVersionString));
+      const versionStringDiv = divs.filter((each2) => each2.innerText.startsWith(prefixForVersionString));
       if (!versionStringDiv) {
         throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding version string div)`);
       }
       const version = versionStringDiv[0].innerText.slice(prefixForVersionString.length);
-      const referenceInfoOuterDiv = divs.filter((each) => [...each.children].some((subChild) => subChild.innerText.match(/Nixpkgs Reference/)))[0];
+      const referenceInfoOuterDiv = divs.filter((each2) => [...each2.children].some((subChild) => subChild.innerText.match(/Nixpkgs Reference/)))[0];
       if (!referenceInfoOuterDiv) {
         throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding version info within list element)`);
       }
-      const referenceInfoInnerDiv = [...referenceInfoOuterDiv.querySelectorAll("div")].filter((each) => each.innerText.match("#"))[0];
+      const referenceInfoInnerDiv = [...referenceInfoOuterDiv.querySelectorAll("div")].filter((each2) => each2.innerText.match("#"))[0];
       if (!referenceInfoInnerDiv) {
         throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue extracting inner referece hash div)`);
       }
@@ -13368,8 +22939,8 @@ var lazamar = {
     );
     const table = document2.querySelector(".pure-table-bordered.pure-table tbody");
     const dataPerAttributePath = {};
-    for (let each of [...table.children]) {
-      let [packageNameNode, versionNode, revisionNode, dateNode] = [...each.children];
+    for (let each2 of [...table.children]) {
+      let [packageNameNode, versionNode, revisionNode, dateNode] = [...each2.children];
       const anchor = revisionNode.querySelector("a");
       const params = new URLSearchParams(anchor.getAttribute("href"));
       const attrPath2 = params.get("keyName");
@@ -13384,7 +22955,6 @@ var lazamar = {
       }
     }
     return dataPerAttributePath[attrPath]?.versions || [];
-    return [];
   }
 };
 var sources = {
@@ -13404,7 +22974,7 @@ async function search(query) {
     }
   }
   for (const value of basePackages) {
-    value.versionsPromise = new Promise(async (resolve4, reject) => {
+    value.versionsPromise = new Promise(async (resolve15, reject) => {
       let versions = [];
       for (const [name, sourceTools] of Object.entries(sources)) {
         try {
@@ -13416,11 +22986,11 @@ async function search(query) {
         }
       }
       const alreadySeen = /* @__PURE__ */ new Set();
-      versions = versions.filter((each) => {
-        if (alreadySeen.has(each.version)) {
+      versions = versions.filter((each2) => {
+        if (alreadySeen.has(each2.version)) {
           return false;
         }
-        alreadySeen.add(each.version);
+        alreadySeen.add(each2.version);
         return true;
       });
       versions.sort(
@@ -13437,14 +23007,74 @@ async function search(query) {
           return 0;
         }
       );
-      resolve4(versions);
+      resolve15(versions);
     });
   }
   return basePackages;
 }
+var determinateSystems = {
+  async searchBasePackage(query) {
+    const output2 = await fetch("https://b4lflfxxy4-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.20.0)%3B%20Browser%3B%20instantsearch.js%20(4.58.0)%3B%20react%20(18.2.0)%3B%20react-instantsearch%20(7.2.0)%3B%20react-instantsearch-core%20(7.2.0)%3B%20JS%20Helper%20(3.14.2)", {
+      "credentials": "omit",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0",
+        "Accept": "*/*",
+        "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
+        "x-algolia-api-key": "1673b56771c2f826310f4bdf25a43c42",
+        "x-algolia-application-id": "B4LFLFXXY4",
+        "content-type": "application/x-www-form-urlencoded",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "cross-site"
+      },
+      "referrer": "https://flakehub.com/",
+      "body": `{"requests":[{"indexName":"flakes","params":"clickAnalytics=true&facets=%5B%5D&highlightPostTag=__%2Fais-highlight__&highlightPreTag=__ais-highlight__&hitsPerPage=100&query=${JSON.stringify(encodeURIComponent(query)).slice(1, -1)}l&tagFilters="}]}`,
+      "method": "POST",
+      "mode": "cors"
+    }).then((result2) => result2.json());
+    return output2.results[0]?.hits || [];
+  },
+  async getVersionsFor(flakePackage) {
+    const { org, project, description, labels } = flakePackage;
+    const url = `https://flakehub.com/f/${org}/${project}`;
+    const versionInfo = await fetch(`${url}/releases`).then((result2) => result2.json());
+    const extractOutputs = async (version) => {
+      const info = await run2`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)}`;
+      return [...new Set(Object.values(JSON.parse(info).packages).map((each2) => Object.keys(each2)).flat(1))];
+    };
+    await Promise.all(
+      versionInfo.map(
+        (each2) => extractOutputs(each2.simplified_version).then(
+          (result2) => {
+            each2.packageOutputs = result2;
+          }
+        )
+      )
+    );
+    return versionInfo;
+  },
+  async search(query) {
+    const results = await this.searchBasePackage(query);
+    for (const each2 of results) {
+      each2.versionsPromise = this.getVersionsFor(each2);
+    }
+    return results;
+  }
+};
 
 // main.js
 var posixShellEscape = (string2) => "'" + string2.replace(/'/g, `'"'"'`) + "'";
+var hasFlakesEnabled = localStorage.getItem("nix:hasFlakes");
+if (hasFlakesEnabled == null) {
+  console.log(`
+Let me check real quick if you have flakes enabled`);
+  console.log(`(this will only run once)`);
+  ({ success } = await run2`nix flake show --all-systems ${"https://flakehub.com/f/snowfallorg/cowsay/1.2.1.tar.gz"} ${Out(null)}`);
+  hasFlakesEnabled = JSON.stringify(success);
+  localStorage.setItem("nix:hasFlakes", hasFlakesEnabled);
+}
+var success;
+hasFlakesEnabled = JSON.parse(hasFlakesEnabled);
 var contextOptions = ["global", "code", "repl"];
 async function createCommand({ whichContext }) {
   if (!contextOptions.includes(whichContext)) {
@@ -13462,15 +23092,19 @@ Examples:
     var [name, versionPrefix] = args[0].split("@");
     versionPrefix = versionPrefix || "";
     const results = await search(name);
+    let flakeResults = [];
+    if (hasFlakesEnabled) {
+      flakeResults = await determinateSystems.search(name);
+    }
     const choiceOptions = {};
-    for (const each of results) {
-      let oldVersionsPromise = choiceOptions[each.attrPath]?.versionsPromise;
-      choiceOptions[each.attrPath] = { ...choiceOptions[each.attrPath], ...each };
+    for (const each2 of results) {
+      let oldVersionsPromise = choiceOptions[each2.attrPath]?.versionsPromise;
+      choiceOptions[each2.attrPath] = { ...choiceOptions[each2.attrPath], ...each2 };
       if (oldVersionsPromise) {
-        choiceOptions[each.attrPath].versionsPromise = new Promise(async (resolve4, reject) => {
+        choiceOptions[each2.attrPath].versionsPromise = new Promise(async (resolve15, reject) => {
           try {
-            resolve4(
-              (await oldVersionsPromise || []).concat(await each.versionsPromise)
+            resolve15(
+              (await oldVersionsPromise || []).concat(await each2.versionsPromise)
             );
           } catch (error) {
             reject(error);
@@ -13478,9 +23112,12 @@ Examples:
         });
       }
     }
+    for (const each2 of flakeResults) {
+      choiceOptions[each2.project + ` \u2744\uFE0F ${each2.org}`] = each2;
+    }
     for (const [key, value] of Object.entries(choiceOptions)) {
       value.versionsPromise.then((versions) => {
-        if (versions.filter((each) => each.version.startsWith(versionPrefix)).length == 0) {
+        if (versions.filter((each2) => each2.version.startsWith(versionPrefix)).length == 0) {
           delete choiceOptions[key];
         }
       });
@@ -13490,7 +23127,7 @@ Examples:
         Object.values(choiceOptions).map(
           (eachPackage) => eachPackage.versionsPromise.then((versions) => {
             eachPackage.versions = (eachPackage.versions || []).concat(
-              versions.filter((each) => each.version.startsWith(versionPrefix))
+              versions.filter((each2) => each2.version.startsWith(versionPrefix))
             );
             delete eachPackage.versionsPromise;
             return eachPackage;
@@ -13501,7 +23138,7 @@ Examples:
       return;
     }
     while (1) {
-      const optionDescriptions = Object.values(choiceOptions).map((each) => (each.Description || "").replace(/\n/g, " "));
+      const optionDescriptions = Object.values(choiceOptions).map((each2) => (each2.Description || each2.description || "").replace(/\n/g, " "));
       const packageInfo = await selectOne({
         message: "Which Package [type OR press enter OR use arrow keys]",
         showList: true,
@@ -13514,7 +23151,7 @@ Examples:
         console.log(red2`it looks like that package doesn't have any versions matching ${JSON.stringify(versionPrefix)}\n`);
         continue;
       }
-      const versionOptions = (await packageInfo?.versionsPromise || []).filter((each) => each.version.startsWith(versionPrefix));
+      const versionOptions = (await packageInfo?.versionsPromise || []).filter((each2) => each2.version.startsWith(versionPrefix));
       if (versionOptions.length == 0) {
         console.log(red2`Sorry, I checked just now`);
         console.log(red2`it looks like ${cyan2(packageInfo.attrPath)} doesn't have any versions matching ${JSON.stringify(versionPrefix)}\n`);
@@ -13525,78 +23162,153 @@ Examples:
         message: "Pick a version",
         showList: true,
         showInfo: false,
-        options: versionOptions.map((each) => each.version)
+        options: versionOptions.map((each2) => each2.version)
       });
       console.log(`Selected: ${version}
 `);
       if (!version) {
         throw Error(`Sorry I don't see that version`);
       }
-      const versionInfo = versionOptions.filter((each) => each.version == version)[0];
+      const versionInfo = versionOptions.filter((each2) => each2.version == version)[0];
+      console.log("\x1B[2J");
       switch (whichContext) {
         case "global":
-          console.log(`Okay run the following to get version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
-          console.log(``);
-          console.log(cyan2`nix-env -iA ${posixShellEscape(versionInfo.attrPath)} -f https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
-          console.log(``);
+          if (hasFlakesEnabled && packageInfo.project) {
+            console.log(`Okay run the following to get version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.project)}`);
+            console.log(``);
+            console.log(cyan2`nix profile install ${posixShellEscape(`https://flakehub.com/f/${packageInfo.org}/${packageInfo.project}/${packageInfo.simplified_version}.tar.gz`)}`);
+            console.log(``);
+          } else {
+            console.log(`Okay run the following to get version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+            console.log(``);
+            console.log(cyan2`nix-env -iA ${posixShellEscape(versionInfo.attrPath)} -f https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
+            console.log(``);
+          }
           break;
         case "code":
-          if (!options.explain) {
-            console.log(`Here's what to include in your nix code:`);
-            console.log(``);
-            console.log(cyan2`    yourVarName = (`);
-            console.log(cyan2`      (import (builtins.fetchTarball {`);
-            console.log(cyan2`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
-            console.log(cyan2`      }) {}).${versionInfo.attrPath}`);
-            console.log(cyan2`    );`);
-            console.log(``);
-            console.log(`Run again with ${yellow2`--explain`} if you're not sure how to use this^`);
+          if (hasFlakesEnabled && packageInfo.project) {
+            const name2 = toCamelCase(packageInfo.project);
+            const nonDefaultPackages = versionInfo.packageOutputs.filter((each2) => each2 != "default");
+            if (!options.explain) {
+              console.log(`Okay use the following to get version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.project)}`);
+              console.log(``);
+              console.log(cyan2`    ${name2}.url = "https://flakehub.com/f/${packageInfo.org}/${packageInfo.project}/${packageInfo.simplified_version}.tar.gz"`);
+              if (nonDefaultPackages.length > 0) {
+                console.log(``);
+                console.log(dim2`Note: you may need to use one of the following to get what you want:`);
+                console.log(nonDefaultPackages.map((each2) => dim2.lightRed`    ${name2}.${each2}`).join("\n"));
+              }
+              console.log(``);
+              console.log(dim2`Run again with ${yellow2`--explain`} if you're not sure how to use this^`);
+            } else {
+              console.log(`If you have a ${yellow2`flake.nix`} file it might look like:
+`);
+              console.log(dim2`   {`);
+              console.log(dim2`     description = "something";`);
+              console.log(dim2`     inputs = {`);
+              console.log(dim2`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`);
+              console.log(dim2`     };`);
+              console.log(dim2`     outputs = { self, nixpkgs, }:`);
+              console.log(dim2`       let`);
+              console.log(dim2`          somethingSomething = 10;`);
+              console.log(dim2`       in`);
+              console.log(dim2`         {`);
+              console.log(dim2`         }`);
+              console.log(dim2`   }`);
+              console.log(dim2``);
+              prompt(cyan2`[press enter to continue]`);
+              console.log(``);
+              console.log(`To make it work with version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.project)}`);
+              console.log(`You would change it to be:
+`);
+              console.log(dim2`   {`);
+              console.log(dim2`     description = "something";`);
+              console.log(dim2`     inputs = {`);
+              console.log(dim2`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`);
+              console.log(green2`       ${name2}.url = "https://flakehub.com/f/${packageInfo.org}/${packageInfo.project}/${packageInfo.simplified_version}.tar.gz";`);
+              console.log(dim2`     };`);
+              console.log(`     outputs = { self, nixpkgs, ${green2(name2)} }:`);
+              console.log(dim2`       let`);
+              console.log(dim2`          somethingSomething = 10;`);
+              if (nonDefaultPackages.length > 0) {
+                console.log(dim2.cyan`          # Note: you may need to use one of the following to get what you want:`);
+                console.log(nonDefaultPackages.map((each2) => dim2.cyan`          #    ${name2}.${each2}`).join("\n"));
+              }
+              console.log(dim2`       in`);
+              console.log(dim2`         {`);
+              console.log(dim2`         }`);
+              console.log(dim2`   }`);
+              console.log(``);
+            }
           } else {
-            console.log(`If you have a ${yellow2`shell.nix`} or ${yellow2`default.nix`} file it might look like:`);
-            console.log(`     { pkgs ? import <nixpkgs> {} }:`);
-            console.log(`     let`);
-            console.log(`       python = pkgs.python;`);
-            console.log(`     in`);
-            console.log(`       pkgs.mkShell {`);
-            console.log(`         buildInputs = [`);
-            console.log(`           python`);
-            console.log(`         ];`);
-            console.log(`         nativeBuildInputs = [`);
-            console.log(`         ];`);
-            console.log(`         shellHook = ''`);
-            console.log(`             # blah blah blah`);
-            console.log(`         '';`);
-            console.log(`       }`);
-            console.log(``);
-            console.log(`To make it work with version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
-            console.log(`You would change it to be:`);
-            console.log(`     { pkgs ? import <nixpkgs> {} }:`);
-            console.log(`     let`);
-            console.log(`       python = pkgs.python;`);
-            console.log(green2`       YOUR_THING = (`);
-            console.log(green2`         (import (builtins.fetchTarball {`);
-            console.log(green2`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
-            console.log(green2`         }) {}).${versionInfo.attrPath}`);
-            console.log(green2`       );`);
-            console.log(`     in`);
-            console.log(`       pkgs.mkShell {`);
-            console.log(`         buildInputs = [`);
-            console.log(`           python`);
-            console.log(green2`           YOUR_THING`);
-            console.log(`         ];`);
-            console.log(`         nativeBuildInputs = [`);
-            console.log(`         ];`);
-            console.log(`         shellHook = ''`);
-            console.log(`             # blah blah blah`);
-            console.log(`         '';`);
-            console.log(`       }`);
+            if (!options.explain) {
+              console.log(`Here's what to include in your nix code:`);
+              console.log(``);
+              console.log(cyan2`    yourVarName = (`);
+              console.log(cyan2`      (import (builtins.fetchTarball {`);
+              console.log(cyan2`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
+              console.log(cyan2`      }) {}).${versionInfo.attrPath}`);
+              console.log(cyan2`    );`);
+              console.log(``);
+              console.log(dim2`Run again with ${yellow2`--explain`} if you're not sure how to use this^`);
+            } else {
+              console.log(`If you have a ${yellow2`shell.nix`} or ${yellow2`default.nix`} file it might look like:
+`);
+              console.log(dim2`     { pkgs ? import <nixpkgs> {} }:`);
+              console.log(dim2`     let`);
+              console.log(dim2`       python = pkgs.python;`);
+              console.log(dim2`     in`);
+              console.log(dim2`       pkgs.mkShell {`);
+              console.log(dim2`         buildInputs = [`);
+              console.log(dim2`           python`);
+              console.log(dim2`         ];`);
+              console.log(dim2`         nativeBuildInputs = [`);
+              console.log(dim2`         ];`);
+              console.log(dim2`         shellHook = ''`);
+              console.log(dim2`             # blah blah blah`);
+              console.log(dim2`         '';`);
+              console.log(dim2`       }`);
+              console.log(dim2``);
+              prompt(cyan2`[press enter to continue]`);
+              console.log(``);
+              console.log(`To make it work with version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+              console.log(`You would change it to be:
+`);
+              console.log(dim2`     { pkgs ? import <nixpkgs> {} }:`);
+              console.log(dim2`     let`);
+              console.log(dim2`       python = pkgs.python;`);
+              console.log(green2`       YOUR_THING = (`);
+              console.log(green2`         (import (builtins.fetchTarball {`);
+              console.log(green2`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
+              console.log(green2`         }) {}).${versionInfo.attrPath}`);
+              console.log(green2`       );`);
+              console.log(dim2`     in`);
+              console.log(dim2`       pkgs.mkShell {`);
+              console.log(dim2`         buildInputs = [`);
+              console.log(dim2`           python`);
+              console.log(green2`           YOUR_THING`);
+              console.log(dim2`         ];`);
+              console.log(dim2`         nativeBuildInputs = [`);
+              console.log(dim2`         ];`);
+              console.log(dim2`         shellHook = ''`);
+              console.log(dim2`             # blah blah blah`);
+              console.log(dim2`         '';`);
+              console.log(dim2`       }`);
+            }
           }
           break;
         case "repl":
-          console.log(`Okay run the following to a shell that has version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
-          console.log(``);
-          console.log(`nix-shell -p ${posixShellEscape(versionInfo.attrPath)} -I https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
-          console.log(``);
+          if (hasFlakesEnabled && packageInfo.project) {
+            console.log(`Okay, run the following to a shell that has version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.project)}`);
+            console.log(``);
+            console.log(cyan2`nix develop ${posixShellEscape(`https://flakehub.com/f/${packageInfo.org}/${packageInfo.project}/${packageInfo.simplified_version}.tar.gz`)}`);
+            console.log(``);
+          } else {
+            console.log(`Okay, run the following to a shell that has version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+            console.log(``);
+            console.log(cyan2`nix-shell -p ${posixShellEscape(versionInfo.attrPath)} -I https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
+            console.log(``);
+          }
           break;
         default:
           break;
