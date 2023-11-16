@@ -71,7 +71,7 @@ await FileSystem.write({
     #
     #
     
-    `.replace(/\n    /g, "\n")+(await FileSystem.read(nixFileTemplate)).replace("REPLACEME_420492093", latestCommitHash)
+    `.replace(/\n    /g, "\n")+(await FileSystem.read(nixFileTemplate)).replace(/REPLACEME_420492093/g, latestCommitHash)
 })
 
 await FileSystem.write({
@@ -83,7 +83,7 @@ await FileSystem.write({
     <!--                                               -->
     <!--                                               -->
     
-    `.replace(/\n    /g, "\n")+(await FileSystem.read(readmeFileTemplate)).replace("REPLACEME_420492093", latestCommitHash)
+    `.replace(/\n    /g, "\n")+(await FileSystem.read(readmeFileTemplate)).replace(/REPLACEME_420492093/g, latestCommitHash)
 })
 
 await run`nix flake lock --update-input nixpkgs`
