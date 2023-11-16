@@ -14,7 +14,7 @@
 }:
     pkgs.stdenv.mkDerivation (finalAttrs: {
         pname = "nvs";
-        version = "0.1.0";
+        version = "0.2.0";
         
         dontPatchShebangs = 1;
         gcc = pkgs.gcc;
