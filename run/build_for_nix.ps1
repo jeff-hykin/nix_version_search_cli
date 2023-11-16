@@ -86,6 +86,7 @@ await FileSystem.write({
     `.replace(/\n    /g, "\n")+(await FileSystem.read(readmeFileTemplate)).replace("REPLACEME_420492093", latestCommitHash)
 })
 
+await run`nix flake lock --update-input nixpkgs`
 // console.log(`committing updated default.nix`)
 // var { success } = await run`git add -A`
 // var { success } = await run`git commit -m ${'update commit'}`
