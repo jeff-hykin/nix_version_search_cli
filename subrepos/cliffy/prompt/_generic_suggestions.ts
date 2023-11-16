@@ -8,12 +8,15 @@ import {
 import {
   bold,
   brightBlue,
+  green,
+  cyan,
   dim,
   dirname,
   join,
   normalize,
   stripColor,
   underline,
+  reset,
 } from "./deps.ts";
 import { Figures, getFiguresByKeys } from "./_figures.ts";
 import { distance } from "../_utils/distance.ts";
@@ -327,7 +330,7 @@ export abstract class GenericSuggestions<TValue, TRawValue>
     ) {
       list.push(
         this.getListItem(
-          this.suggestions[i],
+          this.suggestions[i].replace(/❄️(.+)/, reset(cyan("❄️"))+dim(green("$1"))),
           this.suggestionsIndex === i,
           suggestionToDescription[this.suggestions[i]],
         ),

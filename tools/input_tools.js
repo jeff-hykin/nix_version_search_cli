@@ -19,8 +19,12 @@ export function selectOne({ message, showList, showInfo, options, optionDescript
     const suggestionDescriptions = []
     if (optionDescriptions) {
         for (let [suggestion, description] of zip(suggestions, optionDescriptions)) {
+            let offset = 2
+            if (suggestion.indexOf("❄️") != -1) {
+                offset = 3
+            }
             suggestionDescriptions.push(
-                stripColor(suggestion.padEnd(longest+2," ")+": "+description).slice(0,maxOptionWidth).slice(suggestion.length+2)
+                stripColor(suggestion.padEnd(longest+offset," ")+": "+description).slice(0,maxOptionWidth).slice(suggestion.length+2)
             )
         }
     }

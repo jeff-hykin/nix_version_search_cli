@@ -859,6 +859,9 @@ function code(open, close) {
 function run(str, code2) {
   return enabled ? `${code2.open}${str.replace(code2.regexp, code2.open)}${code2.close}` : str;
 }
+function reset(str) {
+  return run(str, code([0], 0));
+}
 function bold(str) {
   return run(str, code([1], 22));
 }
@@ -879,6 +882,9 @@ function green(str) {
 }
 function yellow(str) {
   return run(str, code([33], 39));
+}
+function cyan(str) {
+  return run(str, code([36], 39));
 }
 function brightBlue(str) {
   return run(str, code([94], 39));
@@ -5312,7 +5318,7 @@ var styleObject = (rootStyleString) => {
   )));
 };
 var bold2 = styleObject(styleStrings.bold);
-var reset = styleObject(styleStrings.reset);
+var reset2 = styleObject(styleStrings.reset);
 var dim2 = styleObject(styleStrings.dim);
 var italic2 = styleObject(styleStrings.italic);
 var underline2 = styleObject(styleStrings.underline);
@@ -17314,6 +17320,14 @@ var GenericInput = class extends GenericPrompt {
 
 // subrepos/cliffy/_utils/distance.ts
 function distance2(a, b) {
+  let aFlakeIndex = a.indexOf("\u2744\uFE0F");
+  if (aFlakeIndex != -1) {
+    a = a.slice(0, aFlakeIndex - 1);
+  }
+  let bFlakeIndex = b.indexOf("\u2744\uFE0F");
+  if (bFlakeIndex != -1) {
+    b = b.slice(0, bFlakeIndex - 1);
+  }
   if (a.length == 0) {
     return b.length;
   }
@@ -17509,7 +17523,7 @@ var GenericSuggestions = class extends GenericInput {
     for (let i2 = this.suggestionsOffset; i2 < this.suggestionsOffset + height; i2++) {
       list.push(
         this.getListItem(
-          this.suggestions[i2],
+          this.suggestions[i2].replace(/❄️(.+)/, reset(cyan("\u2744\uFE0F")) + dim(green("$1"))),
           this.suggestionsIndex === i2,
           suggestionToDescription[this.suggestions[i2]]
         )
@@ -17790,8 +17804,12 @@ function selectOne({ message, showList, showInfo, options, optionDescriptions })
   const suggestionDescriptions = [];
   if (optionDescriptions) {
     for (let [suggestion, description] of zip2(suggestions, optionDescriptions)) {
+      let offset = 2;
+      if (suggestion.indexOf("\u2744\uFE0F") != -1) {
+        offset = 3;
+      }
       suggestionDescriptions.push(
-        stripColor(suggestion.padEnd(longest2 + 2, " ") + ": " + description).slice(0, maxOptionWidth).slice(suggestion.length + 2)
+        stripColor(suggestion.padEnd(longest2 + offset, " ") + ": " + description).slice(0, maxOptionWidth).slice(suggestion.length + 2)
       );
     }
   }
@@ -23097,6 +23115,9 @@ Examples:
       flakeResults = await determinateSystems.search(name);
     }
     const choiceOptions = {};
+    for (const each2 of flakeResults) {
+      choiceOptions[each2.project + ` \u2744\uFE0F ${each2.org}`] = each2;
+    }
     for (const each2 of results) {
       let oldVersionsPromise = choiceOptions[each2.attrPath]?.versionsPromise;
       choiceOptions[each2.attrPath] = { ...choiceOptions[each2.attrPath], ...each2 };
@@ -23111,9 +23132,6 @@ Examples:
           }
         });
       }
-    }
-    for (const each2 of flakeResults) {
-      choiceOptions[each2.project + ` \u2744\uFE0F ${each2.org}`] = each2;
     }
     for (const [key, value] of Object.entries(choiceOptions)) {
       value.versionsPromise.then((versions) => {

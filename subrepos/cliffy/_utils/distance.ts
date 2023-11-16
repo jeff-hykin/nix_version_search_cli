@@ -1,4 +1,12 @@
 export function distance(a: string, b: string): number {
+  let aFlakeIndex = a.indexOf("❄️")
+  if (aFlakeIndex!=-1) {
+    a = a.slice(0,aFlakeIndex-1)
+  }
+  let bFlakeIndex = b.indexOf("❄️")
+  if (bFlakeIndex!=-1) {
+    b = b.slice(0,bFlakeIndex-1)
+  }
   if (a.length == 0) {
     return b.length;
   }

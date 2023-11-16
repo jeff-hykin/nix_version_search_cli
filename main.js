@@ -52,6 +52,9 @@ export async function createCommand({whichContext}) {
             }
             
             const choiceOptions = {}
+            for (const each of flakeResults) {
+                choiceOptions[each.project+` ❄️ ${each.org}`] = each
+            }
             for (const each of results) {
                 let oldVersionsPromise = choiceOptions[each.attrPath]?.versionsPromise
                 choiceOptions[each.attrPath] = {...choiceOptions[each.attrPath], ...each, }
@@ -66,9 +69,6 @@ export async function createCommand({whichContext}) {
                         }
                     })
                 }
-            }
-            for (const each of flakeResults) {
-                choiceOptions[each.project+` ❄️ ${each.org}`] = each
             }
             // once a package-versions resolves, remove self from list if no versions match the version prefix
             for (const [key, value] of Object.entries(choiceOptions)) {
