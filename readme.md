@@ -70,6 +70,6 @@ Here's what to include in your nix code:
       }) {}).python312
     );
 
-Run again with --explain if you're not sure how to use this^
+Run again with --explain if you are not sure how to use this^
 ```
 
