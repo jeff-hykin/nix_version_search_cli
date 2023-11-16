@@ -62,7 +62,7 @@ Selected: python
   3.12.0b1
   ...
 
-Here's what to include in your nix code:
+Here is what to include in your nix code:
 
     yourVarName = (
       (import (builtins.fetchTarball {
