@@ -28,7 +28,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   gcc = pkgs.gcc;
   coreutils = pkgs.coreutils;
   src = builtins.fetchTarball ({
-    url = "https://github.com/jeff-hykin/nix_version_search_cli/archive/68e3dcb478f41382d56398dd093c18df8a9ac1a0.tar.gz";
+    url = "https://github.com/jeff-hykin/nix_version_search_cli/archive/54c6cf050de317d25e773a521a3ebae0a6913271.tar.gz";
   });
 
   buildInputs = [
