@@ -23057,8 +23057,12 @@ var determinateSystems = {
     const url = `https://flakehub.com/f/${org}/${project}`;
     const versionInfo = await fetch(`${url}/releases`).then((result2) => result2.json());
     const extractOutputs = async (version) => {
-      const info = await run2`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)} ${Stderr(null)}`;
-      return [...new Set(Object.values(JSON.parse(info).packages).map((each2) => Object.keys(each2)).flat(1))];
+      try {
+        const info = await run2`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)} ${Stderr(null)}`;
+        return [...new Set(Object.values(JSON.parse(info).packages).map((each2) => Object.keys(each2)).flat(1))];
+      } catch (error) {
+        return [];
+      }
     };
     await Promise.all(
       versionInfo.map(
