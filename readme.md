@@ -23,7 +23,7 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/09c50c09060cd1c070611568ac8fa713c72f5a2a.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/48ce0496c1f97052cd399b9369747f005f2ddf35.tar.gz
 ```
 
 ## How to use
@@ -62,7 +62,7 @@ Selected: python
   3.12.0b1
   ...
 
-Here is what to include in your nix code:
+Here's what to include in your nix code:
 
     yourVarName = (
       (import (builtins.fetchTarball {
@@ -70,6 +70,6 @@ Here is what to include in your nix code:
       }) {}).python312
     );
 
-Run again with --explain if you are not sure how to use this^
+Run again with --explain if you're not sure how to use this^
 ```
 
