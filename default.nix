@@ -54,3 +54,4 @@ pkgs.stdenv.mkDerivation {
     "$deno" compile --allow-env --allow-net --output "$out/bin/nvsr" "$src/build_helper/bins/nvsr.js"
   '';
 }
+
