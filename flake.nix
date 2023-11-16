@@ -1,24 +1,32 @@
 {
-  description = "A CLI tool(s) for finding old versions of nix packages!";
+    description = "A CLI tool(s) for finding old versions of nix packages!";
 
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-  };
+    inputs = {
+        nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+        flake-utils.url = "github:numtide/flake-utils";
+    };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in
-      {
-        packages = rec {
-          nvs = with pkgs; (
-            callPackage (import ./build_helper/default.nix) {
-              inherit pkgs deno bash;
-            }).overrideAttrs { src = self; };
-          default = nvs;
-        };
-      }
-    );
+    outputs = { self, nixpkgs, flake-utils }:
+        flake-utils.lib.eachDefaultSystem (system:
+            let
+                pkgs = nixpkgs.legacyPackages.${system};
+                nvsBase = (pkgs.callPackage
+                    (pkgs.import ./default.nix)
+                    {
+                        pkgs = pkgs;
+                        deno = pkgs.deno;
+                        bash = pkgs.bash;
+                    }
+                );
+                nvs = nvsBase.overrideAttrs {
+                    src = self;
+                };
+            in
+                {
+                    packages = {
+                        nvs = nvs;
+                        default = nvs;
+                    };
+                }
+        );
 }
