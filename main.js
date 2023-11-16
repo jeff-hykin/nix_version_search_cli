@@ -1,10 +1,10 @@
 import { Command, EnumType } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts"
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
 // import { FileSystem } from "https://deno.land/x/quickr@0.6.51/main/file_system.js"
-import { Console, red, lightRed, yellow, green, cyan, dim } from "https://deno.land/x/quickr@0.6.54/main/console.js"
-import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.54/main/run.js"
+import { Console, red, lightRed, yellow, green, cyan, dim } from "https://deno.land/x/quickr@0.6.55/main/console.js"
+import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.55/main/run.js"
 import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString, regex, findAll, iterativelyFindAll, escapeRegexMatch, escapeRegexReplace, extractFirst, isValidIdentifier, removeCommonPrefix, didYouMean } from "https://deno.land/x/good@1.5.1.0/string.js"
-import { FileSystem } from "https://deno.land/x/quickr@0.6.54/main/file_system.js"
+import { FileSystem } from "https://deno.land/x/quickr@0.6.55/main/file_system.js"
 
 import { selectOne } from "./tools/input_tools.js"
 import { search, determinateSystems } from "./tools/search_tools.js"

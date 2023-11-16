@@ -3385,13 +3385,13 @@ var Command = class _Command {
    */
   async parseEnvVars(ctx, envVars, validate = true) {
     for (const envVar of envVars) {
-      const env2 = await this.findEnvVar(envVar.names);
-      if (env2) {
+      const env3 = await this.findEnvVar(envVar.names);
+      if (env3) {
         const parseType = (value) => {
           return this.parseType({
             label: "Environment variable",
             type: envVar.type,
-            name: env2.name,
+            name: env3.name,
             value
           });
         };
@@ -3399,9 +3399,9 @@ var Command = class _Command {
           envVar.prefix ? envVar.names[0].replace(new RegExp(`^${envVar.prefix}`), "") : envVar.names[0]
         );
         if (envVar.details.list) {
-          ctx.env[propertyName] = env2.value.split(envVar.details.separator ?? ",").map(parseType);
+          ctx.env[propertyName] = env3.value.split(envVar.details.separator ?? ",").map(parseType);
         } else {
-          ctx.env[propertyName] = parseType(env2.value);
+          ctx.env[propertyName] = parseType(env3.value);
         }
         if (envVar.value && typeof ctx.env[propertyName] !== "undefined") {
           ctx.env[propertyName] = envVar.value(ctx.env[propertyName]);
@@ -4031,7 +4031,7 @@ ${bold(k)} ${brightBlue(v)}`
     if (!this.envVars.length) {
       return [];
     }
-    return hidden ? this.envVars.slice(0) : this.envVars.filter((env2) => !env2.hidden);
+    return hidden ? this.envVars.slice(0) : this.envVars.filter((env3) => !env3.hidden);
   }
   /**
    * Get global environment variables.
@@ -4046,7 +4046,7 @@ ${bold(k)} ${brightBlue(v)}`
       if (cmd) {
         if (cmd.envVars.length) {
           cmd.envVars.forEach((envVar) => {
-            if (envVar.global && !this.envVars.find((env2) => env2.names[0] === envVar.names[0]) && names.indexOf(envVar.names[0]) === -1 && (hidden || !envVar.hidden)) {
+            if (envVar.global && !this.envVars.find((env3) => env3.names[0] === envVar.names[0]) && names.indexOf(envVar.names[0]) === -1 && (hidden || !envVar.hidden)) {
               names.push(envVar.names[0]);
               envVars.push(envVar);
             }
@@ -4084,7 +4084,7 @@ ${bold(k)} ${brightBlue(v)}`
    */
   getBaseEnvVar(name, hidden) {
     const envVar = this.envVars.find(
-      (env2) => env2.names.indexOf(name) !== -1
+      (env3) => env3.names.indexOf(name) !== -1
     );
     return envVar && (hidden || !envVar.hidden) ? envVar : void 0;
   }
@@ -4504,7 +4504,7 @@ var NamedArray = class extends Array {
   }
 };
 
-// https://deno.land/x/quickr@0.6.54/main/operating_system.js
+// https://deno.land/x/quickr@0.6.55/main/operating_system.js
 var cache2 = {};
 var stdoutRun = async (args) => {
   const process = Deno.run({ cmd: args, stdout: "piped", stderr: "piped" });
@@ -5124,7 +5124,7 @@ var textEncoder = new TextEncoder("utf-8");
 var utf8BytesToString = textDecoder.decode.bind(textDecoder);
 var stringToUtf8Bytes = textEncoder.encode.bind(textEncoder);
 
-// https://deno.land/x/quickr@0.6.54/main/console.js
+// https://deno.land/x/quickr@0.6.55/main/console.js
 var realConsole = globalThis.console;
 var isBrowserContext = typeof document != "undefined" && typeof window != "undefined";
 var env = null;
@@ -5272,11 +5272,11 @@ var styleObject = (rootStyleString) => {
     styleAccumulator.toString = () => styleAccumulator.sequence.join("") + styleStrings.reset;
     styleAccumulator[Deno.customInspect] = () => styleAccumulator.sequence.join("") + styleStrings.reset;
     styleAccumulator[symbolForConsoleLog] = () => {
-      const asString2 = styleAccumulator.toString();
+      const asString3 = styleAccumulator.toString();
       if (Console.reliableColorSupport.includesAnsi) {
-        return asString2;
+        return asString3;
       } else {
-        return clearAnsiStylesFrom(asString2);
+        return clearAnsiStylesFrom(asString3);
       }
     };
     return Object.defineProperties(styleAccumulator, Object.fromEntries(Object.entries(styleStrings).map(
@@ -5296,11 +5296,11 @@ var styleObject = (rootStyleString) => {
   topLevelStyleAccumulator[styleObjectSymbol] = true;
   topLevelStyleAccumulator.toString = () => rootStyleString;
   topLevelStyleAccumulator[symbolForConsoleLog] = () => {
-    const asString2 = topLevelStyleAccumulator.toString();
+    const asString3 = topLevelStyleAccumulator.toString();
     if (Console.reliableColorSupport.includesAnsi) {
-      return asString2;
+      return asString3;
     } else {
-      return clearAnsiStylesFrom(asString2);
+      return clearAnsiStylesFrom(asString3);
     }
   };
   return Object.defineProperties(topLevelStyleAccumulator, Object.fromEntries(Object.entries(styleStrings).map(
@@ -9917,13 +9917,13 @@ var regExpEscapeChars = [
   "|"
 ];
 var rangeEscapeChars = ["-", "\\", "]"];
-function globToRegExp2(glob2, {
+function globToRegExp2(glob3, {
   extended = true,
   globstar: globstarOption = true,
   os = osType3,
   caseInsensitive = false
 } = {}) {
-  if (glob2 == "") {
+  if (glob3 == "") {
     return /(?!)/;
   }
   const sep15 = os == "windows" ? "(?:\\\\|/)+" : "/+";
@@ -9932,49 +9932,49 @@ function globToRegExp2(glob2, {
   const globstar = os == "windows" ? "(?:[^\\\\/]*(?:\\\\|/|$)+)*" : "(?:[^/]*(?:/|$)+)*";
   const wildcard = os == "windows" ? "[^\\\\/]*" : "[^/]*";
   const escapePrefix = os == "windows" ? "`" : "\\";
-  let newLength = glob2.length;
-  for (; newLength > 1 && seps.includes(glob2[newLength - 1]); newLength--)
+  let newLength = glob3.length;
+  for (; newLength > 1 && seps.includes(glob3[newLength - 1]); newLength--)
     ;
-  glob2 = glob2.slice(0, newLength);
+  glob3 = glob3.slice(0, newLength);
   let regExpString = "";
-  for (let j = 0; j < glob2.length; ) {
+  for (let j = 0; j < glob3.length; ) {
     let segment = "";
     const groupStack = [];
     let inRange = false;
     let inEscape = false;
     let endsWithSep = false;
     let i2 = j;
-    for (; i2 < glob2.length && !seps.includes(glob2[i2]); i2++) {
+    for (; i2 < glob3.length && !seps.includes(glob3[i2]); i2++) {
       if (inEscape) {
         inEscape = false;
         const escapeChars = inRange ? rangeEscapeChars : regExpEscapeChars;
-        segment += escapeChars.includes(glob2[i2]) ? `\\${glob2[i2]}` : glob2[i2];
+        segment += escapeChars.includes(glob3[i2]) ? `\\${glob3[i2]}` : glob3[i2];
         continue;
       }
-      if (glob2[i2] == escapePrefix) {
+      if (glob3[i2] == escapePrefix) {
         inEscape = true;
         continue;
       }
-      if (glob2[i2] == "[") {
+      if (glob3[i2] == "[") {
         if (!inRange) {
           inRange = true;
           segment += "[";
-          if (glob2[i2 + 1] == "!") {
+          if (glob3[i2 + 1] == "!") {
             i2++;
             segment += "^";
-          } else if (glob2[i2 + 1] == "^") {
+          } else if (glob3[i2 + 1] == "^") {
             i2++;
             segment += "\\^";
           }
           continue;
-        } else if (glob2[i2 + 1] == ":") {
+        } else if (glob3[i2 + 1] == ":") {
           let k = i2 + 1;
           let value = "";
-          while (glob2[k + 1] != null && glob2[k + 1] != ":") {
-            value += glob2[k + 1];
+          while (glob3[k + 1] != null && glob3[k + 1] != ":") {
+            value += glob3[k + 1];
             k++;
           }
-          if (glob2[k + 1] == ":" && glob2[k + 2] == "]") {
+          if (glob3[k + 1] == ":" && glob3[k + 2] == "]") {
             i2 = k + 2;
             if (value == "alnum")
               segment += "\\dA-Za-z";
@@ -10008,20 +10008,20 @@ function globToRegExp2(glob2, {
           }
         }
       }
-      if (glob2[i2] == "]" && inRange) {
+      if (glob3[i2] == "]" && inRange) {
         inRange = false;
         segment += "]";
         continue;
       }
       if (inRange) {
-        if (glob2[i2] == "\\") {
+        if (glob3[i2] == "\\") {
           segment += `\\\\`;
         } else {
-          segment += glob2[i2];
+          segment += glob3[i2];
         }
         continue;
       }
-      if (glob2[i2] == ")" && groupStack.length > 0 && groupStack[groupStack.length - 1] != "BRACE") {
+      if (glob3[i2] == ")" && groupStack.length > 0 && groupStack[groupStack.length - 1] != "BRACE") {
         segment += ")";
         const type = groupStack.pop();
         if (type == "!") {
@@ -10031,24 +10031,24 @@ function globToRegExp2(glob2, {
         }
         continue;
       }
-      if (glob2[i2] == "|" && groupStack.length > 0 && groupStack[groupStack.length - 1] != "BRACE") {
+      if (glob3[i2] == "|" && groupStack.length > 0 && groupStack[groupStack.length - 1] != "BRACE") {
         segment += "|";
         continue;
       }
-      if (glob2[i2] == "+" && extended && glob2[i2 + 1] == "(") {
+      if (glob3[i2] == "+" && extended && glob3[i2 + 1] == "(") {
         i2++;
         groupStack.push("+");
         segment += "(?:";
         continue;
       }
-      if (glob2[i2] == "@" && extended && glob2[i2 + 1] == "(") {
+      if (glob3[i2] == "@" && extended && glob3[i2 + 1] == "(") {
         i2++;
         groupStack.push("@");
         segment += "(?:";
         continue;
       }
-      if (glob2[i2] == "?") {
-        if (extended && glob2[i2 + 1] == "(") {
+      if (glob3[i2] == "?") {
+        if (extended && glob3[i2 + 1] == "(") {
           i2++;
           groupStack.push("?");
           segment += "(?:";
@@ -10057,39 +10057,39 @@ function globToRegExp2(glob2, {
         }
         continue;
       }
-      if (glob2[i2] == "!" && extended && glob2[i2 + 1] == "(") {
+      if (glob3[i2] == "!" && extended && glob3[i2 + 1] == "(") {
         i2++;
         groupStack.push("!");
         segment += "(?!";
         continue;
       }
-      if (glob2[i2] == "{") {
+      if (glob3[i2] == "{") {
         groupStack.push("BRACE");
         segment += "(?:";
         continue;
       }
-      if (glob2[i2] == "}" && groupStack[groupStack.length - 1] == "BRACE") {
+      if (glob3[i2] == "}" && groupStack[groupStack.length - 1] == "BRACE") {
         groupStack.pop();
         segment += ")";
         continue;
       }
-      if (glob2[i2] == "," && groupStack[groupStack.length - 1] == "BRACE") {
+      if (glob3[i2] == "," && groupStack[groupStack.length - 1] == "BRACE") {
         segment += "|";
         continue;
       }
-      if (glob2[i2] == "*") {
-        if (extended && glob2[i2 + 1] == "(") {
+      if (glob3[i2] == "*") {
+        if (extended && glob3[i2 + 1] == "(") {
           i2++;
           groupStack.push("*");
           segment += "(?:";
         } else {
-          const prevChar = glob2[i2 - 1];
+          const prevChar = glob3[i2 - 1];
           let numStars = 1;
-          while (glob2[i2 + 1] == "*") {
+          while (glob3[i2 + 1] == "*") {
             i2++;
             numStars++;
           }
-          const nextChar = glob2[i2 + 1];
+          const nextChar = glob3[i2 + 1];
           if (globstarOption && numStars == 2 && [...seps, void 0].includes(prevChar) && [...seps, void 0].includes(nextChar)) {
             segment += globstar;
             endsWithSep = true;
@@ -10099,21 +10099,21 @@ function globToRegExp2(glob2, {
         }
         continue;
       }
-      segment += regExpEscapeChars.includes(glob2[i2]) ? `\\${glob2[i2]}` : glob2[i2];
+      segment += regExpEscapeChars.includes(glob3[i2]) ? `\\${glob3[i2]}` : glob3[i2];
     }
     if (groupStack.length > 0 || inRange || inEscape) {
       segment = "";
-      for (const c of glob2.slice(j, i2)) {
+      for (const c of glob3.slice(j, i2)) {
         segment += regExpEscapeChars.includes(c) ? `\\${c}` : c;
         endsWithSep = false;
       }
     }
     regExpString += segment;
     if (!endsWithSep) {
-      regExpString += i2 < glob2.length ? sep15 : sepMaybe;
+      regExpString += i2 < glob3.length ? sep15 : sepMaybe;
       endsWithSep = true;
     }
-    while (seps.includes(glob2[i2]))
+    while (seps.includes(glob3[i2]))
       i2++;
     if (!(i2 > j)) {
       throw new Error("Assertion failure: i > j (potential infinite loop)");
@@ -10732,7 +10732,7 @@ var allKeyDescriptions4 = function(value, options = { includingBuiltin: false })
   return Object.fromEntries(descriptions);
 };
 
-// https://deno.land/x/quickr@0.6.54/main/file_system.js
+// https://deno.land/x/quickr@0.6.55/main/file_system.js
 ensure({ denoVersion: "1.17.1" });
 var cache3 = {};
 var PathInfo = class {
@@ -11221,14 +11221,14 @@ var FileSystem = {
     }
   },
   async finalTargetOf(path10, options = {}) {
-    const { _parentsHaveBeenChecked, cache: cache4 } = { _parentsHaveBeenChecked: false, cache: {}, ...options };
+    const { _parentsHaveBeenChecked, cache: cache6 } = { _parentsHaveBeenChecked: false, cache: {}, ...options };
     const originalWasItem = path10 instanceof PathInfo;
     path10 = path10.path || path10;
     let result2 = await Deno.lstat(path10).catch(() => ({ doesntExist: true }));
     if (result2.doesntExist) {
       return null;
     }
-    path10 = await FileSystem.makeHardPathTo(path10, { cache: cache4 });
+    path10 = await FileSystem.makeHardPathTo(path10, { cache: cache6 });
     const pathChain = [];
     while (result2.isSymlink) {
       const relativeOrAbsolutePath = await Deno.readLink(path10);
@@ -11241,7 +11241,7 @@ var FileSystem = {
       if (result2.doesntExist) {
         return null;
       }
-      path10 = await FileSystem.makeHardPathTo(path10, { cache: cache4 });
+      path10 = await FileSystem.makeHardPathTo(path10, { cache: cache6 });
       if (pathChain.includes(path10)) {
         return null;
       }
@@ -11965,22 +11965,22 @@ but existingItem didn't actually exist`);
     delete locker[path10];
   },
   async makeHardPathTo(path10, options = {}) {
-    var { cache: cache4 } = { cache: {}, ...options };
-    if (cache4[path10]) {
-      return cache4[path10];
+    var { cache: cache6 } = { cache: {}, ...options };
+    if (cache6[path10]) {
+      return cache6[path10];
     }
     const [folders, name, extension] = FileSystem.pathPieces(FileSystem.makeAbsolutePath(path10));
     let topDownPath = ``;
     for (const eachFolderName of folders) {
       topDownPath += `/${eachFolderName}`;
-      if (cache4[topDownPath]) {
-        topDownPath = cache4[topDownPath];
+      if (cache6[topDownPath]) {
+        topDownPath = cache6[topDownPath];
         continue;
       }
       const unchangedPath = topDownPath;
       const info = await FileSystem.info(topDownPath);
       if (info.isSymlink) {
-        const absolutePathToIntermediate = await FileSystem.finalTargetOf(info.path, { _parentsHaveBeenChecked: true, cache: cache4 });
+        const absolutePathToIntermediate = await FileSystem.finalTargetOf(info.path, { _parentsHaveBeenChecked: true, cache: cache6 });
         if (absolutePathToIntermediate == null) {
           return null;
         }
@@ -11992,10 +11992,10 @@ but existingItem didn't actually exist`);
         topDownPath += `/${relativePath}`;
         topDownPath = normalize4(topDownPath);
       }
-      cache4[unchangedPath] = topDownPath;
+      cache6[unchangedPath] = topDownPath;
     }
     const hardPath = normalize4(`${topDownPath}/${name}${extension}`);
-    cache4[path10] = hardPath;
+    cache6[path10] = hardPath;
     return hardPath;
   },
   async walkUpImport(path10, start) {
@@ -12219,14 +12219,14 @@ but existingItem didn't actually exist`);
       }
     },
     finalTargetOf(path10, options = {}) {
-      const { _parentsHaveBeenChecked, cache: cache4 } = { _parentsHaveBeenChecked: false, cache: {}, ...options };
+      const { _parentsHaveBeenChecked, cache: cache6 } = { _parentsHaveBeenChecked: false, cache: {}, ...options };
       const originalWasItem = path10 instanceof PathInfo;
       path10 = path10.path || path10;
       let result2 = Deno.lstatSync(path10).catch(() => ({ doesntExist: true }));
       if (result2.doesntExist) {
         return null;
       }
-      path10 = FileSystem.sync.makeHardPathTo(path10, { cache: cache4 });
+      path10 = FileSystem.sync.makeHardPathTo(path10, { cache: cache6 });
       const pathChain = [];
       while (result2.isSymlink) {
         const relativeOrAbsolutePath = Deno.readLinkSync(path10);
@@ -12239,7 +12239,7 @@ but existingItem didn't actually exist`);
         if (result2.doesntExist) {
           return null;
         }
-        path10 = FileSystem.sync.makeHardPathTo(path10, { cache: cache4 });
+        path10 = FileSystem.sync.makeHardPathTo(path10, { cache: cache6 });
         if (pathChain.includes(path10)) {
           return null;
         }
@@ -12253,22 +12253,22 @@ but existingItem didn't actually exist`);
       }
     },
     makeHardPathTo(path10, options = {}) {
-      var { cache: cache4 } = { cache: {}, ...options };
-      if (cache4[path10]) {
-        return cache4[path10];
+      var { cache: cache6 } = { cache: {}, ...options };
+      if (cache6[path10]) {
+        return cache6[path10];
       }
       const [folders, name, extension] = FileSystem.pathPieces(FileSystem.makeAbsolutePath(path10));
       let topDownPath = ``;
       for (const eachFolderName of folders) {
         topDownPath += `/${eachFolderName}`;
-        if (cache4[topDownPath]) {
-          topDownPath = cache4[topDownPath];
+        if (cache6[topDownPath]) {
+          topDownPath = cache6[topDownPath];
           continue;
         }
         const unchangedPath = topDownPath;
         const info = FileSystem.sync.info(topDownPath);
         if (info.isSymlink) {
-          const absolutePathToIntermediate = FileSystem.sync.finalTargetOf(info.path, { _parentsHaveBeenChecked: true, cache: cache4 });
+          const absolutePathToIntermediate = FileSystem.sync.finalTargetOf(info.path, { _parentsHaveBeenChecked: true, cache: cache6 });
           if (absolutePathToIntermediate == null) {
             return null;
           }
@@ -12280,10 +12280,10 @@ but existingItem didn't actually exist`);
           topDownPath += `/${relativePath}`;
           topDownPath = normalize4(topDownPath);
         }
-        cache4[unchangedPath] = topDownPath;
+        cache6[unchangedPath] = topDownPath;
       }
       const hardPath = normalize4(`${topDownPath}/${name}${extension}`);
-      cache4[path10] = hardPath;
+      cache6[path10] = hardPath;
       return hardPath;
     },
     remove(fileOrFolder) {
@@ -14339,7 +14339,7 @@ var debugValueAsString = (value) => {
   }
 };
 
-// https://deno.land/x/quickr@0.6.54/main/run.js
+// https://deno.land/x/quickr@0.6.55/main/run.js
 var timeoutSymbol = Symbol("timeout");
 var envSymbol = Symbol("env");
 var cwdSymbol = Symbol("cwd");
@@ -14778,7 +14778,9 @@ This was from a run() call, which was converted to Deno.run(${JSON.stringify(run
               }
             });
           } else {
-            writableToWriter.set(eachWritable, eachWritable.getWriter());
+            if (eachWritable != null) {
+              writableToWriter.set(eachWritable, eachWritable.getWriter());
+            }
           }
         }
       }
@@ -21226,13 +21228,13 @@ function SetupSizzle(window2) {
   }
   function createCache() {
     var keys = [];
-    function cache4(key, value) {
+    function cache6(key, value) {
       if (keys.push(key + " ") > Expr.cacheLength) {
-        delete cache4[keys.shift()];
+        delete cache6[keys.shift()];
       }
-      return cache4[key + " "] = value;
+      return cache6[key + " "] = value;
     }
-    return cache4;
+    return cache6;
   }
   function markFunction(fn) {
     fn[expando] = true;
@@ -21740,7 +21742,7 @@ function SetupSizzle(window2) {
             return !!elem.parentNode;
           }
         ) : function(elem, _context, xml) {
-          var cache4, uniqueCache, outerCache, node, nodeIndex, start, dir = simple !== forward ? "nextSibling" : "previousSibling", parent = elem.parentNode, name = ofType && elem.nodeName.toLowerCase(), useCache = !xml && !ofType, diff2 = false;
+          var cache6, uniqueCache, outerCache, node, nodeIndex, start, dir = simple !== forward ? "nextSibling" : "previousSibling", parent = elem.parentNode, name = ofType && elem.nodeName.toLowerCase(), useCache = !xml && !ofType, diff2 = false;
           if (parent) {
             if (simple) {
               while (dir) {
@@ -21759,9 +21761,9 @@ function SetupSizzle(window2) {
               node = parent;
               outerCache = node[expando] || (node[expando] = {});
               uniqueCache = outerCache[node.uniqueID] || (outerCache[node.uniqueID] = {});
-              cache4 = uniqueCache[type] || [];
-              nodeIndex = cache4[0] === dirruns && cache4[1];
-              diff2 = nodeIndex && cache4[2];
+              cache6 = uniqueCache[type] || [];
+              nodeIndex = cache6[0] === dirruns && cache6[1];
+              diff2 = nodeIndex && cache6[2];
               node = nodeIndex && parent.childNodes[nodeIndex];
               while (node = ++nodeIndex && node && node[dir] || // Fallback to seeking `elem` from the start
               (diff2 = nodeIndex = 0) || start.pop()) {
@@ -21775,8 +21777,8 @@ function SetupSizzle(window2) {
                 node = elem;
                 outerCache = node[expando] || (node[expando] = {});
                 uniqueCache = outerCache[node.uniqueID] || (outerCache[node.uniqueID] = {});
-                cache4 = uniqueCache[type] || [];
-                nodeIndex = cache4[0] === dirruns && cache4[1];
+                cache6 = uniqueCache[type] || [];
+                nodeIndex = cache6[0] === dirruns && cache6[1];
                 diff2 = nodeIndex;
               }
               if (diff2 === false) {
@@ -22848,6 +22850,2951 @@ register(
   parse_frag
 );
 
+// https://deno.land/x/quickr@0.6.54/main/file_system.js
+ensure({ denoVersion: "1.17.1" });
+var cache4 = {};
+var PathInfo2 = class {
+  constructor({ path: path10, _lstatData, _statData }) {
+    this.path = path10;
+    this._lstat = _lstatData;
+    this._data = _statData;
+  }
+  // 
+  // core data sources
+  // 
+  refresh() {
+    this._lstat = null;
+    this._data = null;
+  }
+  get lstat() {
+    if (!this._lstat) {
+      try {
+        this._lstat = Deno.lstatSync(this.path);
+      } catch (error) {
+        this._lstat = { doesntExist: true };
+      }
+    }
+    return this._lstat;
+  }
+  get stat() {
+    if (!this._stat) {
+      const lstat = this.lstat;
+      if (!lstat.isSymlink) {
+        this._stat = {
+          isBrokenLink: false,
+          isLoopOfLinks: false
+        };
+      } else {
+        try {
+          this._stat = Deno.statSync(this.path);
+        } catch (error) {
+          this._stat = {};
+          if (error.message.match(/^Too many levels of symbolic links/)) {
+            this._stat.isBrokenLink = true;
+            this._stat.isLoopOfLinks = true;
+          } else if (error.message.match(/^No such file or directory/)) {
+            this._stat.isBrokenLink = true;
+          } else {
+            throw error;
+          }
+        }
+      }
+    }
+    return this._stat;
+  }
+  // 
+  // main attributes
+  // 
+  get exists() {
+    const lstat = this.lstat;
+    return !lstat.doesntExist;
+  }
+  get name() {
+    return parse3(this.path).name;
+  }
+  get extension() {
+    return parse3(this.path).ext;
+  }
+  get basename() {
+    return this.path && basename3(this.path);
+  }
+  get parentPath() {
+    return this.path && dirname3(this.path);
+  }
+  relativePathFrom(parentPath) {
+    return relative3(parentPath, this.path);
+  }
+  get link() {
+    const lstat = this.lstat;
+    if (lstat.isSymlink) {
+      return Deno.readLinkSync(this.path);
+    } else {
+      return null;
+    }
+  }
+  get isSymlink() {
+    const lstat = this.lstat;
+    return !!lstat.isSymlink;
+  }
+  get isRelativeSymlink() {
+    const lstat = this.lstat;
+    const isNotSymlink = !lstat.isSymlink;
+    if (isNotSymlink) {
+      return false;
+    }
+    const relativeOrAbsolutePath = Deno.readLinkSync(this.path);
+    return !isAbsolute3(relativeOrAbsolutePath);
+  }
+  get isAbsoluteSymlink() {
+    const lstat = this.lstat;
+    const isNotSymlink = !lstat.isSymlink;
+    if (isNotSymlink) {
+      return false;
+    }
+    const relativeOrAbsolutePath = Deno.readLinkSync(this.path);
+    return isAbsolute3(relativeOrAbsolutePath);
+  }
+  get isBrokenLink() {
+    const stat = this.stat;
+    return !!stat.isBrokenLink;
+  }
+  get isLoopOfLinks() {
+    const stat = this.stat;
+    return !!stat.isLoopOfLinks;
+  }
+  get isFile() {
+    const lstat = this.lstat;
+    if (lstat.doesntExist) {
+      return false;
+    }
+    if (!lstat.isSymlink) {
+      return lstat.isFile;
+    } else {
+      return !!this.stat.isFile;
+    }
+  }
+  get isFolder() {
+    const lstat = this.lstat;
+    if (lstat.doesntExist) {
+      return false;
+    }
+    if (!lstat.isSymlink) {
+      return lstat.isDirectory;
+    } else {
+      return !!this.stat.isDirectory;
+    }
+  }
+  get sizeInBytes() {
+    const lstat = this.lstat;
+    return lstat.size;
+  }
+  get permissions() {
+    const { mode } = this.lstat;
+    return {
+      owner: {
+        //          rwxrwxrwx
+        canRead: !!(256 & mode),
+        canWrite: !!(128 & mode),
+        canExecute: !!(64 & mode)
+      },
+      group: {
+        canRead: !!(32 & mode),
+        canWrite: !!(16 & mode),
+        canExecute: !!(8 & mode)
+      },
+      others: {
+        canRead: !!(4 & mode),
+        canWrite: !!(2 & mode),
+        canExecute: !!(1 & mode)
+      }
+    };
+  }
+  // aliases
+  get isDirectory() {
+    return this.isFolder;
+  }
+  get dirname() {
+    return this.parentPath;
+  }
+  toJSON() {
+    return {
+      exists: this.exists,
+      name: this.name,
+      extension: this.extension,
+      basename: this.basename,
+      parentPath: this.parentPath,
+      isSymlink: this.isSymlink,
+      isBrokenLink: this.isBrokenLink,
+      isLoopOfLinks: this.isLoopOfLinks,
+      isFile: this.isFile,
+      isFolder: this.isFolder,
+      sizeInBytes: this.sizeInBytes,
+      permissions: this.permissions,
+      isDirectory: this.isDirectory,
+      dirname: this.dirname
+    };
+  }
+};
+var defaultOptionsHelper2 = (options) => ({
+  renameExtension: options.renameExtension || FileSystem2.defaultRenameExtension,
+  overwrite: options.overwrite
+});
+var fileLockSymbol2 = Symbol.for("fileLock");
+var locker2 = globalThis[fileLockSymbol2] || {};
+var grabPathLock2 = async (path10) => {
+  while (locker2[path10]) {
+    await new Promise((resolve15) => setTimeout(resolve15, 70));
+  }
+  locker2[path10] = true;
+};
+var pathStandardize2 = (path10) => {
+  path10 = path10.path || path10;
+  if (typeof path10 == "string" && path10.startsWith("file:///")) {
+    path10 = fromFileUrl3(path10);
+  }
+  return path10;
+};
+var FileSystem2 = {
+  defaultRenameExtension: ".old",
+  denoExecutablePath: Deno.execPath(),
+  parentPath: dirname3,
+  dirname: dirname3,
+  basename: basename3,
+  extname: extname3,
+  join: join4,
+  normalize: (path10) => normalize4(pathStandardize2(path10)).replace(/\/$/, ""),
+  isAbsolutePath: isAbsolute3,
+  isRelativePath: (...args) => !isAbsolute3(...args),
+  makeRelativePath: ({ from, to }) => relative3(from.path || from, to.path || to),
+  makeAbsolutePath: (path10) => {
+    if (!isAbsolute3(path10)) {
+      return normalize4(join4(Deno.cwd(), path10));
+    } else {
+      return normalize4(path10);
+    }
+  },
+  pathDepth(path10) {
+    path10 = FileSystem2.normalize(path10);
+    let count4 = 0;
+    for (const eachChar of path10.path || path10) {
+      if (eachChar == "/") {
+        count4++;
+      }
+    }
+    if (path10[0] == "/") {
+      count4--;
+    }
+    return count4 + 1;
+  },
+  pathPieces(path10) {
+    path10 = path10.path || path10;
+    const result2 = parse3(path10);
+    const folderList = [];
+    let dirname15 = result2.dir;
+    while (true) {
+      folderList.push(basename3(dirname15));
+      if (dirname15 == dirname3(dirname15)) {
+        break;
+      }
+      dirname15 = dirname3(dirname15);
+    }
+    folderList.reverse();
+    return [folderList, result2.name, result2.ext];
+  },
+  /**
+   * add to name, preserve file extension
+   *
+   * @example
+   * ```js
+   * let newName = FileSystem.extendName({ path: "a/blah.thing.js", string: ".old" })
+   * newName == "a/blah.old.thing.js"
+   * ```
+   *
+   * @param arg1.path - item path
+   * @param arg1.string - the string to append to the name
+   * @return {string} - the new path
+   */
+  extendName({ path: path10, string: string2 }) {
+    path10 = pathStandardize2(path10);
+    const [name, ...extensions] = basename3(path10).split(".");
+    return `${dirname3(path10)}/${name}${string2}${extensions.length == 0 ? "" : `.${extensions.join(".")}`}`;
+  },
+  /**
+   * All Parent Paths
+   *
+   * @param {String} path - path doesnt need to exist
+   * @return {[String]} longest to shortest parent path
+   */
+  allParentPaths(path10) {
+    const pathStartsWithDotSlash = path10.startsWith("./");
+    path10 = FileSystem2.normalize(path10);
+    if (path10 === ".") {
+      return [];
+    }
+    const dotGotRemoved = pathStartsWithDotSlash && !path10.startsWith("./");
+    let previousPath = null;
+    let allPaths = [];
+    while (1) {
+      previousPath = path10;
+      path10 = FileSystem2.parentPath(path10);
+      if (previousPath === path10) {
+        break;
+      }
+      allPaths.push(path10);
+    }
+    allPaths.reverse();
+    allPaths = allPaths.filter((each2) => each2 != ".");
+    if (dotGotRemoved) {
+      allPaths.push(".");
+    }
+    return allPaths;
+  },
+  pathOfCaller(callerNumber = void 0) {
+    const err = new Error();
+    let filePaths = findAll(/^.+file:\/\/(\/[\w\W]*?):/gm, err.stack).map((each2) => each2[1]);
+    if (callerNumber) {
+      filePaths = filePaths.slice(callerNumber);
+    }
+    try {
+      const secondPath = filePaths[1];
+      if (secondPath) {
+        try {
+          if (Deno.statSync(secondPath).isFile) {
+            return secondPath;
+          }
+        } catch (error) {
+        }
+      }
+    } catch (error) {
+    }
+    return Deno.cwd();
+  },
+  get home() {
+    if (!cache4.home) {
+      if (Deno.build.os != "windows") {
+        cache4.home = Deno.env.get("HOME");
+      } else {
+        cache4.home = Deno.env.get("HOMEPATH");
+      }
+    }
+    return cache4.home;
+  },
+  get workingDirectory() {
+    return Deno.cwd();
+  },
+  set workingDirectory(value) {
+    Deno.chdir(value);
+  },
+  get cwd() {
+    return FileSystem2.workingDirectory;
+  },
+  set cwd(value) {
+    return FileSystem2.workingDirectory = value;
+  },
+  get pwd() {
+    return FileSystem2.cwd;
+  },
+  set pwd(value) {
+    return FileSystem2.cwd = value;
+  },
+  cd(path10) {
+    Deno.chdir(path10);
+  },
+  changeDirectory(path10) {
+    Deno.chdir(path10);
+  },
+  get thisFile() {
+    const err = new Error();
+    const filePaths = findAll(/^.+file:\/\/(\/[\w\W]*?):/gm, err.stack).map((each2) => each2[1]);
+    const firstPath = filePaths[0];
+    if (firstPath) {
+      try {
+        if (Deno.statSync(firstPath).isFile) {
+          return firstPath;
+        }
+      } catch (error) {
+      }
+    }
+    return ":<interpreter>:";
+  },
+  get thisFolder() {
+    const err = new Error();
+    const filePaths = findAll(/^.+file:\/\/(\/[\w\W]*?):/gm, err.stack).map((each2) => each2[1]);
+    const firstPath = filePaths[0];
+    if (firstPath) {
+      try {
+        if (Deno.statSync(firstPath).isFile) {
+          return dirname3(firstPath);
+        }
+      } catch (error) {
+      }
+    }
+    return Deno.cwd();
+  },
+  async read(path10) {
+    path10 = pathStandardize2(path10);
+    await grabPathLock2(path10);
+    let output2;
+    try {
+      output2 = await Deno.readTextFile(path10);
+    } catch (error) {
+    }
+    delete locker2[path10];
+    return output2;
+  },
+  async readBytes(path10) {
+    path10 = pathStandardize2(path10);
+    await grabPathLock2(path10);
+    let output2;
+    try {
+      output2 = await Deno.readFile(path10);
+    } catch (error) {
+    }
+    delete locker2[path10];
+    return output2;
+  },
+  async *readLinesIteratively(path10) {
+    path10 = pathStandardize2(path10);
+    await grabPathLock2(path10);
+    try {
+      const file = await Deno.open(path10);
+      try {
+        yield* readLines(file);
+      } finally {
+        Deno.close(file.rid);
+      }
+    } finally {
+      delete locker2[path10];
+    }
+  },
+  async info(fileOrFolderPath, _cachedLstat = null) {
+    fileOrFolderPath = pathStandardize2(fileOrFolderPath);
+    await grabPathLock2(fileOrFolderPath);
+    try {
+      const lstat = _cachedLstat || await Deno.lstat(fileOrFolderPath).catch(() => ({ doesntExist: true }));
+      let stat = {};
+      if (!lstat.isSymlink) {
+        stat = {
+          isBrokenLink: false,
+          isLoopOfLinks: false
+        };
+      } else {
+        try {
+          stat = await Deno.stat(fileOrFolderPath);
+        } catch (error) {
+          if (error.message.match(/^Too many levels of symbolic links/)) {
+            stat.isBrokenLink = true;
+            stat.isLoopOfLinks = true;
+          } else if (error.message.match(/^No such file or directory/)) {
+            stat.isBrokenLink = true;
+          } else {
+            if (!error.message.match(/^PermissionDenied:/)) {
+              return { doesntExist: true, permissionDenied: true };
+            }
+            throw error;
+          }
+        }
+      }
+      return new PathInfo2({ path: fileOrFolderPath, _lstatData: lstat, _statData: stat });
+    } finally {
+      delete locker2[fileOrFolderPath];
+    }
+  },
+  async move({ path: path10, item, newParentFolder, newName, force = true, overwrite = false, renameExtension = null }) {
+    item = item || path10;
+    const oldPath = item.path || item;
+    const oldName = FileSystem2.basename(oldPath);
+    const pathInfo = item instanceof Object || FileSystem2.sync.info(oldPath);
+    const newPath = `${newParentFolder || FileSystem2.parentPath(oldPath)}/${newName || oldName}`;
+    if (pathInfo.isSymlink && !item.isBrokenLink) {
+      const link2 = Deno.readLinkSync(pathInfo.path);
+      if (!isAbsolute3(link2)) {
+        const linkTargetBeforeMove = `${FileSystem2.parentPath(pathInfo.path)}/${link2}`;
+        await FileSystem2.relativeLink({
+          existingItem: linkTargetBeforeMove,
+          newItem: newPath,
+          force,
+          overwrite,
+          renameExtension
+        });
+        await FileSystem2.remove(pathInfo);
+      }
+    }
+    if (force) {
+      FileSystem2.sync.clearAPathFor(newPath, { overwrite, renameExtension });
+    }
+    await move(oldPath, newPath);
+  },
+  async remove(fileOrFolder) {
+    fileOrFolder = pathStandardize2(fileOrFolder);
+    if (fileOrFolder instanceof Array) {
+      return Promise.all(fileOrFolder.map(FileSystem2.remove));
+    }
+    fileOrFolder = fileOrFolder.path || fileOrFolder;
+    const pathInfo = await FileSystem2.info(fileOrFolder);
+    if (pathInfo.isFile || pathInfo.isSymlink) {
+      return Deno.remove(pathInfo.path.replace(/\/+$/, ""));
+    } else if (pathInfo.exists) {
+      return Deno.remove(pathInfo.path.replace(/\/+$/, ""), { recursive: true });
+    }
+  },
+  async finalTargetOf(path10, options = {}) {
+    const { _parentsHaveBeenChecked, cache: cache6 } = { _parentsHaveBeenChecked: false, cache: {}, ...options };
+    const originalWasItem = path10 instanceof PathInfo2;
+    path10 = path10.path || path10;
+    let result2 = await Deno.lstat(path10).catch(() => ({ doesntExist: true }));
+    if (result2.doesntExist) {
+      return null;
+    }
+    path10 = await FileSystem2.makeHardPathTo(path10, { cache: cache6 });
+    const pathChain = [];
+    while (result2.isSymlink) {
+      const relativeOrAbsolutePath = await Deno.readLink(path10);
+      if (isAbsolute3(relativeOrAbsolutePath)) {
+        path10 = relativeOrAbsolutePath;
+      } else {
+        path10 = `${FileSystem2.parentPath(path10)}/${relativeOrAbsolutePath}`;
+      }
+      result2 = await Deno.lstat(path10).catch(() => ({ doesntExist: true }));
+      if (result2.doesntExist) {
+        return null;
+      }
+      path10 = await FileSystem2.makeHardPathTo(path10, { cache: cache6 });
+      if (pathChain.includes(path10)) {
+        return null;
+      }
+      pathChain.push(path10);
+    }
+    path10 = FileSystem2.normalize(path10);
+    if (originalWasItem) {
+      return new PathInfo2({ path: path10 });
+    } else {
+      return path10;
+    }
+  },
+  async nextTargetOf(path10, options = {}) {
+    const originalWasItem = path10 instanceof PathInfo2;
+    const item = originalWasItem ? path10 : new PathInfo2({ path: path10 });
+    const lstat = item.lstat;
+    if (lstat.isSymlink) {
+      const relativeOrAbsolutePath = Deno.readLinkSync(item.path);
+      if (isAbsolute3(relativeOrAbsolutePath)) {
+        if (originalWasItem) {
+          return new PathInfo2({ path: relativeOrAbsolutePath });
+        } else {
+          return relativeOrAbsolutePath;
+        }
+      } else {
+        const path11 = `${await FileSystem2.makeHardPathTo(dirname3(item.path))}/${relativeOrAbsolutePath}`;
+        if (originalWasItem) {
+          return new PathInfo2({ path: path11 });
+        } else {
+          return path11;
+        }
+      }
+    } else {
+      if (originalWasItem) {
+        return item;
+      } else {
+        return item.path;
+      }
+    }
+  },
+  async ensureIsFile(path10, options = { overwrite: false, renameExtension: null }) {
+    const { overwrite, renameExtension } = defaultOptionsHelper2(options);
+    await FileSystem2.ensureIsFolder(FileSystem2.parentPath(path10), { overwrite, renameExtension });
+    path10 = path10.path || path10;
+    const pathInfo = await FileSystem2.info(path10);
+    if (pathInfo.isFile && !pathInfo.isDirectory) {
+      return path10;
+    } else {
+      await FileSystem2.write({ path: path10, data: "" });
+      return path10;
+    }
+  },
+  async ensureIsFolder(path10, options = { overwrite: false, renameExtension: null }) {
+    const { overwrite, renameExtension } = defaultOptionsHelper2(options);
+    path10 = path10.path || path10;
+    path10 = FileSystem2.makeAbsolutePath(path10);
+    const parentPath = dirname3(path10);
+    if (parentPath == path10) {
+      return;
+    }
+    const parent = await FileSystem2.info(parentPath);
+    if (!parent.isDirectory) {
+      FileSystem2.sync.ensureIsFolder(parentPath, { overwrite, renameExtension });
+    }
+    let pathInfo = FileSystem2.sync.info(path10);
+    if (pathInfo.exists && !pathInfo.isDirectory) {
+      if (overwrite) {
+        await FileSystem2.remove(path10);
+      } else {
+        await FileSystem2.moveOutOfTheWay(eachPath, { extension: renameExtension });
+      }
+    }
+    await Deno.mkdir(path10, { recursive: true });
+    return path10;
+  },
+  /**
+   * Move/Remove everything and Ensure parent folders
+   *
+   * @param path
+   * @param options.overwrite - if false, then things in the way will be moved instead of deleted
+   * @param options.renameExtension - the string to append when renaming files to get them out of the way
+   * 
+   * @note
+   *     very agressive: will change whatever is necessary to make sure a parent exists
+   * 
+   * @example
+   * ```js
+   * await FileSystem.clearAPathFor("./something")
+   * ```
+   */
+  async clearAPathFor(path10, options = { overwrite: false, renameExtension: null }) {
+    const { overwrite, renameExtension } = defaultOptionsHelper2(options);
+    const originalPath = path10;
+    const paths = [];
+    while (dirname3(path10) !== path10) {
+      paths.push(path10);
+      path10 = dirname3(path10);
+    }
+    for (const eachPath2 of paths.reverse()) {
+      const info = await FileSystem2.info(eachPath2);
+      if (!info.exists) {
+        break;
+      } else if (info.isFile) {
+        if (overwrite) {
+          await FileSystem2.remove(eachPath2);
+        } else {
+          await FileSystem2.moveOutOfTheWay(eachPath2, { extension: renameExtension });
+        }
+      }
+    }
+    await Deno.mkdir(dirname3(originalPath), { recursive: true });
+    return originalPath;
+  },
+  async moveOutOfTheWay(path10, options = { extension: null }) {
+    const extension = options?.extension || FileSystem2.defaultRenameExtension;
+    const info = await FileSystem2.info(path10);
+    if (info.exists) {
+      const newPath = path10 + extension;
+      await FileSystem2.moveOutOfTheWay(newPath, { extension });
+      await move(path10, newPath);
+    }
+  },
+  /**
+   * find a root folder based on a child path
+   *
+   * @example
+   * ```js
+   *     import { FileSystem } from "https://deno.land/x/quickr/main/file_system.js"
+   * 
+   *     var gitParentFolderOrNull = await FileSystem.walkUpUntil(".git")
+   *     var gitParentFolderOrNull = await FileSystem.walkUpUntil({
+   *         subPath:".git",
+   *         startPath: FileSystem.pwd,
+   *     })
+   *
+   *     // below will result in that^ same folder (assuming all your .git folders have config files)
+   *     var gitParentFolderOrNull = await FileSystem.walkUpUntil(".git/config")
+   * 
+   *     // below will result in the same folder, but only if theres a local master branch
+   *     var gitParentFolderOrNull = await FileSystem.walkUpUntil(".git/refs/heads/master")
+   *```
+   */
+  async walkUpUntil(subPath, startPath = null) {
+    subPath = subPath instanceof PathInfo2 ? subPath.path : subPath;
+    if (subPath instanceof Object) {
+      var { subPath, startPath } = subPath;
+    }
+    let here;
+    if (!startPath) {
+      here = Deno.cwd();
+    } else if (isAbsolute3(startPath)) {
+      here = startPath;
+    } else {
+      here = join4(here, startPath);
+    }
+    while (1) {
+      let checkPath = join4(here, subPath);
+      const pathInfo = await Deno.lstat(checkPath).catch(() => ({ doesntExist: true }));
+      if (!pathInfo.doesntExist) {
+        return here;
+      }
+      if (here == dirname3(here)) {
+        return null;
+      } else {
+        here = dirname3(here);
+      }
+    }
+  },
+  // FIXME: make this work for folders with many options for how to handle symlinks
+  async copy({ from, to, preserveTimestamps = true, force = true, overwrite = false, renameExtension = null }) {
+    const existingItemDoesntExist = (await Deno.stat(from).catch(() => ({ doesntExist: true }))).doesntExist;
+    if (existingItemDoesntExist) {
+      throw Error(`
+Tried to copy from:${from}, to:${to}
+but "from" didn't seem to exist
+
+`);
+    }
+    if (force) {
+      FileSystem2.sync.clearAPathFor(to, { overwrite, renameExtension });
+    }
+    return copy(from, to, { force, preserveTimestamps: true });
+  },
+  async relativeLink({ existingItem, newItem, force = true, overwrite = false, allowNonExistingTarget = false, renameExtension = null }) {
+    const existingItemPath = (existingItem.path || existingItem).replace(/\/+$/, "");
+    const newItemPath = FileSystem2.normalize((newItem.path || newItem).replace(/\/+$/, ""));
+    const existingItemDoesntExist = (await Deno.lstat(existingItemPath).catch(() => ({ doesntExist: true }))).doesntExist;
+    if (!allowNonExistingTarget && existingItemDoesntExist) {
+      throw Error(`
+Tried to create a relativeLink between existingItem:${existingItemPath}, newItem:${newItemPath}
+but existingItem didn't actually exist`);
+    } else {
+      const parentOfNewItem = FileSystem2.parentPath(newItemPath);
+      await FileSystem2.ensureIsFolder(parentOfNewItem, { overwrite, renameExtension });
+      const hardPathToNewItem = `${await FileSystem2.makeHardPathTo(parentOfNewItem)}/${FileSystem2.basename(newItemPath)}`;
+      const hardPathToExistingItem = await FileSystem2.makeHardPathTo(existingItemPath);
+      const pathFromNewToExisting = relative3(hardPathToNewItem, hardPathToExistingItem).replace(/^\.\.\//, "");
+      if (force) {
+        FileSystem2.sync.clearAPathFor(hardPathToNewItem, { overwrite, renameExtension });
+      }
+      return Deno.symlink(
+        pathFromNewToExisting,
+        hardPathToNewItem
+      );
+    }
+  },
+  async absoluteLink({ existingItem, newItem, force = true, allowNonExistingTarget = false, overwrite = false, renameExtension = null }) {
+    existingItem = (existingItem.path || existingItem).replace(/\/+$/, "");
+    const newItemPath = FileSystem2.normalize(newItem.path || newItem).replace(/\/+$/, "");
+    const existingItemDoesntExist = (await Deno.lstat(existingItem).catch(() => ({ doesntExist: true }))).doesntExist;
+    if (!allowNonExistingTarget && existingItemDoesntExist) {
+      throw Error(`
+Tried to create a relativeLink between existingItem:${existingItem}, newItemPath:${newItemPath}
+but existingItem didn't actually exist`);
+    } else {
+      const parentOfNewItem = FileSystem2.parentPath(newItemPath);
+      await FileSystem2.ensureIsFolder(parentOfNewItem, { overwrite, renameExtension });
+      const hardPathToNewItem = `${await FileSystem2.makeHardPathTo(parentOfNewItem)}/${FileSystem2.basename(newItemPath)}`;
+      if (force) {
+        FileSystem2.sync.clearAPathFor(hardPathToNewItem, { overwrite, renameExtension });
+      }
+      return Deno.symlink(
+        FileSystem2.makeAbsolutePath(existingItem),
+        newItemPath
+      );
+    }
+  },
+  async *iterateBasenamesIn(pathOrFileInfo) {
+    const info = pathOrFileInfo instanceof PathInfo2 ? pathOrFileInfo : await FileSystem2.info(pathOrFileInfo);
+    if (info.isFolder) {
+      for await (const dirEntry of Deno.readDir(info.path)) {
+        yield dirEntry.name;
+      }
+    }
+  },
+  listBasenamesIn(pathOrFileInfo) {
+    return asyncIteratorToList3(FileSystem2.iterateBasenamesIn(pathOrFileInfo));
+  },
+  async *iteratePathsIn(pathOrFileInfo, options = { recursively: false, shouldntInclude: null, shouldntExplore: null, searchOrder: "breadthFirstSearch", maxDepth: Infinity, dontFollowSymlinks: false, dontReturnSymlinks: false, maxDepthFromRoot: null }) {
+    let info;
+    try {
+      info = pathOrFileInfo instanceof PathInfo2 ? pathOrFileInfo : await FileSystem2.info(pathOrFileInfo);
+    } catch (error) {
+      if (!error.message.match(/^PermissionDenied:/)) {
+        throw error;
+      }
+    }
+    const path10 = info.path;
+    const startingDepth = FileSystem2.makeAbsolutePath(path10).split("/").length - 1;
+    options.recursively = options.recursively == false && options.maxDepth == 1 ? false : options.recursively;
+    if (options.maxDepthFromRoot == null) {
+      options.maxDepthFromRoot = Infinity;
+    }
+    if (options.maxDepth != Infinity && options.maxDepth != null) {
+      options.maxDepthFromRoot = startingDepth + options.maxDepth;
+    }
+    options.maxDepth = null;
+    if (startingDepth < options.maxDepthFromRoot) {
+      if (!options.recursively) {
+        if (info.isFolder) {
+          if (!options.shouldntInclude) {
+            for await (const each2 of Deno.readDir(path10)) {
+              if (options.dontReturnSymlinks && each2.isSymlink) {
+                continue;
+              }
+              yield join4(path10, each2.name);
+            }
+          } else {
+            const shouldntInclude = options.shouldntInclude;
+            for await (const each2 of Deno.readDir(path10)) {
+              const eachPath2 = join4(path10, each2.name);
+              if (options.dontReturnSymlinks && each2.isSymlink) {
+                continue;
+              }
+              const shouldntIncludeThis = shouldntInclude && await shouldntInclude(eachPath2);
+              if (!shouldntIncludeThis) {
+                yield eachPath2;
+              }
+            }
+          }
+        }
+      } else {
+        options = { exclude: /* @__PURE__ */ new Set(), searchOrder: "breadthFirstSearch", maxDepth: Infinity, ...options };
+        options.searchOrder = options.searchOrder || "breadthFirstSearch";
+        const { shouldntExplore, shouldntInclude } = options;
+        if (!["breadthFirstSearch", "depthFirstSearch"].includes(options.searchOrder)) {
+          throw Error(`when calling FileSystem.iterateItemsIn('${path10}', { searchOrder: ${options.searchOrder} })
+
+    The searchOrder currently can only be 'depthFirstSearch' or 'breadthFirstSearch'
+    However, it was not either of those: ${options.searchOrder}`);
+        }
+        const useBreadthFirstSearch = options.searchOrder == "breadthFirstSearch";
+        const shouldntExploreThis = shouldntExplore && await shouldntExplore(info.path, info);
+        if (!shouldntExploreThis && info.isFolder) {
+          options.exclude = options.exclude instanceof Set ? options.exclude : new Set(options.exclude);
+          if (!options.exclude.has(path10)) {
+            const followSymlinks = !options.dontFollowSymlinks;
+            const absolutePathVersion = FileSystem2.makeAbsolutePath(path10);
+            options.exclude.add(absolutePathVersion);
+            const searchAfterwords = [];
+            for await (const entry of Deno.readDir(path10)) {
+              const eachPath2 = join4(path10, entry.name);
+              if (options.dontReturnSymlinks && each.isSymlink) {
+                continue;
+              }
+              const shouldntIncludeThis = shouldntInclude && await shouldntInclude(eachPath2);
+              if (!shouldntIncludeThis) {
+                yield eachPath2;
+              }
+              if (entry.isFile) {
+                continue;
+              }
+              if (followSymlinks && !entry.isDirectory) {
+                let isSymlinkToDirectory = false;
+                try {
+                  isSymlinkToDirectory = (await Deno.stat(eachPath2)).isDirectory;
+                } catch (error) {
+                }
+                if (!isSymlinkToDirectory) {
+                  continue;
+                }
+              }
+              if (useBreadthFirstSearch) {
+                searchAfterwords.push(eachPath2);
+              } else {
+                for await (const eachSubPath of FileSystem2.iteratePathsIn(eachPath2, options)) {
+                  yield eachSubPath;
+                }
+              }
+            }
+            options.recursively = false;
+            while (searchAfterwords.length > 0) {
+              const next = searchAfterwords.shift();
+              for await (const eachSubPath of FileSystem2.iteratePathsIn(next, options)) {
+                yield eachSubPath;
+                searchAfterwords.push(eachSubPath);
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  listPathsIn(pathOrFileInfo, options) {
+    return asyncIteratorToList3(FileSystem2.iteratePathsIn(pathOrFileInfo, options));
+  },
+  async *iterateItemsIn(pathOrFileInfo, options = { recursively: false, shouldntInclude: null, shouldntExplore: null, searchOrder: "breadthFirstSearch", maxDepth: Infinity }) {
+    options = { exclude: /* @__PURE__ */ new Set(), searchOrder: "breadthFirstSearch", maxDepth: Infinity, ...options };
+    options.searchOrder = options.searchOrder || "breadthFirstSearch";
+    options.recursively = options.recursively == false && options.maxDepth == 1 ? false : options.recursively;
+    const { shouldntExplore, shouldntInclude } = options;
+    const info = pathOrFileInfo instanceof PathInfo2 ? pathOrFileInfo : await FileSystem2.info(pathOrFileInfo);
+    const path10 = info.path;
+    if (!["breadthFirstSearch", "depthFirstSearch"].includes(options.searchOrder)) {
+      throw Error(`when calling FileSystem.iterateItemsIn('${path10}', { searchOrder: ${options.searchOrder} })
+
+    The searchOrder currently can only be 'depthFirstSearch' or 'breadthFirstSearch'
+    However, it was not either of those: ${options.searchOrder}`);
+    }
+    const useBreadthFirstSearch = options.searchOrder == "breadthFirstSearch";
+    const shouldntExploreThis = shouldntExplore && await shouldntExplore(info);
+    if (!shouldntExploreThis && options.maxDepth > 0 && info.isFolder) {
+      options.exclude = options.exclude instanceof Set ? options.exclude : new Set(options.exclude);
+      if (!options.exclude.has(path10)) {
+        const absolutePathVersion = FileSystem2.makeAbsolutePath(path10);
+        options.exclude.add(absolutePathVersion);
+        options.maxDepth -= 1;
+        const searchAfterwords = [];
+        for await (const entry of Deno.readDir(path10)) {
+          const eachItem = await FileSystem2.info(join4(path10, entry.name));
+          const shouldntIncludeThis = shouldntInclude && await shouldntInclude(eachItem);
+          if (!shouldntIncludeThis) {
+            yield eachItem;
+          }
+          if (options.recursively) {
+            if (eachItem.isFolder) {
+              if (useBreadthFirstSearch) {
+                searchAfterwords.push(eachItem);
+              } else {
+                for await (const eachSubPath of FileSystem2.iterateItemsIn(eachItem, options)) {
+                  yield eachSubPath;
+                }
+              }
+            }
+          }
+        }
+        options.recursively = false;
+        while (searchAfterwords.length > 0) {
+          const next = searchAfterwords.shift();
+          for await (const eachSubItem of FileSystem2.iterateItemsIn(next, options)) {
+            yield eachSubItem;
+            if (eachSubItem.isFolder) {
+              searchAfterwords.push(eachSubItem);
+            }
+          }
+        }
+      }
+    }
+  },
+  async listItemsIn(pathOrFileInfo, options) {
+    const outputPromises = [];
+    for await (const eachPath2 of FileSystem2.iteratePathsIn(pathOrFileInfo, options)) {
+      outputPromises.push(FileSystem2.info(eachPath2));
+    }
+    return Promise.all(outputPromises);
+  },
+  // includes symlinks if they link to files and pipes
+  async listFileItemsIn(pathOrFileInfo, options = { treatAllSymlinksAsFiles: false }) {
+    const { treatAllSymlinksAsFiles } = { treatAllSymlinksAsFiles: false, ...options };
+    const items = await FileSystem2.listItemsIn(pathOrFileInfo, options);
+    if (treatAllSymlinksAsFiles) {
+      return items.filter((eachItem) => eachItem.isFile || treatAllSymlinksAsFiles && eachItem.isSymlink);
+    } else {
+      return items.filter((eachItem) => eachItem.isFile);
+    }
+  },
+  async listFilePathsIn(pathOrFileInfo, options = { treatAllSymlinksAsFiles: false }) {
+    return (await FileSystem2.listFileItemsIn(pathOrFileInfo, options)).map((each2) => each2.path);
+  },
+  async listFileBasenamesIn(pathOrFileInfo, options = { treatAllSymlinksAsFiles: false }) {
+    return (await FileSystem2.listFileItemsIn(pathOrFileInfo, options)).map((each2) => each2.basename);
+  },
+  async listFolderItemsIn(pathOrFileInfo, options = { ignoreSymlinks: false }) {
+    const { ignoreSymlinks } = { ignoreSymlinks: false, ...options };
+    const items = await FileSystem2.listItemsIn(pathOrFileInfo, options);
+    if (ignoreSymlinks) {
+      return items.filter((eachItem) => eachItem.isFolder && !eachItem.isSymlink);
+    } else {
+      return items.filter((eachItem) => eachItem.isFolder);
+    }
+  },
+  async listFolderPathsIn(pathOrFileInfo, options = { ignoreSymlinks: false }) {
+    return (await FileSystem2.listFolderItemsIn(pathOrFileInfo, options)).map((each2) => each2.path);
+  },
+  async listFolderBasenamesIn(pathOrFileInfo, options = { ignoreSymlinks: false }) {
+    return (await FileSystem2.listFolderItemsIn(pathOrFileInfo, options)).map((each2) => each2.basename);
+  },
+  recursivelyIterateItemsIn(pathOrFileInfo, options = { onlyHardlinks: false, dontFollowSymlinks: false, searchOrder: "breadthFirstSearch", maxDepth: Infinity, shouldntExplore: null, shouldntInclude: null }) {
+    options.recursively = true;
+    if (options.onlyHardlinks) {
+      if (options.shouldntInclude) {
+        const originalshouldntInclude = options.shouldntInclude;
+        options.shouldntInclude = (each2) => each2.isSymlink || originalshouldntInclude(each2);
+      } else {
+        options.shouldntInclude = (each2) => each2.isSymlink;
+      }
+    }
+    if (options.dontFollowSymlinks) {
+      if (options.shouldntExplore) {
+        const originalShouldntExplore = options.shouldntInclude;
+        options.shouldntExplore = (each2) => each2.isSymlink || originalShouldntExplore(each2);
+      } else {
+        options.shouldntExplore = (each2) => each2.isSymlink;
+      }
+    }
+    return FileSystem2.iterateItemsIn(pathOrFileInfo, options);
+  },
+  recursivelyIteratePathsIn(pathOrFileInfo, options = { onlyHardlinks: false, dontFollowSymlinks: false, searchOrder: "breadthFirstSearch", maxDepth: Infinity, shouldntExplore: null, shouldntInclude: null }) {
+    options.recursively = true;
+    if (options.onlyHardlinks) {
+      if (options.shouldntInclude) {
+        const originalshouldntInclude = options.shouldntInclude;
+        options.shouldntInclude = (each2) => each2.isSymlink || originalshouldntInclude(each2);
+      } else {
+        options.shouldntInclude = (each2) => each2.isSymlink;
+      }
+    }
+    return FileSystem2.iteratePathsIn(pathOrFileInfo, options);
+  },
+  recursivelyListPathsIn(pathOrFileInfo, options = { onlyHardlinks: false, dontFollowSymlinks: false, searchOrder: "breadthFirstSearch", maxDepth: Infinity, shouldntExplore: null, shouldntInclude: null }) {
+    return asyncIteratorToList3(FileSystem2.recursivelyIteratePathsIn(pathOrFileInfo, options));
+  },
+  recursivelyListItemsIn(pathOrFileInfo, options = { onlyHardlinks: false, dontFollowSymlinks: false, searchOrder: "breadthFirstSearch", maxDepth: Infinity, shouldntExplore: null, shouldntInclude: null }) {
+    return asyncIteratorToList3(FileSystem2.recursivelyIterateItemsIn(pathOrFileInfo, options));
+  },
+  async *globIterator(pattern, options = { startPath: null }) {
+    pattern = FileSystem2.normalize(pattern);
+    var { startPath, ...iteratePathsOptions } = options;
+    startPath = startPath || "./";
+    const originalStartPath = startPath;
+    startPath = FileSystem2.makeAbsolutePath(startPath);
+    const firstGlob = pattern.indexOf("*");
+    if (firstGlob != -1) {
+      const startingString = pattern.slice(0, firstGlob);
+      const furthestConstantSlash = startingString.lastIndexOf("/");
+      if (furthestConstantSlash != -1) {
+        if (pattern[0] == "/") {
+          startPath = pattern.slice(0, furthestConstantSlash);
+        } else {
+          startPath = `${startPath}/${pattern.slice(0, furthestConstantSlash)}`;
+        }
+      }
+      pattern = pattern.slice(furthestConstantSlash + 1);
+    }
+    let maxDepthFromRoot;
+    if (pattern.match(/\*\*/)) {
+      maxDepthFromRoot = Infinity;
+    } else {
+      maxDepthFromRoot = `${FileSystem2.makeAbsolutePath(startPath)}/${pattern}`.split("/").length - 1;
+    }
+    const fullPattern = `${startPath}/${pattern}`;
+    const regex3 = globToRegExp2(fullPattern);
+    const partials = fullPattern.split("/");
+    let partialPattern = partials.shift();
+    let partialRegexString = `^\\.$|${globToRegExp2(partialPattern).source}`;
+    for (const each2 of partials) {
+      partialPattern += "/" + each2;
+      partialRegexString += "|" + globToRegExp2(partialPattern).source;
+    }
+    const partialRegex = new RegExp(partialRegexString);
+    for await (const eachPath2 of FileSystem2.iteratePathsIn(startPath, { recursively: true, maxDepthFromRoot, ...iteratePathsOptions, shouldntExplore: (eachPath3) => !eachPath3.match(partialRegex) })) {
+      if (eachPath2.match(regex3) || FileSystem2.makeAbsolutePath(eachPath2).match(regex3)) {
+        yield FileSystem2.makeRelativePath({
+          from: originalStartPath,
+          to: eachPath2
+        });
+      }
+    }
+  },
+  glob(pattern, options = { startPath: null }) {
+    return asyncIteratorToList3(FileSystem2.globIterator(pattern, options));
+  },
+  async getPermissions({ path: path10 }) {
+    const { mode } = await Deno.lstat(path10);
+    return {
+      owner: {
+        //          rwxrwxrwx
+        canRead: !!(256 & mode),
+        canWrite: !!(128 & mode),
+        canExecute: !!(64 & mode)
+      },
+      group: {
+        canRead: !!(32 & mode),
+        canWrite: !!(16 & mode),
+        canExecute: !!(8 & mode)
+      },
+      others: {
+        canRead: !!(4 & mode),
+        canWrite: !!(2 & mode),
+        canExecute: !!(1 & mode)
+      }
+    };
+  },
+  /**
+  * Add/set file permissions
+  *
+  * @param {String} args.path - 
+  * @param {Object|Boolean} args.recursively - 
+  * @param {Object} args.permissions - 
+  * @param {Object} args.permissions.owner - 
+  * @param {Boolean} args.permissions.owner.canRead - 
+  * @param {Boolean} args.permissions.owner.canWrite - 
+  * @param {Boolean} args.permissions.owner.canExecute - 
+  * @param {Object} args.permissions.group - 
+  * @param {Boolean} args.permissions.group.canRead - 
+  * @param {Boolean} args.permissions.group.canWrite - 
+  * @param {Boolean} args.permissions.group.canExecute - 
+  * @param {Object} args.permissions.others - 
+  * @param {Boolean} args.permissions.others.canRead - 
+  * @param {Boolean} args.permissions.others.canWrite - 
+  * @param {Boolean} args.permissions.others.canExecute - 
+  * @return {null} 
+  *
+  * @example
+  * ```js
+  *  await FileSystem.addPermissions({
+  *      path: fileOrFolderPath,
+  *      permissions: {
+  *          owner: {
+  *              canExecute: true,
+  *          },
+  *      }
+  *  })
+  * ```
+  */
+  async addPermissions({ path: path10, permissions = { owner: {}, group: {}, others: {} }, recursively = false }) {
+    permissions = { owner: {}, group: {}, others: {}, ...permissions };
+    let permissionNumber = 0;
+    let fileInfo;
+    if (!(Object.keys(permissions.owner).length === Object.keys(permissions.group).length === Object.keys(permissions.others).length === 3)) {
+      fileInfo = await FileSystem2.info(path10);
+      permissionNumber = fileInfo.lstat.mode & 511;
+    }
+    if (permissions.owner.canRead != null) {
+      if (permissions.owner.canRead) {
+        permissionNumber |= 256;
+      } else {
+        permissionNumber &= 767;
+      }
+    }
+    if (permissions.owner.canWrite != null) {
+      if (permissions.owner.canWrite) {
+        permissionNumber |= 128;
+      } else {
+        permissionNumber &= 895;
+      }
+    }
+    if (permissions.owner.canExecute != null) {
+      if (permissions.owner.canExecute) {
+        permissionNumber |= 64;
+      } else {
+        permissionNumber &= 959;
+      }
+    }
+    if (permissions.group.canRead != null) {
+      if (permissions.group.canRead) {
+        permissionNumber |= 32;
+      } else {
+        permissionNumber &= 991;
+      }
+    }
+    if (permissions.group.canWrite != null) {
+      if (permissions.group.canWrite) {
+        permissionNumber |= 16;
+      } else {
+        permissionNumber &= 1007;
+      }
+    }
+    if (permissions.group.canExecute != null) {
+      if (permissions.group.canExecute) {
+        permissionNumber |= 8;
+      } else {
+        permissionNumber &= 1015;
+      }
+    }
+    if (permissions.others.canRead != null) {
+      if (permissions.others.canRead) {
+        permissionNumber |= 4;
+      } else {
+        permissionNumber &= 1019;
+      }
+    }
+    if (permissions.others.canWrite != null) {
+      if (permissions.others.canWrite) {
+        permissionNumber |= 2;
+      } else {
+        permissionNumber &= 1021;
+      }
+    }
+    if (permissions.others.canExecute != null) {
+      if (permissions.others.canExecute) {
+        permissionNumber |= 1;
+      } else {
+        permissionNumber &= 1022;
+      }
+    }
+    if (recursively == false || fileInfo instanceof Object && fileInfo.isFile || !(fileInfo instanceof Object) && (await FileSystem2.info(path10)).isFile) {
+      return Deno.chmod(path10.path || path10, permissionNumber);
+    } else {
+      const promises = [];
+      const paths = await FileSystem2.recursivelyListPathsIn(path10, { onlyHardlinks: false, dontFollowSymlinks: false, ...recursively });
+      for (const eachPath2 of paths) {
+        promises.push(
+          Deno.chmod(eachPath2, permissionNumber).catch(console.error)
+        );
+      }
+      return new Promise(async (resolve15, reject) => {
+        for (const each2 of promises) {
+          await each2;
+        }
+        resolve15();
+      });
+    }
+  },
+  // alias
+  setPermissions(...args) {
+    return FileSystem2.addPermissions(...args);
+  },
+  async write({ path: path10, data, force = true, overwrite = false, renameExtension = null }) {
+    path10 = pathStandardize2(path10);
+    await grabPathLock2(path10);
+    if (force) {
+      FileSystem2.sync.ensureIsFolder(FileSystem2.parentPath(path10), { overwrite, renameExtension });
+      const info = FileSystem2.sync.info(path10);
+      if (info.isDirectory) {
+        FileSystem2.sync.remove(path10);
+      }
+    }
+    let output2;
+    if (typeof data == "string") {
+      output2 = await Deno.writeTextFile(path10, data);
+    } else if (typedArrayClasses4.some((dataClass) => data instanceof dataClass)) {
+      output2 = await Deno.writeFile(path10, data);
+    } else if (isGeneratorType3(data) || data[Symbol.iterator] || data[Symbol.asyncIterator]) {
+      const file = await Deno.open(path10, { read: true, write: true, create: true, truncate: true });
+      const encoder3 = new TextEncoder();
+      const encode2 = encoder3.encode.bind(encoder3);
+      try {
+        let index = 0;
+        for await (let packet of data) {
+          if (typeof packet == "string") {
+            packet = encode2(packet);
+          }
+          await Deno.write(file.rid, packet);
+        }
+      } finally {
+        Deno.close(file.rid);
+      }
+    }
+    delete locker2[path10];
+    return output2;
+  },
+  async append({ path: path10, data, force = true, overwrite = false, renameExtension = null }) {
+    path10 = pathStandardize2(path10);
+    await grabPathLock2(path10);
+    if (force) {
+      FileSystem2.sync.ensureIsFolder(FileSystem2.parentPath(path10), { overwrite, renameExtension });
+      const info = FileSystem2.sync.info(path10);
+      if (info.isDirectory) {
+        FileSystem2.sync.remove(path10);
+      }
+    }
+    const file = await Deno.open(path10, { read: true, write: true, create: true });
+    await file.seek(0, Deno.SeekMode.End);
+    if (typeof data == "string") {
+      await file.write(new TextEncoder().encode(data));
+    } else {
+      await file.write(data);
+    }
+    await file.close();
+    delete locker2[path10];
+  },
+  async makeHardPathTo(path10, options = {}) {
+    var { cache: cache6 } = { cache: {}, ...options };
+    if (cache6[path10]) {
+      return cache6[path10];
+    }
+    const [folders, name, extension] = FileSystem2.pathPieces(FileSystem2.makeAbsolutePath(path10));
+    let topDownPath = ``;
+    for (const eachFolderName of folders) {
+      topDownPath += `/${eachFolderName}`;
+      if (cache6[topDownPath]) {
+        topDownPath = cache6[topDownPath];
+        continue;
+      }
+      const unchangedPath = topDownPath;
+      const info = await FileSystem2.info(topDownPath);
+      if (info.isSymlink) {
+        const absolutePathToIntermediate = await FileSystem2.finalTargetOf(info.path, { _parentsHaveBeenChecked: true, cache: cache6 });
+        if (absolutePathToIntermediate == null) {
+          return null;
+        }
+        topDownPath = topDownPath.slice(0, -(eachFolderName.length + 1));
+        const relativePath = FileSystem2.makeRelativePath({
+          from: topDownPath,
+          to: absolutePathToIntermediate
+        });
+        topDownPath += `/${relativePath}`;
+        topDownPath = normalize4(topDownPath);
+      }
+      cache6[unchangedPath] = topDownPath;
+    }
+    const hardPath = normalize4(`${topDownPath}/${name}${extension}`);
+    cache6[path10] = hardPath;
+    return hardPath;
+  },
+  async walkUpImport(path10, start) {
+    const startPath = start || FileSystem2.pathOfCaller(1);
+    const nearestPath = await FileSystem2.walkUpUntil(path10, startPath);
+    if (nearestPath) {
+      const absolutePath = FileSystem2.makeAbsolutePath(`${nearestPath}/${path10}`);
+      return import(toFileUrl3(absolutePath).href);
+    } else {
+      throw Error(`Tried to walkUpImport ${path10}, starting at ${startPath}, but was unable to find any files`);
+    }
+  },
+  sync: {
+    // things that are already sync
+    get parentPath() {
+      return FileSystem2.parentPath;
+    },
+    get dirname() {
+      return FileSystem2.dirname;
+    },
+    get basename() {
+      return FileSystem2.basename;
+    },
+    get extname() {
+      return FileSystem2.extname;
+    },
+    get join() {
+      return FileSystem2.join;
+    },
+    get thisFile() {
+      return FileSystem2.thisFile;
+    },
+    get thisFolder() {
+      return FileSystem2.thisFolder;
+    },
+    get normalize() {
+      return FileSystem2.normalize;
+    },
+    get isAbsolutePath() {
+      return FileSystem2.isAbsolutePath;
+    },
+    get isRelativePath() {
+      return FileSystem2.isRelativePath;
+    },
+    get makeRelativePath() {
+      return FileSystem2.makeRelativePath;
+    },
+    get makeAbsolutePath() {
+      return FileSystem2.makeAbsolutePath;
+    },
+    get pathDepth() {
+      return FileSystem2.pathDepth;
+    },
+    get pathPieces() {
+      return FileSystem2.pathPieces;
+    },
+    get extendName() {
+      return FileSystem2.extendName;
+    },
+    get allParentPaths() {
+      return FileSystem2.allParentPaths;
+    },
+    get pathOfCaller() {
+      return FileSystem2.pathOfCaller;
+    },
+    get home() {
+      return FileSystem2.home;
+    },
+    get workingDirectory() {
+      return FileSystem2.workingDirectory;
+    },
+    get cwd() {
+      return FileSystem2.cwd;
+    },
+    get pwd() {
+      return FileSystem2.pwd;
+    },
+    get cd() {
+      return FileSystem2.cd;
+    },
+    get changeDirectory() {
+      return FileSystem2.changeDirectory;
+    },
+    set workingDirectory(value) {
+      return FileSystem2.workingDirectory = value;
+    },
+    set cwd(value) {
+      return FileSystem2.workingDirectory = value;
+    },
+    set pwd(value) {
+      return FileSystem2.workingDirectory = value;
+    },
+    info(fileOrFolderPath, _cachedLstat = null) {
+      let lstat = _cachedLstat;
+      try {
+        lstat = Deno.lstatSync(fileOrFolderPath);
+      } catch (error) {
+        lstat = { doesntExist: true };
+      }
+      let stat = {};
+      if (!lstat.isSymlink) {
+        stat = {
+          isBrokenLink: false,
+          isLoopOfLinks: false
+        };
+      } else {
+        try {
+          stat = Deno.statSync(fileOrFolderPath);
+        } catch (error) {
+          if (error.message.match(/^Too many levels of symbolic links/)) {
+            stat.isBrokenLink = true;
+            stat.isLoopOfLinks = true;
+          } else if (error.message.match(/^No such file or directory/)) {
+            stat.isBrokenLink = true;
+          } else {
+            throw error;
+          }
+        }
+      }
+      return new PathInfo2({ path: fileOrFolderPath, _lstatData: lstat, _statData: stat });
+    },
+    read(path10) {
+      path10 = pathStandardize2(path10);
+      let output2;
+      try {
+        output2 = Deno.readTextFileSync(path10);
+      } catch (error) {
+      }
+      return output2;
+    },
+    readBytes(path10) {
+      path10 = pathStandardize2(path10);
+      let output2;
+      try {
+        output2 = Deno.readFileSync(path10);
+      } catch (error) {
+      }
+      return output2;
+    },
+    *readLinesIteratively(path10) {
+      path10 = pathStandardize2(path10);
+      const file = Deno.openSync(path10);
+      try {
+        yield* readLines(file);
+      } finally {
+        Deno.close(file.rid);
+      }
+    },
+    /**
+     * find a root folder based on a child path
+     *
+     * @example
+     * ```js
+     *     import { FileSystem } from "https://deno.land/x/quickr/main/file_system.js"
+     * 
+     *     var gitParentFolderOrNull = FileSystem.sync.walkUpUntil(".git")
+     *     var gitParentFolderOrNull = FileSystem.sync.walkUpUntil({
+     *         subPath:".git",
+     *         startPath: FileSystem.pwd,
+     *     })
+     *
+     *     // below will result in that^ same folder (assuming all your .git folders have config files)
+     *     var gitParentFolderOrNull = FileSystem.sync.walkUpUntil(".git/config")
+     * 
+     *     // below will result in the same folder, but only if theres a local master branch
+     *     var gitParentFolderOrNull = FileSystem.sync.walkUpUntil(".git/refs/heads/master")
+     *```
+     */
+    walkUpUntil(subPath, startPath = null) {
+      subPath = subPath instanceof PathInfo2 ? subPath.path : subPath;
+      if (subPath instanceof Object) {
+        var { subPath, startPath } = subPath;
+      }
+      let here;
+      if (!startPath) {
+        here = Deno.cwd();
+      } else if (isAbsolute3(startPath)) {
+        here = startPath;
+      } else {
+        here = join4(here, startPath);
+      }
+      while (1) {
+        let checkPath = join4(here, subPath);
+        const pathInfo = Deno.lstatSync(checkPath).catch(() => ({ doesntExist: true }));
+        if (!pathInfo.doesntExist) {
+          return here;
+        }
+        if (here == dirname3(here)) {
+          return null;
+        } else {
+          here = dirname3(here);
+        }
+      }
+    },
+    nextTargetOf(path10, options = {}) {
+      const originalWasItem = path10 instanceof PathInfo2;
+      const item = originalWasItem ? path10 : new PathInfo2({ path: path10 });
+      const lstat = item.lstat;
+      if (lstat.isSymlink) {
+        const relativeOrAbsolutePath = Deno.readLinkSync(item.path);
+        if (isAbsolute3(relativeOrAbsolutePath)) {
+          if (originalWasItem) {
+            return new PathInfo2({ path: relativeOrAbsolutePath });
+          } else {
+            return relativeOrAbsolutePath;
+          }
+        } else {
+          const path11 = `${FileSystem2.sync.makeHardPathTo(dirname3(item.path))}/${relativeOrAbsolutePath}`;
+          if (originalWasItem) {
+            return new PathInfo2({ path: path11 });
+          } else {
+            return path11;
+          }
+        }
+      } else {
+        if (originalWasItem) {
+          return item;
+        } else {
+          return item.path;
+        }
+      }
+    },
+    finalTargetOf(path10, options = {}) {
+      const { _parentsHaveBeenChecked, cache: cache6 } = { _parentsHaveBeenChecked: false, cache: {}, ...options };
+      const originalWasItem = path10 instanceof PathInfo2;
+      path10 = path10.path || path10;
+      let result2 = Deno.lstatSync(path10).catch(() => ({ doesntExist: true }));
+      if (result2.doesntExist) {
+        return null;
+      }
+      path10 = FileSystem2.sync.makeHardPathTo(path10, { cache: cache6 });
+      const pathChain = [];
+      while (result2.isSymlink) {
+        const relativeOrAbsolutePath = Deno.readLinkSync(path10);
+        if (isAbsolute3(relativeOrAbsolutePath)) {
+          path10 = relativeOrAbsolutePath;
+        } else {
+          path10 = `${FileSystem2.parentPath(path10)}/${relativeOrAbsolutePath}`;
+        }
+        result2 = Deno.lstatSync(path10).catch(() => ({ doesntExist: true }));
+        if (result2.doesntExist) {
+          return null;
+        }
+        path10 = FileSystem2.sync.makeHardPathTo(path10, { cache: cache6 });
+        if (pathChain.includes(path10)) {
+          return null;
+        }
+        pathChain.push(path10);
+      }
+      path10 = FileSystem2.normalize(path10);
+      if (originalWasItem) {
+        return new PathInfo2({ path: path10 });
+      } else {
+        return path10;
+      }
+    },
+    makeHardPathTo(path10, options = {}) {
+      var { cache: cache6 } = { cache: {}, ...options };
+      if (cache6[path10]) {
+        return cache6[path10];
+      }
+      const [folders, name, extension] = FileSystem2.pathPieces(FileSystem2.makeAbsolutePath(path10));
+      let topDownPath = ``;
+      for (const eachFolderName of folders) {
+        topDownPath += `/${eachFolderName}`;
+        if (cache6[topDownPath]) {
+          topDownPath = cache6[topDownPath];
+          continue;
+        }
+        const unchangedPath = topDownPath;
+        const info = FileSystem2.sync.info(topDownPath);
+        if (info.isSymlink) {
+          const absolutePathToIntermediate = FileSystem2.sync.finalTargetOf(info.path, { _parentsHaveBeenChecked: true, cache: cache6 });
+          if (absolutePathToIntermediate == null) {
+            return null;
+          }
+          topDownPath = topDownPath.slice(0, -(eachFolderName.length + 1));
+          const relativePath = FileSystem2.makeRelativePath({
+            from: topDownPath,
+            to: absolutePathToIntermediate
+          });
+          topDownPath += `/${relativePath}`;
+          topDownPath = normalize4(topDownPath);
+        }
+        cache6[unchangedPath] = topDownPath;
+      }
+      const hardPath = normalize4(`${topDownPath}/${name}${extension}`);
+      cache6[path10] = hardPath;
+      return hardPath;
+    },
+    remove(fileOrFolder) {
+      if (fileOrFolder instanceof Array) {
+        return fileOrFolder.map(FileSystem2.sync.remove);
+      }
+      fileOrFolder = fileOrFolder.path || fileOrFolder;
+      let exists2 = false;
+      let item;
+      try {
+        item = Deno.lstatSync(fileOrFolder);
+        exists2 = true;
+      } catch (error) {
+      }
+      if (exists2) {
+        if (item.isFile || item.isSymlink) {
+          return Deno.removeSync(fileOrFolder.replace(/\/+$/, ""));
+        } else {
+          return Deno.removeSync(fileOrFolder.replace(/\/+$/, ""), { recursive: true });
+        }
+      }
+    },
+    moveOutOfTheWay(path10, options = { extension: null }) {
+      path10 = pathStandardize2(path10);
+      const extension = options?.extension || FileSystem2.defaultRenameExtension;
+      const info = FileSystem2.sync.info(path10);
+      if (info.exists) {
+        const newPath = path10 + extension;
+        FileSystem2.sync.moveOutOfTheWay(newPath, { extension });
+        moveSync(path10, newPath);
+      }
+    },
+    ensureIsFolder(path10, options = { overwrite: false, renameExtension: null }) {
+      path10 = pathStandardize2(path10);
+      const { overwrite, renameExtension } = defaultOptionsHelper2(options);
+      path10 = path10.path || path10;
+      path10 = FileSystem2.makeAbsolutePath(path10);
+      const parentPath = dirname3(path10);
+      if (parentPath == path10) {
+        return;
+      }
+      const parent = FileSystem2.sync.info(parentPath);
+      if (!parent.isDirectory) {
+        FileSystem2.sync.ensureIsFolder(parentPath, { overwrite, renameExtension });
+      }
+      let pathInfo = FileSystem2.sync.info(path10);
+      if (pathInfo.exists && !pathInfo.isDirectory) {
+        if (overwrite) {
+          FileSystem2.sync.remove(path10);
+        } else {
+          FileSystem2.sync.moveOutOfTheWay(path10, { extension: renameExtension });
+        }
+      }
+      Deno.mkdirSync(path10, { recursive: true });
+      return path10;
+    },
+    /**
+     * Move/Remove everything and Ensure parent folders
+     *
+     * @param path
+     * @param options.overwrite - if false, then things in the way will be moved instead of deleted
+     * @param options.extension - the string to append when renaming files to get them out of the way
+     * 
+     * @example
+     * ```js
+     *     FileSystem.sync.clearAPathFor("./something")
+     * ```
+     */
+    clearAPathFor(path10, options = { overwrite: false, renameExtension: null }) {
+      const { overwrite, renameExtension } = defaultOptionsHelper2(options);
+      const originalPath = path10;
+      const paths = [];
+      while (dirname3(path10) !== path10) {
+        paths.push(path10);
+        path10 = dirname3(path10);
+      }
+      for (const eachPath2 of paths.reverse()) {
+        const info = FileSystem2.sync.info(eachPath2);
+        if (!info.exists) {
+          break;
+        } else if (info.isFile) {
+          if (overwrite) {
+            FileSystem2.sync.remove(eachPath2);
+          } else {
+            FileSystem2.sync.moveOutOfTheWay(eachPath2, { extension: renameExtension });
+          }
+        }
+      }
+      Deno.mkdirSync(dirname3(originalPath), { recursive: true });
+      return originalPath;
+    },
+    append({ path: path10, data, force = true, overwrite = false, renameExtension = null }) {
+      path10 = pathStandardize2(path10);
+      if (force) {
+        FileSystem2.sync.ensureIsFolder(FileSystem2.parentPath(path10), { overwrite, renameExtension });
+        const info = FileSystem2.sync.info(path10);
+        if (info.isDirectory) {
+          FileSystem2.sync.remove(path10);
+        }
+      }
+      const file = Deno.openSync(path10, { read: true, write: true, create: true });
+      file.seekSync(0, Deno.SeekMode.End);
+      if (typeof data == "string") {
+        file.writeSync(new TextEncoder().encode(data));
+      } else {
+        file.writeSync(data);
+      }
+      file.close();
+    },
+    write({ path: path10, data, force = true, overwrite = false, renameExtension = null }) {
+      path10 = pathStandardize2(path10);
+      if (force) {
+        FileSystem2.sync.ensureIsFolder(FileSystem2.parentPath(path10), { overwrite, renameExtension });
+        const info = FileSystem2.sync.info(path10);
+        if (info.isDirectory) {
+          FileSystem2.sync.remove(path10);
+        }
+      }
+      let output2;
+      if (typeof data == "string") {
+        output2 = Deno.writeTextFileSync(path10, data);
+      } else if (typedArrayClasses4.some((dataClass) => data instanceof dataClass)) {
+        output2 = Deno.writeFileSync(path10, data);
+      } else if (isGeneratorType3(data) || data[Symbol.iterator] || data[Symbol.asyncIterator]) {
+        const file = Deno.openSync(path10, { read: true, write: true, create: true, truncate: true });
+        const encoder3 = new TextEncoder();
+        const encode2 = encoder3.encode.bind(encoder3);
+        try {
+          let index = 0;
+          for (let packet of data) {
+            if (typeof packet == "string") {
+              packet = encode2(packet);
+            }
+            Deno.writeSync(file.rid, packet);
+          }
+        } finally {
+          Deno.close(file.rid);
+        }
+      }
+      return output2;
+    }
+    // TODO:
+    // move
+    // ensureIsFile
+    // copy
+    // relativeLink
+    // absoluteLink
+    // iterateBasenamesIn
+    // iteratePathsIn
+    // iterateItemsIn
+    // listItemsIn
+    // listFileItemsIn
+    // listFilePathsIn
+    // listFileBasenamesIn
+    // listFolderItemsIn
+    // listFolderPathsIn
+    // listFolderBasenamesIn
+    // globIterator
+    // getPermissions
+    // addPermissions
+    // Note:
+    // cannot be sync:
+    // walkUpImport 
+  }
+};
+var glob2 = FileSystem2.glob;
+
+// https://deno.land/x/quickr@0.6.54/main/operating_system.js
+var cache5 = {};
+var stdoutRun2 = async (args) => {
+  const process = Deno.run({ cmd: args, stdout: "piped", stderr: "piped" });
+  const output2 = await process.output();
+  return new TextDecoder().decode(output2).replace(/\n$/, "");
+};
+var OperatingSystem2 = {
+  commonChecks: {
+    isMac: Deno.build.os == "darwin",
+    isWindows: Deno.build.os == "windows",
+    isLinux: Deno.build.os == "linux",
+    get isWsl() {
+      if (cache5.isWsl != null) {
+        return cache5.isWsl;
+      }
+      if (!(OperatingSystem2.commonChecks.isMac || OperatingSystem2.commonChecks.isWindows)) {
+        if (Deno.env.get("WSLENV")) {
+          return cache5.isWsl = true;
+        }
+        try {
+          const { isFile } = Deno.lstatSync("/mnt/c");
+          return cache5.isWsl = true;
+        } catch (error) {
+        }
+      }
+      return cache5.isWsl = false;
+    }
+  },
+  commonName: {
+    "darwin": "MacOS",
+    "windows": "Windows",
+    "linux": "Linux"
+  }[Deno.build.os],
+  kernel: {
+    commonName: Deno.build.os
+  },
+  architecture: Deno.build.architecture,
+  get versionArray() {
+    return new Promise(async (resolve15, reject) => {
+      let versionArray = [];
+      if (OperatingSystem2.commonChecks.isWindows) {
+        try {
+          const windowsVersionString = await stdoutRun2(["pwsh", "-Command", `[System.Environment]::OSVersion.Version`]);
+          versionArray = windowsVersionString.replace(/^[\w\W]*?(\d+\.\d+\.\d+)[\w\W]*/, "$1").split(".").map((each2) => each2 - 0);
+        } catch (error) {
+          console.warn(`unable to get version string for Windows: ${error.message}`);
+        }
+      } else if (OperatingSystem2.commonChecks.isMac) {
+        try {
+          const macVersionString = await stdoutRun2(["/usr/bin/sw_vers", "-productVersion"]);
+          versionArray = macVersionString.replace(/^[\w\W]*?(\d+\.\d+(\.\d+)?)[\w\W]*/, "$1").split(".").map((each2) => each2 - 0);
+        } catch (error) {
+          console.warn(`unable to get version string for MacOS: ${error.message}`);
+        }
+      } else {
+        try {
+          const outputString = await stdoutRun2(["uname", "-r"]);
+          versionArray = outputString.replace(/^[\w\W]*?((\d+\.)+\d+)[\w\W]*/, "$1").split(".").map((each2) => each2 - 0);
+        } catch (error) {
+          console.warn(`unable to get version string for Linux: ${error.message}`);
+        }
+      }
+    });
+  },
+  get username() {
+    if (!cache5.username) {
+      if (Deno.build.os != "windows") {
+        cache5.username = Deno.env.get("USER");
+      } else {
+        cache5.username = Deno.env.get("USERNAME");
+      }
+    }
+    return cache5.username;
+  },
+  get home() {
+    if (!cache5.home) {
+      if (Deno.build.os != "windows") {
+        cache5.home = Deno.env.get("HOME");
+      } else {
+        cache5.home = Deno.env.get("HOMEPATH");
+      }
+    }
+    return cache5.home;
+  },
+  async idForUsername(username) {
+    if (OperatingSystem2.commonChecks.isMac) {
+      if (!cache5.macOsUserToUid) {
+        const userListString = await stdoutRun2(["dscl", ".", "-list", "/Users", "UniqueID"]);
+        const userList = userListString.split(/\n/);
+        const userNamesAndIds = userList.map((each2) => {
+          const match = each2.match(/(.+?)(-?\d+)$/, "$1");
+          if (match) {
+            const username2 = match[1].trim();
+            const uid = match[2];
+            return [username2, uid];
+          }
+        }).filter((each2) => each2);
+        const idsAndUsernames = userNamesAndIds.map(([username2, id]) => [id, username2]);
+        cache5.macOsUserToUid = Object.fromEntries(userNamesAndIds);
+        cache5.macOsUidToUser = Object.fromEntries(idsAndUsernames);
+      }
+      return cache5.macOsUserToUid[username];
+    } else if (OperatingSystem2.commonChecks.isWindows) {
+      return await stdoutRun2(["pwsh", "-Command", `Get-ADUser -Identity '${username.replace(/'/, "''")}' | select SID`]);
+    } else if (OperatingSystem2.commonChecks.isLinux) {
+      return await stdoutRun2(["id", "-u", OperatingSystem2.username]);
+    }
+  }
+};
+
+// https://deno.land/x/quickr@0.6.54/main/console.js
+var realConsole2 = globalThis.console;
+var isBrowserContext2 = typeof document != "undefined" && typeof window != "undefined";
+var env2 = null;
+var originalThing2 = realConsole2;
+var symbolForConsoleLog2 = Symbol.for("console.log");
+var proxySymbol2 = Symbol.for("Proxy");
+var thisProxySymbol2 = Symbol("thisProxy");
+globalThis.console = new Proxy(originalThing2, {
+  defineProperty: Reflect.defineProperty,
+  getPrototypeOf: Reflect.getPrototypeOf,
+  // Object.keys
+  ownKeys(...args) {
+    return Reflect.ownKeys(...args);
+  },
+  // function call (original value needs to be a function)
+  apply(original, context, ...args) {
+    console.log(args);
+  },
+  // new operator (original value needs to be a class)
+  construct(...args) {
+  },
+  get(original, key, ...args) {
+    if (key == proxySymbol2 || key == thisProxySymbol2) {
+      return true;
+    }
+    if (key == "log") {
+      return (...args2) => {
+        realConsole2.log(
+          ...args2.map((each2) => {
+            if (each2 instanceof Object && each2[symbolForConsoleLog2] instanceof Function) {
+              return each2[symbolForConsoleLog2]();
+            }
+            return each2;
+          })
+        );
+      };
+    }
+    return Reflect.get(original, key, ...args);
+  },
+  set(original, key, ...args) {
+    if (key == proxySymbol2 || key == thisProxySymbol2) {
+      return;
+    }
+    return Reflect.set(original, key, ...args);
+  }
+});
+var codeToEscapeString2 = (code2) => `\x1B[${code2}m`;
+var ansiRegexPattern2 = /[\u001B\u009B][[\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\d\/#&.:=?%@~_]+)*|[a-zA-Z\d]+(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g;
+function clearAnsiStylesFrom2(string2) {
+  return `${string2}`.replace(ansiRegexPattern2, "");
+}
+var styleStrings2 = {
+  reset: codeToEscapeString2(0),
+  bold: codeToEscapeString2(1),
+  dim: codeToEscapeString2(2),
+  italic: codeToEscapeString2(3),
+  underline: codeToEscapeString2(4),
+  slowBlink: codeToEscapeString2(5),
+  // not widely supported
+  fastBlink: codeToEscapeString2(6),
+  // not widely supported
+  inverse: codeToEscapeString2(7),
+  strikethrough: codeToEscapeString2(9),
+  primary: codeToEscapeString2(11),
+  // forground colors
+  black: codeToEscapeString2(30),
+  red: codeToEscapeString2(31),
+  green: codeToEscapeString2(32),
+  yellow: codeToEscapeString2(33),
+  blue: codeToEscapeString2(34),
+  magenta: codeToEscapeString2(35),
+  cyan: codeToEscapeString2(36),
+  white: codeToEscapeString2(37),
+  lightBlack: codeToEscapeString2(90),
+  lightRed: codeToEscapeString2(91),
+  lightGreen: codeToEscapeString2(92),
+  lightYellow: codeToEscapeString2(93),
+  lightBlue: codeToEscapeString2(94),
+  lightMagenta: codeToEscapeString2(95),
+  lightCyan: codeToEscapeString2(96),
+  lightWhite: codeToEscapeString2(97),
+  // background
+  blackBackground: codeToEscapeString2(40),
+  redBackground: codeToEscapeString2(41),
+  greenBackground: codeToEscapeString2(42),
+  yellowBackground: codeToEscapeString2(43),
+  blueBackground: codeToEscapeString2(44),
+  magentaBackground: codeToEscapeString2(45),
+  cyanBackground: codeToEscapeString2(46),
+  whiteBackground: codeToEscapeString2(47),
+  lightBlackBackground: codeToEscapeString2(100),
+  lightRedBackground: codeToEscapeString2(101),
+  lightGreenBackground: codeToEscapeString2(102),
+  lightYellowBackground: codeToEscapeString2(103),
+  lightBlueBackground: codeToEscapeString2(104),
+  lightMagentaBackground: codeToEscapeString2(105),
+  lightCyanBackground: codeToEscapeString2(106),
+  lightWhiteBackground: codeToEscapeString2(107)
+};
+Object.assign(styleStrings2, {
+  gray: styleStrings2.lightBlack,
+  grey: styleStrings2.lightBlack,
+  lightGray: styleStrings2.white,
+  // lightWhite is "true" white
+  lightGrey: styleStrings2.white,
+  // lightWhite is "true" white
+  grayBackground: styleStrings2.lightBlackBackground,
+  greyBackground: styleStrings2.lightBlackBackground,
+  lightGrayBackground: styleStrings2.whiteBackground,
+  lightGreyBackground: styleStrings2.whiteBackground
+});
+var styleObjectSymbol2 = Symbol("consoleStyle");
+var styleObject2 = (rootStyleString) => {
+  const createStyleAccumulator = (styleString) => {
+    const styleAccumulator = (strings, ...values) => {
+      const objectToStyledString = (interpolatedValue, styles) => {
+        let singleCombinedString2 = "";
+        if (interpolatedValue instanceof Object && interpolatedValue[styleObjectSymbol2] instanceof Function) {
+          singleCombinedString2 += interpolatedValue[styleObjectSymbol2]();
+        } else {
+          singleCombinedString2 += toString(interpolatedValue);
+        }
+        singleCombinedString2 += styleStrings2.reset + styleAccumulator.styles.join("");
+        return singleCombinedString2;
+      };
+      let singleCombinedString = "";
+      if (!(strings instanceof Array) || strings.length < 1 || !strings.every((each2) => typeof each2 == "string")) {
+        for (const each2 of [strings, ...values]) {
+          singleCombinedString += objectToStyledString(each2);
+        }
+      } else {
+        for (const index in values) {
+          singleCombinedString += strings[index];
+          singleCombinedString += objectToStyledString(values[index]);
+        }
+        const lastString = strings.slice(-1)[0];
+        singleCombinedString += lastString;
+      }
+      styleAccumulator.sequence.push(singleCombinedString);
+      return styleAccumulator;
+    };
+    styleAccumulator[styleObjectSymbol2] = true;
+    styleAccumulator.styles = [styleString];
+    styleAccumulator.sequence = [styleString];
+    styleAccumulator.toString = () => styleAccumulator.sequence.join("") + styleStrings2.reset;
+    styleAccumulator[Deno.customInspect] = () => styleAccumulator.sequence.join("") + styleStrings2.reset;
+    styleAccumulator[symbolForConsoleLog2] = () => {
+      const asString3 = styleAccumulator.toString();
+      if (Console2.reliableColorSupport.includesAnsi) {
+        return asString3;
+      } else {
+        return clearAnsiStylesFrom2(asString3);
+      }
+    };
+    return Object.defineProperties(styleAccumulator, Object.fromEntries(Object.entries(styleStrings2).map(
+      ([key, value]) => [
+        key,
+        {
+          get() {
+            styleAccumulator.styles.push(value);
+            styleAccumulator.sequence.push(value);
+            return styleAccumulator;
+          }
+        }
+      ]
+    )));
+  };
+  const topLevelStyleAccumulator = (strings, ...values) => createStyleAccumulator(rootStyleString)(strings, ...values);
+  topLevelStyleAccumulator[styleObjectSymbol2] = true;
+  topLevelStyleAccumulator.toString = () => rootStyleString;
+  topLevelStyleAccumulator[symbolForConsoleLog2] = () => {
+    const asString3 = topLevelStyleAccumulator.toString();
+    if (Console2.reliableColorSupport.includesAnsi) {
+      return asString3;
+    } else {
+      return clearAnsiStylesFrom2(asString3);
+    }
+  };
+  return Object.defineProperties(topLevelStyleAccumulator, Object.fromEntries(Object.entries(styleStrings2).map(
+    ([eachStyleName, eachStyleString]) => [
+      eachStyleName,
+      {
+        get() {
+          const styleAccumulator = createStyleAccumulator(rootStyleString);
+          styleAccumulator.styles.push(eachStyleString);
+          styleAccumulator.sequence.push(eachStyleString);
+          return styleAccumulator;
+        }
+      }
+    ]
+  )));
+};
+var bold4 = styleObject2(styleStrings2.bold);
+var reset3 = styleObject2(styleStrings2.reset);
+var dim3 = styleObject2(styleStrings2.dim);
+var italic3 = styleObject2(styleStrings2.italic);
+var underline3 = styleObject2(styleStrings2.underline);
+var inverse2 = styleObject2(styleStrings2.inverse);
+var strikethrough2 = styleObject2(styleStrings2.strikethrough);
+var black2 = styleObject2(styleStrings2.black);
+var white3 = styleObject2(styleStrings2.white);
+var red4 = styleObject2(styleStrings2.red);
+var green4 = styleObject2(styleStrings2.green);
+var blue2 = styleObject2(styleStrings2.blue);
+var yellow3 = styleObject2(styleStrings2.yellow);
+var cyan3 = styleObject2(styleStrings2.cyan);
+var magenta2 = styleObject2(styleStrings2.magenta);
+var lightBlack2 = styleObject2(styleStrings2.lightBlack);
+var lightWhite2 = styleObject2(styleStrings2.lightWhite);
+var lightRed2 = styleObject2(styleStrings2.lightRed);
+var lightGreen2 = styleObject2(styleStrings2.lightGreen);
+var lightBlue2 = styleObject2(styleStrings2.lightBlue);
+var lightYellow2 = styleObject2(styleStrings2.lightYellow);
+var lightMagenta2 = styleObject2(styleStrings2.lightMagenta);
+var lightCyan2 = styleObject2(styleStrings2.lightCyan);
+var blackBackground2 = styleObject2(styleStrings2.blackBackground);
+var whiteBackground2 = styleObject2(styleStrings2.whiteBackground);
+var redBackground2 = styleObject2(styleStrings2.redBackground);
+var greenBackground2 = styleObject2(styleStrings2.greenBackground);
+var blueBackground2 = styleObject2(styleStrings2.blueBackground);
+var yellowBackground2 = styleObject2(styleStrings2.yellowBackground);
+var magentaBackground2 = styleObject2(styleStrings2.magentaBackground);
+var cyanBackground2 = styleObject2(styleStrings2.cyanBackground);
+var lightBlackBackground2 = styleObject2(styleStrings2.lightBlackBackground);
+var lightRedBackground2 = styleObject2(styleStrings2.lightRedBackground);
+var lightGreenBackground2 = styleObject2(styleStrings2.lightGreenBackground);
+var lightYellowBackground2 = styleObject2(styleStrings2.lightYellowBackground);
+var lightBlueBackground2 = styleObject2(styleStrings2.lightBlueBackground);
+var lightMagentaBackground2 = styleObject2(styleStrings2.lightMagentaBackground);
+var lightCyanBackground2 = styleObject2(styleStrings2.lightCyanBackground);
+var lightWhiteBackground2 = styleObject2(styleStrings2.lightWhiteBackground);
+var gray3 = styleObject2(styleStrings2.gray);
+var grey2 = styleObject2(styleStrings2.grey);
+var lightGray2 = styleObject2(styleStrings2.lightGray);
+var lightGrey2 = styleObject2(styleStrings2.lightGrey);
+var grayBackground2 = styleObject2(styleStrings2.grayBackground);
+var greyBackground2 = styleObject2(styleStrings2.greyBackground);
+var lightGrayBackground2 = styleObject2(styleStrings2.lightGrayBackground);
+var lightGreyBackground2 = styleObject2(styleStrings2.lightGreyBackground);
+var colorSupportCache2 = {
+  includesAnsi: null,
+  includes256: null,
+  includes16m: null
+};
+var Console2 = {
+  // TODO: add signal handler
+  // Deno.addSignalListener("SIGINT", (...args)=>{
+  //     console.debug(`args is:`,args)
+  // })
+  log(...args) {
+    if (args.length == 0) {
+      console.log();
+    }
+    let [arg1, ...others] = args.map((each2) => {
+      if (each2 instanceof Object && each2[symbolForConsoleLog2] instanceof Function) {
+        return each2[symbolForConsoleLog2]();
+      }
+      return each2;
+    });
+    if (typeof arg1 == "string") {
+      arg1 = arg1.replace("%", "%%");
+    }
+    if (!isBrowserContext2) {
+      if (!Console2.reliableColorSupport.includesAnsi) {
+        arg1 = clearAnsiStylesFrom2(arg1);
+        others = others.map((each2) => {
+          if (typeof each2 == "string") {
+            return clearAnsiStylesFrom2(each2);
+          } else {
+            return each2;
+          }
+        });
+      }
+      realConsole2.log(arg1, ...others);
+    } else {
+      if (args[0][symbolForConsoleLog2] && typeof args[0].styleString == "string") {
+        realConsole2.log(`%c${arg1}${others.map((each2) => `${each2}`).join("")}`, args[0].styleString);
+      } else {
+        realConsole2.log(arg1, ...others);
+      }
+    }
+    return Console2;
+  },
+  get env() {
+    return env2 = env2 || new Proxy(
+      Deno.env.toObject(),
+      {
+        // Object.keys
+        ownKeys(target) {
+          return Object.keys(Deno.env.toObject());
+        },
+        has(original, key) {
+          if (typeof key === "symbol") {
+            return false;
+          } else {
+            return Deno.env.get(key) !== void 0;
+          }
+        },
+        get(original, key) {
+          if (typeof key === "symbol") {
+            return original[key];
+          } else {
+            return Deno.env.get(key);
+          }
+        },
+        set(original, key, value) {
+          original[key] = value;
+          if (typeof key !== "symbol") {
+            Deno.env.set(key, value);
+          }
+          return true;
+        },
+        deleteProperty(original, key) {
+          if (typeof key === "symbol") {
+            return void 0;
+          } else {
+            return Deno.env.delete(key);
+          }
+        }
+      }
+    );
+  },
+  disableColorIfNonIteractive: true,
+  askFor: {
+    // in the future once Deno.setRaw is stable, add a askFor.password using: https://github.com/caspervonb/deno-prompts
+    line(question) {
+      return prompt(question);
+    },
+    confirmation(question) {
+      console.log(question);
+      prompt("[use CTRL+C to quit, or press enter to continue]");
+    },
+    positiveIntegerOrZero(question) {
+      while (1) {
+        console.log(question);
+        const answer = prompt(question);
+        const asNumber = answer - 0;
+        const isRealNumber = asNumber !== asNumber && asNumber * 2 !== asNumber;
+        const isInteger = Math.round(asNumber) === asNumber;
+        const isNonNegative = asNumber >= 0;
+        if (isRealNumber && isInteger && isNonNegative) {
+          return asNumber;
+        } else {
+          if (!isRealNumber) {
+            console.log(`I don't think ${answer} is a real number, please try again`);
+          }
+          if (!isInteger) {
+            console.log(`I don't think ${answer} is an integer, please try again`);
+          }
+          if (!isNonNegative) {
+            console.log(`I don't think ${answer} is \u2265 0, please try again`);
+          }
+        }
+      }
+    },
+    yesNo(question) {
+      while (true) {
+        let answer = prompt(question);
+        const match = `${answer}`.match(/^ *(y|yes|n|no) *\n?$/i);
+        if (match) {
+          if (match[1][0] == "y" || match[1][0] == "Y") {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          console.log("[ please respond with y/n, yes/no, or use CTRL+C to cancel ]");
+        }
+      }
+    },
+    oneOf(keyValues, question = "Please type one of the names from the list above") {
+      if (keyValues instanceof Array) {
+        keyValues = Object.fromEntries(keyValues.map((each2, index) => [index, each2]));
+      }
+      const keys = Object.keys(keyValues);
+      if (keys.length == 0) {
+        console.warn(`Tried to perform Console.askFor.oneOf(object) but the object was empty`);
+        return void 0;
+      }
+      const longest2 = Math.max(keys.map((each2) => each2.length));
+      while (true) {
+        for (const [key, value] of Object.entries(keyValues)) {
+          const valueAsString = indent2({ string: `${value}
+`, by: " ".repeat(longest2 + 2), noLead: true });
+          console.log(``, `${key}: ${valueAsString}`);
+        }
+        let answer = prompt(question);
+        if (keys.includes(answer)) {
+          return keyValues[answer];
+        } else {
+          console.log("\n\n[ please pick one of the listed names, or use CTRL+C to cancel ]");
+        }
+      }
+    }
+  },
+  get paths() {
+    const spliter = OperatingSystem2.commonChecks.isWindows ? ";" : ":";
+    return Deno.env.get("PATH").split(spliter);
+  },
+  get reliableColorSupport() {
+    if (colorSupportCache2.includesAnsi != null) {
+      return colorSupportCache2;
+    }
+    let terminalSupport;
+    if (!Deno.isatty(0)) {
+      terminalSupport = {
+        includesAnsi: false,
+        includes256: false,
+        includes16m: false
+      };
+    } else if ("NO_COLOR" in Console2.env) {
+      terminalSupport = {
+        includesAnsi: false,
+        includes256: false,
+        includes16m: false
+      };
+    } else {
+      if (OperatingSystem2.commonChecks.isWindows || OperatingSystem2.commonChecks.isWsl) {
+        if (Deno.env.get("WT_SESSION")) {
+          terminalSupport = {
+            includesAnsi: true,
+            includes256: true,
+            includes16m: true
+          };
+        } else {
+          terminalSupport = {
+            includesAnsi: false,
+            includes256: false,
+            includes16m: false
+          };
+        }
+      } else {
+        if ("TERM_PROGRAM" in Console2.env) {
+          const version = Number.parseInt((Console2.env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
+          if (Console2.env.TERM_PROGRAM == "iTerm.app") {
+            if (version >= 3) {
+              terminalSupport = {
+                includesAnsi: true,
+                includes256: true,
+                includes16m: true
+              };
+            } else {
+              terminalSupport = {
+                includesAnsi: true,
+                includes256: true,
+                includes16m: false
+              };
+            }
+          } else if (Console2.env.TERM_PROGRAM == "Apple_Terminal") {
+            terminalSupport = {
+              includesAnsi: true,
+              includes256: true,
+              includes16m: false
+            };
+          }
+        }
+        if (Console2.env.TERM === "dumb") {
+          terminalSupport = {
+            includesAnsi: false,
+            includes256: false,
+            includes16m: false
+          };
+        } else if ("CI" in Console2.env) {
+          terminalSupport = {
+            includesAnsi: ["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI", "GITHUB_ACTIONS", "BUILDKITE", "DRONE"].some((sign) => sign in Console2.env) || Console2.env.CI_NAME === "codeship",
+            includes256: false,
+            includes16m: false
+          };
+        } else if (Console2.env.COLORTERM === "truecolor") {
+          terminalSupport = {
+            includesAnsi: true,
+            includes256: true,
+            includes16m: true
+          };
+        } else if (/-256(color)?$/i.test(Console2.env.TERM)) {
+          terminalSupport = {
+            includesAnsi: true,
+            includes256: true,
+            includes16m: false
+          };
+        } else if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(Console2.env.TERM)) {
+          terminalSupport = {
+            includesAnsi: true,
+            includes256: false,
+            includes16m: false
+          };
+        } else if ("COLORTERM" in Console2.env) {
+          terminalSupport = {
+            includesAnsi: true,
+            includes256: false,
+            includes16m: false
+          };
+        } else {
+          terminalSupport = {
+            includesAnsi: false,
+            includes256: false,
+            includes16m: false
+          };
+        }
+      }
+    }
+    colorSupportCache2.includesAnsi = terminalSupport.includesAnsi;
+    colorSupportCache2.includes256 = terminalSupport.includes256;
+    colorSupportCache2.includes16m = terminalSupport.includes16m;
+    return colorSupportCache2;
+  }
+};
+
+// https://deno.land/x/quickr@0.6.54/main/run.js
+var timeoutSymbol2 = Symbol("timeout");
+var envSymbol2 = Symbol("env");
+var cwdSymbol2 = Symbol("cwd");
+var stdinSymbol2 = Symbol("stdin");
+var stdoutSymbol2 = Symbol("stdout");
+var stderrSymbol2 = Symbol("stderr");
+var stdoutAndErrSymbol2 = Symbol("stdoutAndErr");
+var overwriteSymbol2 = Symbol("overwrite");
+var appendSymbol2 = Symbol("append");
+var asString2 = Symbol("asString");
+var throwIfFails2 = Symbol("throwIfFails");
+var zipInto2 = Symbol("zipInto");
+var mergeInto2 = Symbol("mergeInto");
+var returnAsString2 = Symbol("returnAsString");
+var Timeout2 = ({ gentlyBy, waitBeforeUsingForce }) => [timeoutSymbol2, { gentlyBy, waitBeforeUsingForce }];
+var Env2 = (envVars) => [envSymbol2, envVars];
+var Cwd2 = (newDirectory) => [cwdSymbol2, newDirectory];
+var Stdin2 = (...streamsFilesOrStrings) => [stdinSymbol2, streamsFilesOrStrings];
+var Stdout2 = (...pathsFilesStreamsOrSymbols) => [stdoutSymbol2, pathsFilesStreamsOrSymbols];
+var Stderr2 = (...pathsFilesStreamsOrSymbols) => [stderrSymbol2, pathsFilesStreamsOrSymbols];
+var Out2 = (...pathsFilesStreamsOrSymbols) => [stdoutAndErrSymbol2, pathsFilesStreamsOrSymbols];
+var Overwrite2 = (fileOrFilePath) => [overwriteSymbol2, fileOrFilePath];
+var AppendTo2 = (fileOrFilePath) => [appendSymbol2, fileOrFilePath];
+var isReadable2 = (obj) => obj instanceof Object && obj.read instanceof Function;
+var isWritable2 = (obj) => obj instanceof Object && obj.write instanceof Function;
+var concatUint8Arrays2 = (arrays) => new Uint8Array(
+  // simplified from: https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
+  arrays.reduce((acc, curr) => (acc.push(...curr), acc), [])
+);
+var { isWindows: isWindows7, isLinux: isLinux2, isMac: isMac2 } = OperatingSystem2.commonChecks;
+var alreadyOpenFiles2 = {};
+var ridToPath2 = {};
+var realDenoOpen2 = Deno.open.bind(Deno);
+Deno.open = function(...args) {
+  const path10 = FileSystem2.makeAbsolutePath(args[0]);
+  if (!alreadyOpenFiles2[path10]) {
+    alreadyOpenFiles2[path10] = realDenoOpen2(...args).then((file) => {
+      ridToPath2[file.rid] = path10;
+      const realClose = file.close;
+      file.close = function(...args2) {
+        delete alreadyOpenFiles2[path10];
+        realClose(...args2);
+      }.bind(file);
+      return file;
+    });
+  }
+  return alreadyOpenFiles2[path10];
+}.bind(Deno);
+var realDenoOpenSync2 = Deno.openSync.bind(Deno);
+Deno.openSync = function(...args) {
+  const path10 = FileSystem2.makeAbsolutePath(args[0]);
+  if (!alreadyOpenFiles2[path10]) {
+    const file = realDenoOpenSync2(...args);
+    ridToPath2[file.rid] = path10;
+    const realClose = file.close;
+    file.close = function(...args2) {
+      delete alreadyOpenFiles2[path10];
+      realClose(...args2);
+    }.bind(file);
+    alreadyOpenFiles2[path10] = file;
+  }
+  return alreadyOpenFiles2[path10];
+}.bind(Deno);
+var run3 = (maybeStrings, ...args) => {
+  let newArgs = [];
+  const argSplitter = /[ \t]+/;
+  if (maybeStrings instanceof Array) {
+    maybeStrings = [...maybeStrings];
+    const lastString = maybeStrings.pop();
+    for (const eachString of maybeStrings) {
+      const innerArgs = eachString.split(argSplitter);
+      for (const each2 of innerArgs) {
+        if (each2.length > 0) {
+          newArgs.push(each2);
+        }
+      }
+      newArgs.push(args.shift());
+    }
+    const endingArgsString = lastString.trim();
+    if (endingArgsString.length > 0) {
+      const endingArgs = endingArgsString.split(argSplitter);
+      for (const each2 of endingArgs) {
+        newArgs.push(each2);
+      }
+    }
+    args = newArgs;
+  } else {
+    args = [maybeStrings, ...args];
+  }
+  const commandMetaData = {
+    timeout: { gentlyBy: void 0, waitBeforeUsingForce: void 0 },
+    env: void 0,
+    cwd: void 0,
+    stdin: void 0,
+    stdout: void 0,
+    stderr: void 0,
+    outAndError: []
+  };
+  for (const each2 of args) {
+    if (typeof each2 == "symbol") {
+      if (each2 == throwIfFails2) {
+        commandMetaData.throwIfFails = true;
+      }
+    }
+    if (each2 instanceof Array && typeof each2[0] == "symbol") {
+      const [symbol, value] = each2;
+      if (symbol === timeoutSymbol2) {
+        Object.assign(commandMetaData.timeout, value);
+      }
+      if (symbol === envSymbol2) {
+        commandMetaData.env = value;
+      }
+      if (symbol === cwdSymbol2) {
+        commandMetaData.cwd = value;
+      }
+      if (symbol === stdinSymbol2) {
+        commandMetaData.stdin = value;
+      }
+      if (symbol === stdoutSymbol2) {
+        commandMetaData.stdout = value;
+      }
+      if (symbol === stderrSymbol2) {
+        commandMetaData.stderr = value;
+      }
+      if (symbol === stdoutAndErrSymbol2) {
+        commandMetaData.outAndError = value;
+      }
+    }
+  }
+  const runArg = {
+    cmd: args.filter((each2) => typeof each2 == "string"),
+    env: commandMetaData.env,
+    cwd: commandMetaData.cwd,
+    stdin: void 0,
+    stdout: void 0,
+    stderr: void 0
+  };
+  const syncStatus = { done: false, exitCode: void 0, success: void 0 };
+  const asyncPart = async () => {
+    if (
+      // either both should be null or both should be set
+      commandMetaData.timeout.gentlyBy == null !== (commandMetaData.timeout.waitBeforeUsingForce == null) || commandMetaData.timeout.gentlyBy != null && (!(commandMetaData.timeout.gentlyBy >= 0) || !(commandMetaData.timeout.waitBeforeUsingForce >= 0))
+    ) {
+      throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given a:
+    Timeout(${JSON.stringify(commandMetaData.timeout)})
+however both "gentlyBy" and "waitBeforeUsingForce" are needed.
+For example, if 
+    gentlyBy: 1000
+    waitBeforeUsingForce: 500
+it would be force killed 1.5sec after the process started.
+If you never want force to be used, do {waitBeforeUsingForce: Infinity}
+
+`);
+    }
+    if (runArg.cwd !== void 0) {
+      const folderExists = await Deno.stat(runArg.cwd).then(({ isDirectory: isDirectory2 }) => isDirectory2).catch(() => false);
+      if (!folderExists) {
+        throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given a Cwd (cwd) of:
+${JSON.stringify(runArg.cwd)}
+but that doesn't seem to be a path to a folder, so the command would fail.
+
+`);
+      }
+    }
+    let stdinWriter = void 0;
+    if (commandMetaData.stdin !== void 0) {
+      let stdinArgs = commandMetaData.stdin;
+      let index = 0;
+      for (const each2 of stdinArgs) {
+        if (each2 instanceof Promise) {
+          stdinArgs[index] = await each2;
+        }
+        ++index;
+      }
+      if (stdinArgs.length == 0) {
+        runArg.stdin = "piped";
+      } else if (stdinArgs.length == 1 && stdinArgs[0] == null) {
+        runArg.stdin = "null";
+      } else {
+        stdinArgs = stdinArgs.filter((each2) => each2 != null);
+        if (stdinArgs.length == 0) {
+          throw Error(`when calling run() with the command: 
+    ${JSON.stringify(runArg.cmd)}
+An Stdin() was given, but it wasn't given any arguments
+if you want Stdin to be nothing (instead of the default Stdin(Deno.stdin)) put Stdin(null)
+
+`);
+        } else {
+          runArg.stdin = "piped";
+          if (stdinArgs.every((each2) => typeof each2 == "string" || each2 instanceof Uint8Array)) {
+            const allUint8Arrays = stdinArgs.map((each2) => typeof each2 != "string" ? each2 : new TextEncoder().encode(each2));
+            stdinWriter = concatUint8Arrays2(allUint8Arrays);
+          } else {
+            const first = stdinArgs[0];
+            let prev;
+            if (typeof first == "string") {
+              stdinWriter = readableStreamFromReader(new StringReader(first));
+              prev = "string";
+            } else if (first instanceof Uint8Array) {
+              stdinWriter = readableStreamFromReader(new Buffer(first));
+              prev = "uint8array";
+            } else if (first instanceof ReadableStream) {
+              stdinWriter = first;
+              prev = "readableStream";
+            } else if (isReadable2(first)) {
+              stdinWriter = readableStreamFromReader(first);
+              prev = "readable";
+            } else {
+              throw Error(`when calling run() with the command: 
+    ${JSON.stringify(runArg.cmd)}
+An Stdin() was given, but there was a problem with one of the arguments.
+The argument can be a string, a file (Deno.open("./path")), bytes (Uint8Array), or any readable object (like Deno.stdin or the .stdout of another run command)
+but instead of any of those I received:
+    ${first}
+
+`);
+            }
+            for (const each2 of stdinArgs.slice(1)) {
+              if (each2 === mergeInto2 || each2 === zipInto2) {
+                prev = each2;
+                continue;
+              }
+              let newStream;
+              if (typeof each2 == "string") {
+                newStream = readableStreamFromReader(new StringReader(each2));
+                current = "string";
+              } else if (each2 instanceof Uint8Array) {
+                newStream = readableStreamFromReader(new Buffer(each2));
+                current = "uint8";
+              } else if (each2 instanceof ReadableStream) {
+                newStream = each2;
+                current = "readableStream";
+              } else if (isReadable2(each2)) {
+                newStream = readableStreamFromReader(each2);
+                current = "readable";
+              } else {
+                throw Error(`when calling run() with the command: 
+    ${JSON.stringify(runArg.cmd)}
+An Stdin() was given, but there was a problem with one of the arguments.
+The argument can be a string, a file (Deno.open("./path")), bytes (Uint8Array), or any readable object (like Deno.stdin or the .stdout of another run command)
+but instead of any of those I received:
+    ${each2}
+
+`);
+              }
+              if (prev !== zipInto2 && (prev === mergeInto2 || prev == "string" || prev == "uint8array" || current == "string" || current == "uint8array")) {
+                stdinWriter = stdinWriter.mergeReadableStreams(stdinWriter, newStream);
+              } else {
+                stdinWriter = stdinWriter.zipReadableStreams(stdinWriter, newStream);
+              }
+            }
+          }
+        }
+      }
+    }
+    const outStreamNames = ["stdout", "stderr"];
+    if (commandMetaData.outAndError.length > 0) {
+      for (const each2 of outStreamNames) {
+        if (!(commandMetaData[each2] instanceof Array)) {
+          commandMetaData[each2] = [];
+        }
+        commandMetaData[each2] = commandMetaData[each2].concat(commandMetaData.outAndError);
+      }
+    }
+    for (const each2 of outStreamNames) {
+      if (commandMetaData[each2] !== void 0) {
+        if (commandMetaData[each2].length == 0) {
+          runArg[each2] = "piped";
+        } else if (commandMetaData[each2].length == 1 && commandMetaData[each2][0] === null) {
+          runArg[each2] = "null";
+        } else {
+          runArg[each2] = "piped";
+          commandMetaData[each2] = [...new Set(commandMetaData[each2].filter((each3) => each3 != null))];
+        }
+      }
+    }
+    const openFiles = {};
+    const convertReturnStreamArg = async (arg) => {
+      if (arg === returnAsString2) {
+        return arg;
+      }
+      if (arg instanceof Array) {
+        if (typeof arg[0] == "symbol") {
+          let [symbol, value] = arg;
+          if (symbol === overwriteSymbol2) {
+            if (typeof value == "string") {
+              const path10 = FileSystem2.makeAbsolutePath(value);
+              if (!openFiles[path10]) {
+                await FileSystem2.clearAPathFor(value, { overwrite: true });
+                openFiles[path10] = await Deno.open(value, { write: true, truncate: true, create: true });
+              }
+              value = openFiles[path10];
+            }
+            if (value instanceof Deno.File) {
+              value.truncate();
+            } else {
+              throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given one of:
+    Stdout(Overwrite(arg))
+    Stdin(Overwrite(arg))
+    Out(Overwrite(arg))
+However the given arg was not a string path or a file object.
+Here's what I know about the argument:${debugValueAsString(value)}
+
+`);
+            }
+          } else if (symbol === appendSymbol2) {
+            if (typeof value == "string") {
+              const path10 = FileSystem2.makeAbsolutePath(value);
+              if (!openFiles[path10]) {
+                await FileSystem2.ensureIsFolder(FileSystem2.parentPath(value));
+                openFiles[path10] = await Deno.open(value, { write: true, create: true });
+              }
+              value = openFiles[path10];
+            }
+            if (value instanceof Deno.File) {
+              await Deno.seek(value.rid, 0, Deno.SeekMode.End);
+            } else {
+              throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given one of:
+    Stdout(AppendTo(arg))
+    Stdin(AppendTo(arg))
+    Out(AppendTo(arg))
+However the given arg was not a string path or a file object.
+Here's what I know about the argument:${debugValueAsString(value)}
+
+`);
+            }
+          }
+          arg = value;
+        }
+      }
+      if (arg instanceof WritableStream) {
+        return arg;
+      } else if (isWritable2(arg)) {
+        return writableStreamFromWriter(arg);
+      } else if (typeof arg == "string") {
+        throw Error(`
+When running command:
+    ${JSON.stringify(runArg.cmd)}
+it was given one of:
+    Stdout(${JSON.stringify(arg)})
+    Stdin(${JSON.stringify(arg)})
+    Out(${JSON.stringify(arg)})
+if you want to have them write to a file:
+    dont:    Out(${JSON.stringify(arg)})
+    instead: Out(Overwrite(${JSON.stringify(arg)}))
+    or:      Out(AppendTo(${JSON.stringify(arg)}))
+
+`);
+      }
+    };
+    const alreadyComputed = /* @__PURE__ */ new Map();
+    const convertArgsToWritables = (...args2) => args2.map((eachArg) => {
+      let key;
+      if (eachArg instanceof Array) {
+        key = JSON.stringify(eachArg.map((each2) => {
+          if (typeof each2 == "symbol") {
+            return each2.toString();
+          } else if (each2 instanceof Deno.File) {
+            if (ridToPath2[each2.id]) {
+              return FileSystem2.makeAbsolutePath(ridToPath2[each2.id]);
+            }
+            return `Deno.File(${each2.rid})`;
+          } else if (typeof each2 == "string") {
+            return FileSystem2.makeAbsolutePath(each2);
+          } else {
+            return JSON.stringify(each2);
+          }
+        }));
+      } else {
+        key = JSON.stringify(eachArg);
+      }
+      if (alreadyComputed.has(key)) {
+        return alreadyComputed.get(key);
+      } else {
+        const output2 = convertReturnStreamArg(eachArg);
+        alreadyComputed.set(key, output2);
+        return output2;
+      }
+    });
+    const stdoutWritables = await Promise.all(convertArgsToWritables(...commandMetaData.stdout || []));
+    const stderrWritables = await Promise.all(convertArgsToWritables(...commandMetaData.stderr || []));
+    let process = {};
+    try {
+      process = Deno.run(runArg);
+    } catch (error) {
+      const rejection = new Promise((resolve15, reject) => reject(`
+${error}
+This was from a run() call, which was converted to Deno.run(${JSON.stringify(runArg, 0, 4)})`));
+      return [rejection, rejection, rejection];
+    }
+    if (commandMetaData.timeout.gentlyBy) {
+      let outcome = false;
+      process.status().then(() => outcome = true);
+      setTimeout(async () => {
+        if (!outcome) {
+          process.kill("SIGINT");
+          setTimeout(() => {
+            if (!outcome) {
+              process.kill("SIGKILL");
+            }
+          }, commandMetaData.timeout.waitBeforeUsingForce);
+        }
+      }, commandMetaData.timeout.gentlyBy);
+    }
+    let hasReturnString = false;
+    let stdoutAndStderrDoneWritingPromise = { then(func) {
+      func();
+    } };
+    const returnStringChunks = [];
+    if (runArg.stdout == "piped" || runArg.stderr == "piped") {
+      stdoutAndStderrDoneWritingPromise = deferredPromise();
+      let stdoutIsDone = false;
+      let stderrIsDone = false;
+      const writableToWriter = /* @__PURE__ */ new Map();
+      for (const eachWritable of stdoutWritables.concat(stderrWritables)) {
+        if (!writableToWriter.has(eachWritable)) {
+          if (eachWritable == returnAsString2) {
+            hasReturnString = true;
+            const decoder3 = new TextDecoder();
+            writableToWriter.set(eachWritable, {
+              write(value) {
+                const stringValue = decoder3.decode(value);
+                returnStringChunks.push(stringValue);
+              }
+            });
+          } else {
+            writableToWriter.set(eachWritable, eachWritable.getWriter());
+          }
+        }
+      }
+      const stdoutWriters = stdoutWritables.map((each2) => writableToWriter.get(each2));
+      const stderrWriters = stderrWritables.map((each2) => writableToWriter.get(each2));
+      if (runArg.stdout != "piped") {
+        stdoutIsDone = true;
+      } else {
+        const reader = readableStreamFromReader(process.stdout).getReader();
+        setTimeout(async () => {
+          while (1) {
+            const { value, done } = await reader.read();
+            if (done) {
+              stdoutIsDone = true;
+              if (stderrIsDone) {
+                stdoutAndStderrDoneWritingPromise.resolve();
+              }
+              break;
+            }
+            for (const each2 of stdoutWriters) {
+              each2.write(value);
+            }
+          }
+        });
+      }
+      if (runArg.stderr != "piped") {
+        stderrIsDone = true;
+      } else {
+        const reader = readableStreamFromReader(process.stderr).getReader();
+        setTimeout(async () => {
+          while (1) {
+            const { value, done } = await reader.read();
+            if (done) {
+              stderrIsDone = true;
+              if (stdoutIsDone) {
+                stdoutAndStderrDoneWritingPromise.resolve();
+              }
+              break;
+            }
+            for (const each2 of stderrWriters) {
+              each2.write(value);
+            }
+          }
+        });
+      }
+    }
+    if (runArg.stdin == "piped") {
+      if (stdinWriter instanceof Uint8Array) {
+        process.stdin.write(stdinWriter).then(() => process.stdin.close());
+      } else if (stdinWriter instanceof ReadableStream) {
+        writableStreamFromWriter(process.stdin);
+      }
+    }
+    let statusPromise2 = process.status();
+    statusPromise2.then(({ code: code2, success }) => {
+      syncStatus.done = true;
+      syncStatus.exitCode = code2;
+      syncStatus.success = success;
+    });
+    let processFinishedValue;
+    if (hasReturnString) {
+      processFinishedValue = statusPromise2.then(() => stdoutAndStderrDoneWritingPromise.then(() => returnStringChunks.join("")));
+    } else {
+      processFinishedValue = statusPromise2.then(({ success, code: code2 }) => {
+        return {
+          isDone: true,
+          status: syncStatus,
+          sendSignal: () => 0,
+          success,
+          exitCode: code2,
+          pid: process.pid,
+          rid: process.rid,
+          kill: () => 0,
+          close: process.close,
+          stdin: runArg.stdin == "null" ? null : process.stdin || Deno.stdin,
+          stdout: process.stdout || Deno.stdout,
+          stderr: process.stderr || Deno.stderr
+        };
+      });
+    }
+    const returnValueOrError = new Promise(async (resolve15, reject) => {
+      if (commandMetaData.throwIfFails) {
+        const status = await statusPromise2;
+        if (!status.success) {
+          reject(await processFinishedValue);
+          return;
+        }
+      }
+      resolve15(processFinishedValue);
+    });
+    return [process, returnValueOrError, statusPromise2];
+  };
+  const asyncPartPromise = asyncPart();
+  const processPromise = asyncPartPromise.then(([process, processFinishedValue, statusPromise2]) => process).catch((err) => err);
+  const statusPromise = asyncPartPromise.then(([process, processFinishedValue, statusPromise2]) => statusPromise2).catch((err) => err);
+  const returnValuePromise = asyncPartPromise.then(([process, processFinishedValue, statusPromise2]) => processFinishedValue);
+  Object.defineProperties(returnValuePromise, {
+    status: { get() {
+      return syncStatus;
+    } },
+    isDone: { get() {
+      return syncStatus.done;
+    } },
+    sendSignal: { get() {
+      return (...args2) => processPromise.then((process) => process.kill(...args2)).catch((error) => error);
+    } },
+    kill: { get() {
+      return (signal = "SIGKILL") => processPromise.then((process) => process.kill(signal));
+    } },
+    close: { get() {
+      return (...args2) => processPromise.then((process) => process.close(...args2));
+    } },
+    success: { get() {
+      return statusPromise.then(({ success }) => success);
+    } },
+    exitCode: { get() {
+      return statusPromise.then(({ code: code2 }) => code2);
+    } },
+    outcome: { get() {
+      return statusPromise;
+    } },
+    rid: { get() {
+      return processPromise.then(({ rid }) => rid);
+    } },
+    pid: { get() {
+      return processPromise.then(({ pid }) => pid);
+    } },
+    stdout: { get() {
+      return processPromise.then(({ stdout }) => stdout || Deno.stdout);
+    } },
+    stderr: { get() {
+      return processPromise.then(({ stderr }) => stderr || Deno.stderr);
+    } },
+    stdin: {
+      get() {
+        const realStdinPromise = processPromise.then(({ stdin }) => stdin || Deno.stdin);
+        return {
+          send(rawDataOrString) {
+            if (typeof rawDataOrString == "string") {
+              return { ...realStdinPromise.then((realStdin) => realStdin.write(new TextEncoder().encode(rawDataOrString))), ...this };
+            } else {
+              return { ...realStdinPromise.then((realStdin) => realStdin.write(rawDataOrString)), ...this };
+            }
+          },
+          close(...args2) {
+            return realStdinPromise.then((realStdin) => (realStdin.close(...args2), this));
+          }
+        };
+      }
+    }
+  });
+  return returnValuePromise;
+};
+run3.Timeout = Timeout2;
+run3.Env = Env2;
+run3.Cwd = Cwd2;
+run3.Stdin = Stdin2;
+run3.Stdout = Stdout2;
+run3.Stderr = Stderr2;
+run3.Out = Out2;
+run3.Overwrite = Overwrite2;
+run3.AppendTo = AppendTo2;
+run3.zipInto = zipInto2;
+run3.mergeInto = mergeInto2;
+run3.returnAsString = returnAsString2;
+
 // tools/search_tools.js
 var versionToList = (version) => `${version}`.split(".").map((each2) => each2.split(/(?<=\d)(?=\D)/)).flat(1).map((each2) => each2.match(/^\d+$/) ? each2 - 0 : each2);
 var rikudoeSage = {
@@ -23058,7 +26005,7 @@ var determinateSystems = {
     const versionInfo = await fetch(`${url}/releases`).then((result2) => result2.json());
     const extractOutputs = async (version) => {
       try {
-        const info = await run2`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)} ${Stderr(null)}`;
+        const info = await run3`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout2(returnAsString2)} ${Stderr2(null)}`;
         return [...new Set(Object.values(JSON.parse(info).packages).map((each2) => Object.keys(each2)).flat(1))];
       } catch (error) {
         return [];
