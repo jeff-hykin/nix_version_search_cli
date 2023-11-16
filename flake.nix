@@ -11,7 +11,7 @@
             let
                 pkgs = nixpkgs.legacyPackages.${system};
                 nvsBase = (pkgs.callPackage
-                    (pkgs.import ./default.nix)
+                    (builtins.import ./default.nix)
                     {
                         pkgs = pkgs;
                         deno = pkgs.deno;
