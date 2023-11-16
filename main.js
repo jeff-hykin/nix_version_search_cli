@@ -4,6 +4,7 @@ import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "htt
 import { Console, red, lightRed, yellow, green, cyan, dim } from "https://deno.land/x/quickr@0.6.54/main/console.js"
 import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.54/main/run.js"
 import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString, regex, findAll, iterativelyFindAll, escapeRegexMatch, escapeRegexReplace, extractFirst, isValidIdentifier, removeCommonPrefix, didYouMean } from "https://deno.land/x/good@1.5.1.0/string.js"
+import { FileSystem } from "https://deno.land/x/quickr@0.6.54/main/file_system.js"
 
 import { selectOne } from "./tools/input_tools.js"
 import { search, determinateSystems } from "./tools/search_tools.js"
@@ -13,15 +14,20 @@ const posixShellEscape = (string)=>"'"+string.replace(/'/g, `'"'"'`)+"'"
 // 
 // flakes check
 // 
-let hasFlakesEnabled = localStorage.getItem("nix:hasFlakes")
-if (hasFlakesEnabled == null) {
+const cachePath = `${FileSystem.home}/.cache/nvs/has_flakes_enabled.check`
+let hasFlakesEnabledString = FileSystem.sync.read(cachePath)
+if (hasFlakesEnabledString == null) {
     console.log(`\nLet me check real quick if you have flakes enabled`)
     console.log(`(this will only run once)`)
     var {success} = await run`nix flake show --all-systems ${"https://flakehub.com/f/snowfallorg/cowsay/1.2.1.tar.gz"} ${Out(null)}`
-    hasFlakesEnabled = JSON.stringify(success)
-    localStorage.setItem("nix:hasFlakes", hasFlakesEnabled)
+    console.log(`\n`)
+    hasFlakesEnabledString = `${success}`
+    FileSystem.sync.write({
+        data: hasFlakesEnabledString,
+        path: cachePath,
+    })
 }
-hasFlakesEnabled = JSON.parse(hasFlakesEnabled)
+const hasFlakesEnabled = JSON.parse(hasFlakesEnabledString)
 
 
 const contextOptions = ["global", "code", "repl"]

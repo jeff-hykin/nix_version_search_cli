@@ -23082,17 +23082,23 @@ var determinateSystems = {
 
 // main.js
 var posixShellEscape = (string2) => "'" + string2.replace(/'/g, `'"'"'`) + "'";
-var hasFlakesEnabled = localStorage.getItem("nix:hasFlakes");
-if (hasFlakesEnabled == null) {
+var cachePath = `${FileSystem.home}/.cache/nvs/has_flakes_enabled.check`;
+var hasFlakesEnabledString = FileSystem.sync.read(cachePath);
+if (hasFlakesEnabledString == null) {
   console.log(`
 Let me check real quick if you have flakes enabled`);
   console.log(`(this will only run once)`);
   ({ success } = await run2`nix flake show --all-systems ${"https://flakehub.com/f/snowfallorg/cowsay/1.2.1.tar.gz"} ${Out(null)}`);
-  hasFlakesEnabled = JSON.stringify(success);
-  localStorage.setItem("nix:hasFlakes", hasFlakesEnabled);
+  console.log(`
+`);
+  hasFlakesEnabledString = `${success}`;
+  FileSystem.sync.write({
+    data: hasFlakesEnabledString,
+    path: cachePath
+  });
 }
 var success;
-hasFlakesEnabled = JSON.parse(hasFlakesEnabled);
+var hasFlakesEnabled = JSON.parse(hasFlakesEnabledString);
 var contextOptions = ["global", "code", "repl"];
 async function createCommand({ whichContext }) {
   if (!contextOptions.includes(whichContext)) {
