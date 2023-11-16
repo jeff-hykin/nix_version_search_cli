@@ -38,7 +38,7 @@ export async function createCommand({whichContext}) {
     const command = await new Command()
         // Main command.
         .name("Nix Version Search")
-        .version("0.1.0")
+        .version("0.2.0")
         .description(`Find exact versions of nix packages\n\nExamples:\n    nvsc python@3\n    nvsg python@3\n    nvsr python@3`)
         .arguments("<input:string>")
         .globalOption("-e, --explain", "Include beginner-friendly explanations with the output")

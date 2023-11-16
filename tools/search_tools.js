@@ -1282,7 +1282,7 @@ export const determinateSystems = {
         // ]
         
         const extractOutputs = async (version)=>{
-            const info = await run`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)}`
+            const info = await run`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)} ${Stderr(null)}`
             return [...new Set(Object.values(JSON.parse(info).packages).map(each=>Object.keys(each)).flat(1))]
         } 
 

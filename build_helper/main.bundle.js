@@ -23057,7 +23057,7 @@ var determinateSystems = {
     const url = `https://flakehub.com/f/${org}/${project}`;
     const versionInfo = await fetch(`${url}/releases`).then((result2) => result2.json());
     const extractOutputs = async (version) => {
-      const info = await run2`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)}`;
+      const info = await run2`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)} ${Stderr(null)}`;
       return [...new Set(Object.values(JSON.parse(info).packages).map((each2) => Object.keys(each2)).flat(1))];
     };
     await Promise.all(
@@ -23104,7 +23104,7 @@ async function createCommand({ whichContext }) {
   if (!contextOptions.includes(whichContext)) {
     throw Error(`This is shouldn't be possible, createCommand() was called with ${JSON.stringify(whichContext)} which isn't one of the contextOptions ${contextOptions} `);
   }
-  const command = await new Command().name("Nix Version Search").version("0.1.0").description(`Find exact versions of nix packages
+  const command = await new Command().name("Nix Version Search").version("0.2.0").description(`Find exact versions of nix packages
 
 Examples:
     nvsc python@3
