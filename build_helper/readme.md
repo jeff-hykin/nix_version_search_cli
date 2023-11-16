@@ -17,6 +17,8 @@ Then install nvs:
 
 ```sh
 nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/REPLACEME_420492093.tar.gz
+# or
+nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/REPLACEME_420492093.tar.gz#nvs'
 ```
 
 ## How to use
