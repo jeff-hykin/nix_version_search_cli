@@ -362,7 +362,7 @@ const command = await new Command()
             if (!didSomething) {
                 if (hasFlakesEnabled) {
                     const name = toCamelCase(packageName)
-                    const nonDefaultPackages = versionInfo.packageOutputs.filter(each=>each!="default")
+                    const nonDefaultPackages = (versionInfo?.packageOutputs||[]).filter(each=>each!="default")
                     if (!options.explain) {
                         console.log(`Okay use the following to get ${humanPackageSummary}`)
                         console.log(``)
