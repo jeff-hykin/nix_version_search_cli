@@ -7,8 +7,7 @@ import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/qu
 // import { Parser, parserFromWasm } from "https://deno.land/x/deno_tree_sitter@0.1.3.0/main.js"
 // import html from "https://github.com/jeff-hykin/common_tree_sitter_languages/raw/4d8a6d34d7f6263ff570f333cdcf5ded6be89e3d/main/html.js"
 
-const versionToList = version=>`${version}`.split(".").map(each=>each.split(/(?<=\d)(?=\D)/)).flat(1).map(each=>each.match(/^\d+$/)?each-0:each)
-
+import { versionToList, versionSort } from "./misc.js"
 
 export const rikudoeSage = {
     async searchBasePackage(query) {
@@ -43,7 +42,12 @@ export const rikudoeSage = {
     },
     async getVersionsFor(attrPath) {
         const url = `https://api.history.nix-packages.com/packages/${encodeURIComponent(attrPath)}`
-        const results = await fetch(url).then(result=>result.json())
+        let results
+        try {
+            results = await fetch(url).then(result=>result.json())
+        } catch (error) {
+            return []
+        }
         return results.map(({name,revision,version})=>({version, hash:revision, attrPath: name}))
     },
 }
@@ -86,7 +90,12 @@ export const devbox = {
     },
     async getVersionsFor(attrPath) {
         const url = `https://www.nixhub.io/packages/${encodeURIComponent(attrPath)}`
-        const htmlResult = await fetch(url).then(result=>result.text())
+        let htmlResult
+        try {
+            htmlResult = await fetch(url).then(result=>result.text())
+        } catch (error) {
+            return []
+        }
         const document = new DOMParser().parseFromString(
             htmlResult,
             "text/html",
@@ -135,7 +144,12 @@ export const lazamar = {
     async getVersionsFor(attrPath) {
         let query = attrPath.split(".").slice(-1)[0]
         const url = `https://lazamar.co.uk/nix-versions/?channel=nixpkgs-unstable&package=${encodeURIComponent(query)}`
-        const htmlResult = await fetch(url).then(result=>result.text())
+        let htmlResult
+        try {
+            htmlResult = await fetch(url).then(result=>result.text())
+        } catch (error) {
+            return []
+        }
         const document = new DOMParser().parseFromString(
             htmlResult,
             "text/html",
@@ -183,6 +197,7 @@ export async function search(query) {
                     versions = versions.concat(await sourceTools.getVersionsFor(value.attrPath))
                 } catch (error) {
                     console.warn(`Failed getting version info from one of the sources (${name}):\n    ${error}\n`)
+                    resolve(null)
                 }
             }
             const alreadySeen = new Set()
@@ -193,20 +208,7 @@ export async function search(query) {
                 alreadySeen.add(each.version)
                 return true
             })
-            versions.sort(
-                (a, b) => {
-                    for (const [numberForA, numberForB ] of zip(versionToList(a.version), versionToList(b.version))) {
-                        if (numberForA != numberForB) {
-                            if (typeof numberForB == "number" && typeof numberForB == "number") {
-                                return numberForB - numberForA
-                            } else {
-                                return `${numberForB}`.localeCompare(numberForA)
-                            }
-                        }
-                    }
-                    return 0
-                }
-            )
+            versions = versionSort({array: versions, elementToVersion: (each)=>each.version})
             resolve(versions)
         })
     }
@@ -239,7 +241,12 @@ export const determinateSystems = {
     async getVersionsFor(flakePackage) {
         const { org, project, description, labels } = flakePackage
         const url = `https://flakehub.com/f/${org}/${project}`
-        const versionInfo = await fetch(`${url}/releases`).then(result=>result.json())
+        let versionInfo
+        try {
+            versionInfo = await fetch(`${url}/releases`).then(result=>result.json())
+        } catch (error) {
+            return []
+        }
         
         // outputInfo
         // {

@@ -3,7 +3,7 @@ import { Input } from "../subrepos/cliffy/prompt/input.ts"
 import { stripColor } from "../subrepos/cliffy/prompt/deps.ts"
 import { distance } from "../subrepos/cliffy/_utils/distance.ts"
 
-export function selectOne({ message, showList, showInfo, options, optionDescriptions }) {
+export function selectOne({ message, showList, showInfo, options, optionDescriptions, autocompleteOnSubmit=true }) {
     let optionStrings
     if (options instanceof Array) {
         optionStrings = options
@@ -35,8 +35,13 @@ export function selectOne({ message, showList, showInfo, options, optionDescript
         info: showInfo,
         suggestions,
         suggestionDescriptions,
-        completeOnSubmit: true,
+        completeOnSubmit: autocompleteOnSubmit,
     }).then((answer)=>{
+        console.debug(`answer is:`,answer)
+        if (!autocompleteOnSubmit) {
+            return answer
+        }
+        
         if (optionStrings.includes(answer)) {
             return options[answer]
         } else {
