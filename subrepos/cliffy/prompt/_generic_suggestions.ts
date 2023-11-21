@@ -420,7 +420,7 @@ export abstract class GenericSuggestions<TValue, TRawValue>
         }
         break;
       case this.isKey(this.settings.keys, "submit", event):
-        if (this.settings.completeOnSubmit || this.suggestionsIndex != -1) {
+        if (this.settings.completeOnSubmit || ((this.getCurrentInputValue().trim().length == 0) && this.suggestionsIndex != -1)) {
             await this.#completeValue()
         }
         await this.submit();

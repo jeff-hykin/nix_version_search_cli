@@ -37,7 +37,6 @@ export function selectOne({ message, showList, showInfo, options, optionDescript
         suggestionDescriptions,
         completeOnSubmit: autocompleteOnSubmit,
     }).then((answer)=>{
-        console.debug(`answer is:`,answer)
         if (!autocompleteOnSubmit) {
             return answer
         }

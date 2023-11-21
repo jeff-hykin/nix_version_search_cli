@@ -165,7 +165,6 @@ const command = await new Command()
                 autocompleteOnSubmit: false,
                 options: versionOptions.map(each=>each.version),
             })
-            console.log(`Selected: ${version}\n`)
             const viableVersions = versionOptions.filter(each=>each.version.startsWith(version))
             if (viableVersions.length == 0) {
                 throw Error(`Sorry I don't see that version`)
