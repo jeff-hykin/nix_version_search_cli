@@ -152,7 +152,7 @@ async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}
             break
         }
     } else {
-        await run`nix-env -iA ${versionInfo.attrPath} -f {https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz}`
+        await run`nix-env -iA ${versionInfo.attrPath} -f ${`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`}`
         console.log(`\n - ✅ ${versionInfo.attrPath}@${versionInfo.version} should now be installed`)
     }
 }
