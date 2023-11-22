@@ -32,8 +32,9 @@ const listNixPackages =  async ()=>{
 // 
 // flakes check
 // 
-const cachePath = `${FileSystem.home}/.cache/nvs/has_flakes_enabled.check.json`
-let hasFlakesEnabledString = FileSystem.sync.read(cachePath)
+const cacheFolder = `${FileSystem.home}/.cache/nvs/`
+const flakesCheckPath = `${cacheFolder}/has_flakes_enabled.check.json`
+let hasFlakesEnabledString = FileSystem.sync.read(flakesCheckPath)
 if (hasFlakesEnabledString == null) {
     console.warn(`\n${cyan`❄️`} Checking if you use flakes...`)
     console.warn(dim`- (this will only run once)`)
@@ -48,12 +49,12 @@ if (hasFlakesEnabledString == null) {
     } else {
         console.warn(`${dim`- Okay looks like you dont use flakes`} ${red`X`}`)
     }
-    console.warn(`${dim`- Saving this preference to disk at:\n    `}${yellow(JSON.stringify(cachePath))}`)
+    console.warn(`${dim`- Saving this preference to disk at:\n    `}${yellow(JSON.stringify(flakesCheckPath))}`)
     hasFlakesEnabledString = JSON.stringify(hasFlakesEnabledString)
     console.warn(`\n`)
     FileSystem.sync.write({
         data: hasFlakesEnabledString,
-        path: cachePath,
+        path: flakesCheckPath,
     })
 }
 const hasFlakesEnabled = JSON.parse(hasFlakesEnabledString)
@@ -255,7 +256,7 @@ const command = await new Command()
         var [ name, versionPrefix ] = args[0].split("@")
         versionPrefix = versionPrefix||""
         
-        const results = await search(name)
+        const results = await search(name, {cacheFolder})
         let flakeResults = []
         if (hasFlakesEnabled) {
             flakeResults = await determinateSystems.search(name)

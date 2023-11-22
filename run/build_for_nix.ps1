@@ -8,7 +8,9 @@ import { Console, bold, lightRed, yellow } from "https://deno.land/x/quickr@0.6.
 import { run, Timeout, Env, Cwd, Stdin, Stdout, Stderr, Out, Overwrite, AppendTo, throwIfFails, returnAsString, zipInto, mergeInto } from "https://deno.land/x/quickr@0.6.51/main/run.js"
 
 
-
+const escapeNixString = (string)=>{
+    return `"${string.replace(/\$\{|[\\"]/g, '\\$&').replace(/\u0000/g, '\\0')}"`
+}
 
 const argsWereGiven = Deno.args.length > 0
 
@@ -72,7 +74,7 @@ await FileSystem.write({
     #
     #
     
-    `.replace(/\n    /g, "\n")+(await FileSystem.read(nixFileTemplate)).replace(/REPLACEME_420492093/g, latestCommitHash).replace(/REPLACEME_VERSION_9409841/g, version)
+    `.replace(/\n    /g, "\n")+(await FileSystem.read(nixFileTemplate)).replace(/REPLACEME_420492093/g, latestCommitHash).replace(/REPLACEME_VERSION_9409841/g, escapeNixString(version))
 })
 
 await FileSystem.write({

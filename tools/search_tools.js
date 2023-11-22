@@ -3,40 +3,54 @@ import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
 import { deepCopy, deepCopySymbol, allKeyDescriptions, deepSortObject, shallowSortObject, isGeneratorType,isAsyncIterable, isSyncIterable, isTechnicallyIterable, isSyncIterableObjectOrContainer, allKeys } from "https://deno.land/x/good@1.5.1.0/value.js"
 import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.54/main/run.js"
+import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.js"
 
 // import { Parser, parserFromWasm } from "https://deno.land/x/deno_tree_sitter@0.1.3.0/main.js"
 // import html from "https://github.com/jeff-hykin/common_tree_sitter_languages/raw/4d8a6d34d7f6263ff570f333cdcf5ded6be89e3d/main/html.js"
 
 import { versionToList, versionSort } from "./misc.js"
+import names from "../names.js"
 
 export const rikudoeSage = {
-    async searchBasePackage(query) {
+    async searchBasePackage(query, {cacheFolder}) {
         try {
-            // FIXME: "history.nix-packages.com" uses a frontend caching method (not a bad idea)
-            // but also doesn't render it, so it can't be scraped from the html
-            // so for now, just don't get any package names from here
-            return []
+            const cachePath = `${cacheFolder}/rikudoeSage.allPackages.cache.js`
+            const info = await FileSystem.info(cachePath)
+            let output
+            if (!info.isFile) {
+                if (names.has(query)) {
+                    output = [ { attrPath: query } ]
+                }
+            } else {
+                const names = await import(cachePath)
+                if (names.has(query)) {
+                    output = [ { attrPath: query } ]
+                }
+            }
+            // dont await because it doesn't matter
+            fetch("https://api.history.nix-packages.com/packages", {
+                "credentials": "omit",
+                "headers": {
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0",
+                    "Accept": "application/json, text/plain, */*",
+                    "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
+                    "Sec-Fetch-Dest": "empty",
+                    "Sec-Fetch-Mode": "cors",
+                    "Sec-Fetch-Site": "same-site"
+                },
+                "referrer": "https://history.nix-packages.com/",
+                "method": "GET",
+                "mode": "cors"
+            }).catch(_=>0).then(result=>result.json().catch(_=>0)).then(listOfPackageNames=>{
+                FileSystem.write({
+                    path: cachePath,
+                    data: "export default new Set("+JSON.stringify(listOfPackageNames)+")",
+                }).catch(_=>0)
+            })
             
-            // const url = `https://history.nix-packages.com/search?search=${encodeURIComponent(query)}`
-            // const htmlResult = await fetch(url).then(result=>result.text())
-            // var document = new DOMParser().parseFromString(
-            //     htmlResult,
-            //     "text/html",
-            // )
-            // const list = document.querySelector(".search-results ul")
-            // if (!list) {
-            //     throw Error(`Looks like https://history.nix-packages.com has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))` )
-            // }
-            // const searchResults = [...list.querySelectorAll("a")]
-            // return searchResults.map(each=>{
-            //     const dataDiv = each.querySelector("div")
-            //     const output = {
-            //         attrPath: each.innerText,
-            //     }
-            //     return output
-            // })
-            
+            return output
         } catch (error) {
+            console.error(error)
             throw Error(`Unable to connect to history.nix-packages.com:\n    ${error}`)
         }
     },
@@ -180,11 +194,11 @@ const sources = {
     "history.nix-packages.com":rikudoeSage,
     "nixhub.io": devbox,
 }
-export async function search(query) {
+export async function search(query, { cacheFolder }) {
     let basePackages = []
     for (const [name, sourceTools] of Object.entries(sources)) {
         try {
-            basePackages = basePackages.concat(await sourceTools.searchBasePackage(query))
+            basePackages = basePackages.concat(await sourceTools.searchBasePackage(query, {cacheFolder}))
         } catch (error) {
             console.warn(`Failed getting packages from one of the sources (${name}):\n    ${error}\n`)
         }
