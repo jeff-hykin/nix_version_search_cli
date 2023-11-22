@@ -16,7 +16,7 @@ export const rikudoeSage = {
         try {
             const cachePath = `${cacheFolder}/rikudoeSage.allPackages.cache.js`
             const info = await FileSystem.info(cachePath)
-            let output
+            let output = []
             if (!info.isFile) {
                 if (names.has(query)) {
                     output = [ { attrPath: query } ]
@@ -47,7 +47,7 @@ export const rikudoeSage = {
                     data: "export default new Set("+JSON.stringify(listOfPackageNames)+")",
                 }).catch(_=>0)
             })
-            
+
             return output
         } catch (error) {
             console.error(error)
@@ -198,11 +198,13 @@ export async function search(query, { cacheFolder }) {
     let basePackages = []
     for (const [name, sourceTools] of Object.entries(sources)) {
         try {
-            basePackages = basePackages.concat(await sourceTools.searchBasePackage(query, {cacheFolder}))
+            const newResults = await sourceTools.searchBasePackage(query, {cacheFolder})
+            basePackages = basePackages.concat(newResults)
         } catch (error) {
             console.warn(`Failed getting packages from one of the sources (${name}):\n    ${error}\n`)
         }
     }
+    basePackages = basePackages.filter(each=>each)
     for (const value of basePackages) {
         value.versionsPromise = new Promise(async (resolve, reject)=>{
             let versions = []
