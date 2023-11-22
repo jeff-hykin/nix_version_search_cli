@@ -4,6 +4,400 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
+// https://deno.land/x/spinners@v1.1.2/spinner-types.ts
+var SpinnerTypes = {
+  windows: {
+    interval: 80,
+    frames: ["/", "-", "\\", "|"]
+  },
+  dots: {
+    interval: 80,
+    frames: ["\u280B", "\u2819", "\u2839", "\u2838", "\u283C", "\u2834", "\u2826", "\u2827", "\u2807", "\u280F"]
+  },
+  arc: {
+    interval: 100,
+    frames: ["\u25DC", "\u25E0", "\u25DD", "\u25DE", "\u25E1", "\u25DF"]
+  }
+};
+
+// https://deno.land/std@0.52.0/fmt/colors.ts
+var colors_exports = {};
+__export(colors_exports, {
+  bgBlack: () => bgBlack,
+  bgBlue: () => bgBlue,
+  bgCyan: () => bgCyan,
+  bgGreen: () => bgGreen,
+  bgMagenta: () => bgMagenta,
+  bgRed: () => bgRed,
+  bgRgb24: () => bgRgb24,
+  bgRgb8: () => bgRgb8,
+  bgWhite: () => bgWhite,
+  bgYellow: () => bgYellow,
+  black: () => black,
+  blue: () => blue,
+  bold: () => bold,
+  cyan: () => cyan,
+  dim: () => dim,
+  getColorEnabled: () => getColorEnabled,
+  gray: () => gray,
+  green: () => green,
+  hidden: () => hidden,
+  inverse: () => inverse,
+  italic: () => italic,
+  magenta: () => magenta,
+  red: () => red,
+  reset: () => reset,
+  rgb24: () => rgb24,
+  rgb8: () => rgb8,
+  setColorEnabled: () => setColorEnabled,
+  strikethrough: () => strikethrough,
+  stripColor: () => stripColor,
+  underline: () => underline,
+  white: () => white,
+  yellow: () => yellow
+});
+var { noColor } = Deno;
+var enabled = !noColor;
+function setColorEnabled(value) {
+  if (noColor) {
+    return;
+  }
+  enabled = value;
+}
+function getColorEnabled() {
+  return enabled;
+}
+function code(open, close) {
+  return {
+    open: `\x1B[${open.join(";")}m`,
+    close: `\x1B[${close}m`,
+    regexp: new RegExp(`\\x1b\\[${close}m`, "g")
+  };
+}
+function run(str2, code3) {
+  return enabled ? `${code3.open}${str2.replace(code3.regexp, code3.open)}${code3.close}` : str2;
+}
+function reset(str2) {
+  return run(str2, code([0], 0));
+}
+function bold(str2) {
+  return run(str2, code([1], 22));
+}
+function dim(str2) {
+  return run(str2, code([2], 22));
+}
+function italic(str2) {
+  return run(str2, code([3], 23));
+}
+function underline(str2) {
+  return run(str2, code([4], 24));
+}
+function inverse(str2) {
+  return run(str2, code([7], 27));
+}
+function hidden(str2) {
+  return run(str2, code([8], 28));
+}
+function strikethrough(str2) {
+  return run(str2, code([9], 29));
+}
+function black(str2) {
+  return run(str2, code([30], 39));
+}
+function red(str2) {
+  return run(str2, code([31], 39));
+}
+function green(str2) {
+  return run(str2, code([32], 39));
+}
+function yellow(str2) {
+  return run(str2, code([33], 39));
+}
+function blue(str2) {
+  return run(str2, code([34], 39));
+}
+function magenta(str2) {
+  return run(str2, code([35], 39));
+}
+function cyan(str2) {
+  return run(str2, code([36], 39));
+}
+function white(str2) {
+  return run(str2, code([37], 39));
+}
+function gray(str2) {
+  return run(str2, code([90], 39));
+}
+function bgBlack(str2) {
+  return run(str2, code([40], 49));
+}
+function bgRed(str2) {
+  return run(str2, code([41], 49));
+}
+function bgGreen(str2) {
+  return run(str2, code([42], 49));
+}
+function bgYellow(str2) {
+  return run(str2, code([43], 49));
+}
+function bgBlue(str2) {
+  return run(str2, code([44], 49));
+}
+function bgMagenta(str2) {
+  return run(str2, code([45], 49));
+}
+function bgCyan(str2) {
+  return run(str2, code([46], 49));
+}
+function bgWhite(str2) {
+  return run(str2, code([47], 49));
+}
+function clampAndTruncate(n, max = 255, min = 0) {
+  return Math.trunc(Math.max(Math.min(n, max), min));
+}
+function rgb8(str2, color) {
+  return run(str2, code([38, 5, clampAndTruncate(color)], 39));
+}
+function bgRgb8(str2, color) {
+  return run(str2, code([48, 5, clampAndTruncate(color)], 49));
+}
+function rgb24(str2, color) {
+  if (typeof color === "number") {
+    return run(
+      str2,
+      code([38, 2, color >> 16 & 255, color >> 8 & 255, color & 255], 39)
+    );
+  }
+  return run(
+    str2,
+    code(
+      [
+        38,
+        2,
+        clampAndTruncate(color.r),
+        clampAndTruncate(color.g),
+        clampAndTruncate(color.b)
+      ],
+      39
+    )
+  );
+}
+function bgRgb24(str2, color) {
+  if (typeof color === "number") {
+    return run(
+      str2,
+      code([48, 2, color >> 16 & 255, color >> 8 & 255, color & 255], 49)
+    );
+  }
+  return run(
+    str2,
+    code(
+      [
+        48,
+        2,
+        clampAndTruncate(color.r),
+        clampAndTruncate(color.g),
+        clampAndTruncate(color.b)
+      ],
+      49
+    )
+  );
+}
+var ANSI_PATTERN = new RegExp(
+  [
+    "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
+    "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))"
+  ].join("|"),
+  "g"
+);
+function stripColor(string2) {
+  return string2.replace(ANSI_PATTERN, "");
+}
+
+// https://deno.land/x/spinners@v1.1.2/util.ts
+var ESC = "\x1B[";
+function colorise(color) {
+  return colors_exports[color];
+}
+function writeLine(writer, encoder3, text, indent4) {
+  Deno.writeAllSync(
+    writer,
+    encoder3.encode(`\r${indent4 ? ESC + indent4 + "C" : ""}${text}`)
+  );
+}
+function clearLine(writer, encoder3) {
+  Deno.writeAllSync(writer, encoder3.encode(ESC + "2K\r"));
+}
+function hideCursor(writer, encoder3) {
+  Deno.writeAllSync(writer, encoder3.encode(ESC + "?25l"));
+}
+function showCursor(writer, encoder3) {
+  Deno.writeAllSync(writer, encoder3.encode(ESC + "?25h"));
+}
+
+// https://deno.land/x/spinners@v1.1.2/terminal-spinner.ts
+var TerminalSpinner = class {
+  options = {
+    text: "",
+    color: "white",
+    spinner: Deno.build.os === "windows" ? SpinnerTypes.windows : SpinnerTypes.dots,
+    prefixText: "",
+    indent: 0,
+    cursor: false,
+    writer: Deno.stdout
+  };
+  timeoutRef;
+  spinning = false;
+  currentFrame = 0;
+  textEncoder = new TextEncoder();
+  constructor(options) {
+    if (!options)
+      return;
+    if (typeof options === "string") {
+      options = {
+        text: options
+      };
+    }
+    Object.assign(this.options, options);
+    this.render();
+  }
+  set(options) {
+    if (typeof options === "string") {
+      options = {
+        text: options
+      };
+    }
+    Object.assign(this.options, options);
+    this.render();
+    return this;
+  }
+  /**
+   * Starts the spinner
+   * @param text The text to display after the spinner
+   */
+  start(text) {
+    if (this.spinning) {
+      this.stop();
+    }
+    this.spinning = true;
+    if (text)
+      this.set(text);
+    if (!this.options.cursor)
+      hideCursor(this.options.writer, this.textEncoder);
+    this.timeoutRef = setInterval(() => {
+      this.currentFrame = (this.currentFrame + 1) % this.options.spinner.frames.length;
+      this.render();
+    }, this.options.spinner.interval);
+    return this;
+  }
+  /**
+   * Stops the spinner and holds it in a static state. Returns the instance.
+   * @param options The options to apply after stopping the spinner
+   */
+  stopAndPersist(options) {
+    clearInterval(this.timeoutRef);
+    this.spinning = false;
+    if (options)
+      this.set(options);
+    return this;
+  }
+  /**
+   * Renders the next frame of the spinner when it is stopped.
+   */
+  renderNextFrame() {
+    if (this.spinning)
+      throw new Error(
+        "You cannot manually render frames when the spinner is running, run stopAndPersist() first."
+      );
+    this.currentFrame = (this.currentFrame + 1) % this.options.spinner.frames.length;
+    this.render();
+    return this;
+  }
+  /**
+   * Stops the spinner and clears its line
+   */
+  stop() {
+    clearInterval(this.timeoutRef);
+    clearLine(this.options.writer, this.textEncoder);
+    if (!this.options.cursor)
+      showCursor(this.options.writer, this.textEncoder);
+    this.spinning = false;
+    return this;
+  }
+  /**
+   * Stops the spinner and leaves a message in its place
+   * @param text The message to show when stopped
+   * @param flair The icon to prepend the message
+   */
+  stopWithFlair(text = this.options.text, flair) {
+    this.stop();
+    writeLine(
+      this.options.writer,
+      this.textEncoder,
+      `${flair} ${text}
+`,
+      this.options.indent
+    );
+    return this;
+  }
+  /**
+   * Stops the spinner and leaves a success message.
+   *
+   * The function is a wrapper around ```stopWithFlair```.
+   * @param text The message to be shown when stopped
+   */
+  succeed(text = this.options.text) {
+    return this.stopWithFlair(text, bold(green("\u221A")));
+  }
+  /**
+   * Stops the spinner and leaves a failure message.
+   *
+   * The function is a wrapper around ```stopWithFlair```.
+   * @param text The message to be shown when stopped
+   */
+  fail(text = this.options.text) {
+    return this.stopWithFlair(text, bold(red("X")));
+  }
+  /**
+   * Stops the spinner and leaves a warning message.
+   *
+   * The function is a wrapper around ```stopWithFlair```.
+   * @param text The message to be shown when stopped
+   */
+  warn(text = this.options.text) {
+    return this.stopWithFlair(text, bold(yellow("!")));
+  }
+  /**
+   * Stops the spinner and leaves an information message.
+   *
+   * The function is a wrapper around ```stopWithFlair```.
+   * @param text The message to be shown when stopped
+   */
+  info(text = this.options.text) {
+    return this.stopWithFlair(text, bold(blue("i")));
+  }
+  /**
+   * Returns whether the instance is currently spinning
+   */
+  isSpinning() {
+    return this.spinning;
+  }
+  /**
+   * Renders each frame of the spinner
+   */
+  render() {
+    const colorFunc = colorise(this.options.color);
+    writeLine(
+      this.options.writer,
+      this.textEncoder,
+      `${this.options.prefixText}${colorFunc(
+        this.options.spinner.frames[this.currentFrame]
+      )} ${this.options.text}`,
+      this.options.indent
+    );
+  }
+};
+
 // https://deno.land/x/cliffy@v1.0.0-rc.3/_utils/distance.ts
 function distance(a, b) {
   if (a.length == 0) {
@@ -838,69 +1232,69 @@ function getDescription(description, short) {
 
 // https://deno.land/std@0.196.0/fmt/colors.ts
 var { Deno: Deno2 } = globalThis;
-var noColor = typeof Deno2?.noColor === "boolean" ? Deno2.noColor : false;
-var enabled = !noColor;
-function setColorEnabled(value) {
+var noColor2 = typeof Deno2?.noColor === "boolean" ? Deno2.noColor : false;
+var enabled2 = !noColor2;
+function setColorEnabled2(value) {
   if (Deno2?.noColor) {
     return;
   }
-  enabled = value;
+  enabled2 = value;
 }
-function getColorEnabled() {
-  return enabled;
+function getColorEnabled2() {
+  return enabled2;
 }
-function code(open, close) {
+function code2(open, close) {
   return {
     open: `\x1B[${open.join(";")}m`,
     close: `\x1B[${close}m`,
     regexp: new RegExp(`\\x1b\\[${close}m`, "g")
   };
 }
-function run(str2, code2) {
-  return enabled ? `${code2.open}${str2.replace(code2.regexp, code2.open)}${code2.close}` : str2;
+function run2(str2, code3) {
+  return enabled2 ? `${code3.open}${str2.replace(code3.regexp, code3.open)}${code3.close}` : str2;
 }
-function reset(str2) {
-  return run(str2, code([0], 0));
+function reset2(str2) {
+  return run2(str2, code2([0], 0));
 }
-function bold(str2) {
-  return run(str2, code([1], 22));
+function bold2(str2) {
+  return run2(str2, code2([1], 22));
 }
-function dim(str2) {
-  return run(str2, code([2], 22));
+function dim2(str2) {
+  return run2(str2, code2([2], 22));
 }
-function italic(str2) {
-  return run(str2, code([3], 23));
+function italic2(str2) {
+  return run2(str2, code2([3], 23));
 }
-function underline(str2) {
-  return run(str2, code([4], 24));
+function underline2(str2) {
+  return run2(str2, code2([4], 24));
 }
-function red(str2) {
-  return run(str2, code([31], 39));
+function red2(str2) {
+  return run2(str2, code2([31], 39));
 }
-function green(str2) {
-  return run(str2, code([32], 39));
+function green2(str2) {
+  return run2(str2, code2([32], 39));
 }
-function yellow(str2) {
-  return run(str2, code([33], 39));
+function yellow2(str2) {
+  return run2(str2, code2([33], 39));
 }
-function cyan(str2) {
-  return run(str2, code([36], 39));
+function cyan2(str2) {
+  return run2(str2, code2([36], 39));
 }
 function brightBlue(str2) {
-  return run(str2, code([94], 39));
+  return run2(str2, code2([94], 39));
 }
 function brightMagenta(str2) {
-  return run(str2, code([95], 39));
+  return run2(str2, code2([95], 39));
 }
-var ANSI_PATTERN = new RegExp(
+var ANSI_PATTERN2 = new RegExp(
   [
     "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
     "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))"
   ].join("|"),
   "g"
 );
-function stripColor(string2) {
-  return string2.replace(ANSI_PATTERN, "");
+function stripColor2(string2) {
+  return string2.replace(ANSI_PATTERN2, "");
 }
 
 // https://deno.land/x/cliffy@v1.0.0-rc.3/command/_errors.ts
@@ -922,7 +1316,7 @@ var ValidationError2 = class _ValidationError extends CommandError {
 var DuplicateOptionNameError = class _DuplicateOptionNameError extends CommandError {
   constructor(optionName, commandName) {
     super(
-      `An option with name '${bold(getFlag(optionName))}' is already registered on command '${bold(commandName)}'. If it is intended to override the option, set the '${bold("override")}' option of the '${bold("option")}' method to true.`
+      `An option with name '${bold2(getFlag(optionName))}' is already registered on command '${bold2(commandName)}'. If it is intended to override the option, set the '${bold2("override")}' option of the '${bold2("option")}' method to true.`
     );
     Object.setPrototypeOf(this, _DuplicateOptionNameError.prototype);
   }
@@ -1437,7 +1831,7 @@ function longest(index, rows, maxWidth) {
   return Math.max(...cellLengths);
 }
 var strLength = (str2) => {
-  return unicodeWidth(stripColor(str2));
+  return unicodeWidth(stripColor2(str2));
 };
 
 // https://deno.land/x/cliffy@v1.0.0-rc.3/table/consume_words.ts
@@ -2304,17 +2698,17 @@ var HelpGenerator = class _HelpGenerator {
     return new _HelpGenerator(cmd, options).generate();
   }
   generate() {
-    const areColorsEnabled = getColorEnabled();
-    setColorEnabled(this.options.colors);
+    const areColorsEnabled = getColorEnabled2();
+    setColorEnabled2(this.options.colors);
     const result2 = this.generateHeader() + this.generateMeta() + this.generateDescription() + this.generateOptions() + this.generateCommands() + this.generateEnvironmentVariables() + this.generateExamples();
-    setColorEnabled(areColorsEnabled);
+    setColorEnabled2(areColorsEnabled);
     return result2;
   }
   generateHeader() {
     const usage = this.cmd.getUsage();
     const rows = [
       [
-        bold("Usage:"),
+        bold2("Usage:"),
         brightMagenta(
           this.cmd.getPath() + (usage ? " " + highlightArguments(usage, this.options.types) : "")
         )
@@ -2322,7 +2716,7 @@ var HelpGenerator = class _HelpGenerator {
     ];
     const version = this.cmd.getVersion();
     if (version) {
-      rows.push([bold("Version:"), yellow(`${this.cmd.getVersion()}`)]);
+      rows.push([bold2("Version:"), yellow2(`${this.cmd.getVersion()}`)]);
     }
     return "\n" + Table.from(rows).padding(1).toString() + "\n";
   }
@@ -2333,7 +2727,7 @@ var HelpGenerator = class _HelpGenerator {
     }
     const rows = [];
     for (const [name, value] of meta) {
-      rows.push([bold(`${name}: `) + value]);
+      rows.push([bold2(`${name}: `) + value]);
     }
     return "\n" + Table.from(rows).padding(1).toString() + "\n";
   }
@@ -2391,7 +2785,7 @@ var HelpGenerator = class _HelpGenerator {
             option.typeDefinition || "",
             this.options.types
           ),
-          red(bold("-")),
+          red2(bold2("-")),
           getDescription(option.description, !this.options.long),
           this.generateHints(option)
         ])
@@ -2400,7 +2794,7 @@ var HelpGenerator = class _HelpGenerator {
     return this.label(group.name ?? "Options") + Table.from([
       ...group.options.map((option) => [
         option.flags.map((flag) => brightBlue(flag)).join(", "),
-        red(bold("-")),
+        red2(bold2("-")),
         getDescription(option.description, !this.options.long),
         this.generateHints(option)
       ])
@@ -2424,7 +2818,7 @@ var HelpGenerator = class _HelpGenerator {
             command2.getArgsDefinition() || "",
             this.options.types
           ),
-          red(bold("-")),
+          red2(bold2("-")),
           command2.getShortDescription()
         ])
       ]).indent(this.indent).maxColWidth([60, 60, 1, 80]).padding([2, 2, 1, 2]).toString() + "\n";
@@ -2434,7 +2828,7 @@ var HelpGenerator = class _HelpGenerator {
         [command2.getName(), ...command2.getAliases()].map(
           (name) => brightBlue(name)
         ).join(", "),
-        red(bold("-")),
+        red2(bold2("-")),
         command2.getShortDescription()
       ])
     ]).maxColWidth([60, 1, 80]).padding([2, 1, 2]).indent(this.indent).toString() + "\n";
@@ -2451,9 +2845,9 @@ var HelpGenerator = class _HelpGenerator {
           envVar.details,
           this.options.types
         ),
-        red(bold("-")),
+        red2(bold2("-")),
         this.options.long ? dedent(envVar.description) : envVar.description.trim().split("\n", 1)[0],
-        envVar.required ? `(${yellow(`required`)})` : ""
+        envVar.required ? `(${yellow2(`required`)})` : ""
       ])
     ]).padding([2, 2, 1, 2]).indent(this.indent).maxColWidth([60, 60, 1, 80, 10]).toString() + "\n";
   }
@@ -2463,7 +2857,7 @@ var HelpGenerator = class _HelpGenerator {
       return "";
     }
     return this.label("Examples") + Table.from(examples.map((example) => [
-      dim(bold(`${capitalize(example.name)}:`)),
+      dim2(bold2(`${capitalize(example.name)}:`)),
       dedent(example.description)
     ])).padding(1).indent(this.indent).maxColWidth(150).toString() + "\n";
   }
@@ -2472,27 +2866,27 @@ var HelpGenerator = class _HelpGenerator {
       return "";
     }
     const hints = [];
-    option.required && hints.push(yellow(`required`));
+    option.required && hints.push(yellow2(`required`));
     if (typeof option.default !== "undefined") {
       const defaultValue = getDefaultValue(option);
       if (typeof defaultValue !== "undefined") {
         hints.push(
-          bold(`Default: `) + inspect(defaultValue, this.options.colors)
+          bold2(`Default: `) + inspect(defaultValue, this.options.colors)
         );
       }
     }
     option.depends?.length && hints.push(
-      yellow(bold(`Depends: `)) + italic(option.depends.map(getFlag).join(", "))
+      yellow2(bold2(`Depends: `)) + italic2(option.depends.map(getFlag).join(", "))
     );
     option.conflicts?.length && hints.push(
-      red(bold(`Conflicts: `)) + italic(option.conflicts.map(getFlag).join(", "))
+      red2(bold2(`Conflicts: `)) + italic2(option.conflicts.map(getFlag).join(", "))
     );
     const type = this.cmd.getType(option.args[0]?.type)?.handler;
     if (type instanceof Type) {
       const possibleValues = type.values?.(this.cmd, this.cmd.getParent());
       if (possibleValues?.length) {
         hints.push(
-          bold(`Values: `) + possibleValues.map(
+          bold2(`Values: `) + possibleValues.map(
             (value) => inspect(value, this.options.colors)
           ).join(", ")
         );
@@ -2504,7 +2898,7 @@ var HelpGenerator = class _HelpGenerator {
     return "";
   }
   label(label) {
-    return "\n" + bold(`${label}:`) + "\n\n";
+    return "\n" + bold2(`${label}:`) + "\n\n";
   }
 };
 function capitalize(string2) {
@@ -2527,7 +2921,7 @@ function highlightArguments(argsDefinition, types = true) {
 }
 function highlightArgumentDetails(arg, types = true) {
   let str2 = "";
-  str2 += yellow(arg.optional ? "[" : "<");
+  str2 += yellow2(arg.optional ? "[" : "<");
   let name = "";
   name += arg.name;
   if (arg.variadic) {
@@ -2536,13 +2930,13 @@ function highlightArgumentDetails(arg, types = true) {
   name = brightMagenta(name);
   str2 += name;
   if (types) {
-    str2 += yellow(":");
-    str2 += red(arg.type);
+    str2 += yellow2(":");
+    str2 += red2(arg.type);
     if (arg.list) {
-      str2 += green("[]");
+      str2 += green2("[]");
     }
   }
-  str2 += yellow(arg.optional ? "]" : ">");
+  str2 += yellow2(arg.optional ? "]" : ">");
   return str2;
 }
 
@@ -2559,7 +2953,7 @@ async function checkVersion(cmd) {
     return;
   }
   const versionHelpText = `(New version available: ${latestVersion}. Run '${mainCommand.getName()} upgrade' to upgrade to the latest version!)`;
-  mainCommand.version(`${currentVersion}  ${bold(yellow(versionHelpText))}`);
+  mainCommand.version(`${currentVersion}  ${bold2(yellow2(versionHelpText))}`);
 }
 function isUpgradeCommand(command2) {
   return command2 instanceof Command && "getLatestVersion" in command2;
@@ -3519,7 +3913,7 @@ var Command = class _Command {
       throw error;
     }
     this.showHelp();
-    console.error(red(`  ${bold("error")}: ${error.message}
+    console.error(red2(`  ${bold2("error")}: ${error.message}
 `));
     Deno.exit(error instanceof ValidationError2 ? error.exitCode : 1);
   }
@@ -3620,9 +4014,9 @@ var Command = class _Command {
   }
   /** Returns command name, version and meta data. */
   getLongVersion() {
-    return `${bold(this.getMainCommand().getName())} ${brightBlue(this.getVersion() ?? "")}` + Object.entries(this.getMeta()).map(
+    return `${bold2(this.getMainCommand().getName())} ${brightBlue(this.getVersion() ?? "")}` + Object.entries(this.getMeta()).map(
       ([k, v]) => `
-${bold(k)} ${brightBlue(v)}`
+${bold2(k)} ${brightBlue(v)}`
     ).join("");
   }
   /** Outputs command name, version and meta data. */
@@ -3642,9 +4036,9 @@ ${bold(k)} ${brightBlue(v)}`
   getHelpHandler() {
     return this._help ?? this._parent?.getHelpHandler();
   }
-  exit(code2 = 0) {
+  exit(code3 = 0) {
     if (this.shouldExit()) {
-      Deno.exit(code2);
+      Deno.exit(code3);
     }
   }
   /*****************************************************************************
@@ -3655,39 +4049,39 @@ ${bold(k)} ${brightBlue(v)}`
    *
    * @param hidden Include hidden options.
    */
-  hasOptions(hidden) {
-    return this.getOptions(hidden).length > 0;
+  hasOptions(hidden2) {
+    return this.getOptions(hidden2).length > 0;
   }
   /**
    * Get options.
    *
    * @param hidden Include hidden options.
    */
-  getOptions(hidden) {
-    return this.getGlobalOptions(hidden).concat(this.getBaseOptions(hidden));
+  getOptions(hidden2) {
+    return this.getGlobalOptions(hidden2).concat(this.getBaseOptions(hidden2));
   }
   /**
    * Get base options.
    *
    * @param hidden Include hidden options.
    */
-  getBaseOptions(hidden) {
+  getBaseOptions(hidden2) {
     if (!this.options.length) {
       return [];
     }
-    return hidden ? this.options.slice(0) : this.options.filter((opt) => !opt.hidden);
+    return hidden2 ? this.options.slice(0) : this.options.filter((opt) => !opt.hidden);
   }
   /**
    * Get global options.
    *
    * @param hidden Include hidden options.
    */
-  getGlobalOptions(hidden) {
+  getGlobalOptions(hidden2) {
     const helpOption = this.getHelpOption();
     const getGlobals = (cmd, noGlobals, options = [], names = []) => {
       if (cmd.options.length) {
         for (const option of cmd.options) {
-          if (option.global && !this.options.find((opt) => opt.name === option.name) && names.indexOf(option.name) === -1 && (hidden || !option.hidden)) {
+          if (option.global && !this.options.find((opt) => opt.name === option.name) && names.indexOf(option.name) === -1 && (hidden2 || !option.hidden)) {
             if (noGlobals && option !== helpOption) {
               continue;
             }
@@ -3711,8 +4105,8 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name of the option. Must be in param-case.
    * @param hidden Include hidden options.
    */
-  hasOption(name, hidden) {
-    return !!this.getOption(name, hidden);
+  hasOption(name, hidden2) {
+    return !!this.getOption(name, hidden2);
   }
   /**
    * Get option by name.
@@ -3720,8 +4114,8 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name of the option. Must be in param-case.
    * @param hidden Include hidden options.
    */
-  getOption(name, hidden) {
-    return this.getBaseOption(name, hidden) ?? this.getGlobalOption(name, hidden);
+  getOption(name, hidden2) {
+    return this.getBaseOption(name, hidden2) ?? this.getGlobalOption(name, hidden2);
   }
   /**
    * Get base option by name.
@@ -3729,11 +4123,11 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name of the option. Must be in param-case.
    * @param hidden Include hidden options.
    */
-  getBaseOption(name, hidden) {
+  getBaseOption(name, hidden2) {
     const option = this.options.find(
       (option2) => option2.name === name || option2.aliases?.includes(name)
     );
-    return option && (hidden || !option.hidden) ? option : void 0;
+    return option && (hidden2 || !option.hidden) ? option : void 0;
   }
   /**
    * Get global option from parent commands by name.
@@ -3741,12 +4135,12 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name of the option. Must be in param-case.
    * @param hidden Include hidden options.
    */
-  getGlobalOption(name, hidden) {
+  getGlobalOption(name, hidden2) {
     const helpOption = this.getHelpOption();
     const getGlobalOption = (parent, noGlobals) => {
       const option = parent.getBaseOption(
         name,
-        hidden
+        hidden2
       );
       if (!option?.global) {
         return parent._parent && getGlobalOption(
@@ -3781,36 +4175,36 @@ ${bold(k)} ${brightBlue(v)}`
    *
    * @param hidden Include hidden commands.
    */
-  hasCommands(hidden) {
-    return this.getCommands(hidden).length > 0;
+  hasCommands(hidden2) {
+    return this.getCommands(hidden2).length > 0;
   }
   /**
    * Get commands.
    *
    * @param hidden Include hidden commands.
    */
-  getCommands(hidden) {
-    return this.getGlobalCommands(hidden).concat(this.getBaseCommands(hidden));
+  getCommands(hidden2) {
+    return this.getGlobalCommands(hidden2).concat(this.getBaseCommands(hidden2));
   }
   /**
    * Get base commands.
    *
    * @param hidden Include hidden commands.
    */
-  getBaseCommands(hidden) {
+  getBaseCommands(hidden2) {
     const commands = Array.from(this.commands.values());
-    return hidden ? commands : commands.filter((cmd) => !cmd.isHidden);
+    return hidden2 ? commands : commands.filter((cmd) => !cmd.isHidden);
   }
   /**
    * Get global commands.
    *
    * @param hidden Include hidden commands.
    */
-  getGlobalCommands(hidden) {
+  getGlobalCommands(hidden2) {
     const getCommands = (command2, noGlobals, commands = [], names = []) => {
       if (command2.commands.size) {
         for (const [_, cmd] of command2.commands) {
-          if (cmd.isGlobal && this !== cmd && !this.commands.has(cmd._name) && names.indexOf(cmd._name) === -1 && (hidden || !cmd.isHidden)) {
+          if (cmd.isGlobal && this !== cmd && !this.commands.has(cmd._name) && names.indexOf(cmd._name) === -1 && (hidden2 || !cmd.isHidden)) {
             if (noGlobals && cmd?.getName() !== "help") {
               continue;
             }
@@ -3834,8 +4228,8 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name or alias of the command.
    * @param hidden Include hidden commands.
    */
-  hasCommand(name, hidden) {
-    return !!this.getCommand(name, hidden);
+  hasCommand(name, hidden2) {
+    return !!this.getCommand(name, hidden2);
   }
   /**
    * Get command by name or alias.
@@ -3843,8 +4237,8 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name or alias of the command.
    * @param hidden Include hidden commands.
    */
-  getCommand(name, hidden) {
-    return this.getBaseCommand(name, hidden) ?? this.getGlobalCommand(name, hidden);
+  getCommand(name, hidden2) {
+    return this.getBaseCommand(name, hidden2) ?? this.getGlobalCommand(name, hidden2);
   }
   /**
    * Get base command by name or alias.
@@ -3852,10 +4246,10 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name or alias of the command.
    * @param hidden Include hidden commands.
    */
-  getBaseCommand(name, hidden) {
+  getBaseCommand(name, hidden2) {
     for (const cmd of this.commands.values()) {
       if (cmd._name === name || cmd.aliases.includes(name)) {
-        return cmd && (hidden || !cmd.isHidden) ? cmd : void 0;
+        return cmd && (hidden2 || !cmd.isHidden) ? cmd : void 0;
       }
     }
   }
@@ -3865,9 +4259,9 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name or alias of the command.
    * @param hidden Include hidden commands.
    */
-  getGlobalCommand(name, hidden) {
+  getGlobalCommand(name, hidden2) {
     const getGlobalCommand = (parent, noGlobals) => {
-      const cmd = parent.getBaseCommand(name, hidden);
+      const cmd = parent.getBaseCommand(name, hidden2);
       if (!cmd?.isGlobal) {
         return parent._parent && getGlobalCommand(parent._parent, noGlobals || parent._noGlobals);
       }
@@ -4011,34 +4405,34 @@ ${bold(k)} ${brightBlue(v)}`
    *
    * @param hidden Include hidden environment variable.
    */
-  hasEnvVars(hidden) {
-    return this.getEnvVars(hidden).length > 0;
+  hasEnvVars(hidden2) {
+    return this.getEnvVars(hidden2).length > 0;
   }
   /**
    * Get environment variables.
    *
    * @param hidden Include hidden environment variable.
    */
-  getEnvVars(hidden) {
-    return this.getGlobalEnvVars(hidden).concat(this.getBaseEnvVars(hidden));
+  getEnvVars(hidden2) {
+    return this.getGlobalEnvVars(hidden2).concat(this.getBaseEnvVars(hidden2));
   }
   /**
    * Get base environment variables.
    *
    * @param hidden Include hidden environment variable.
    */
-  getBaseEnvVars(hidden) {
+  getBaseEnvVars(hidden2) {
     if (!this.envVars.length) {
       return [];
     }
-    return hidden ? this.envVars.slice(0) : this.envVars.filter((env3) => !env3.hidden);
+    return hidden2 ? this.envVars.slice(0) : this.envVars.filter((env3) => !env3.hidden);
   }
   /**
    * Get global environment variables.
    *
    * @param hidden Include hidden environment variable.
    */
-  getGlobalEnvVars(hidden) {
+  getGlobalEnvVars(hidden2) {
     if (this._noGlobals) {
       return [];
     }
@@ -4046,7 +4440,7 @@ ${bold(k)} ${brightBlue(v)}`
       if (cmd) {
         if (cmd.envVars.length) {
           cmd.envVars.forEach((envVar) => {
-            if (envVar.global && !this.envVars.find((env3) => env3.names[0] === envVar.names[0]) && names.indexOf(envVar.names[0]) === -1 && (hidden || !envVar.hidden)) {
+            if (envVar.global && !this.envVars.find((env3) => env3.names[0] === envVar.names[0]) && names.indexOf(envVar.names[0]) === -1 && (hidden2 || !envVar.hidden)) {
               names.push(envVar.names[0]);
               envVars.push(envVar);
             }
@@ -4064,8 +4458,8 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name of the environment variable.
    * @param hidden Include hidden environment variable.
    */
-  hasEnvVar(name, hidden) {
-    return !!this.getEnvVar(name, hidden);
+  hasEnvVar(name, hidden2) {
+    return !!this.getEnvVar(name, hidden2);
   }
   /**
    * Get environment variable by name.
@@ -4073,8 +4467,8 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name of the environment variable.
    * @param hidden Include hidden environment variable.
    */
-  getEnvVar(name, hidden) {
-    return this.getBaseEnvVar(name, hidden) ?? this.getGlobalEnvVar(name, hidden);
+  getEnvVar(name, hidden2) {
+    return this.getBaseEnvVar(name, hidden2) ?? this.getGlobalEnvVar(name, hidden2);
   }
   /**
    * Get base environment variable by name.
@@ -4082,11 +4476,11 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name of the environment variable.
    * @param hidden Include hidden environment variable.
    */
-  getBaseEnvVar(name, hidden) {
+  getBaseEnvVar(name, hidden2) {
     const envVar = this.envVars.find(
       (env3) => env3.names.indexOf(name) !== -1
     );
-    return envVar && (hidden || !envVar.hidden) ? envVar : void 0;
+    return envVar && (hidden2 || !envVar.hidden) ? envVar : void 0;
   }
   /**
    * Get global environment variable by name.
@@ -4094,16 +4488,16 @@ ${bold(k)} ${brightBlue(v)}`
    * @param name Name of the environment variable.
    * @param hidden Include hidden environment variable.
    */
-  getGlobalEnvVar(name, hidden) {
+  getGlobalEnvVar(name, hidden2) {
     if (!this._parent || this._noGlobals) {
       return;
     }
     const envVar = this._parent.getBaseEnvVar(
       name,
-      hidden
+      hidden2
     );
     if (!envVar?.global) {
-      return this._parent.getGlobalEnvVar(name, hidden);
+      return this._parent.getGlobalEnvVar(name, hidden2);
     }
     return envVar;
   }
@@ -5171,7 +5565,7 @@ globalThis.console = new Proxy(originalThing, {
     return Reflect.set(original, key, ...args);
   }
 });
-var codeToEscapeString = (code2) => `\x1B[${code2}m`;
+var codeToEscapeString = (code3) => `\x1B[${code3}m`;
 var ansiRegexPattern = /[\u001B\u009B][[\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\d\/#&.:=?%@~_]+)*|[a-zA-Z\d]+(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g;
 function clearAnsiStylesFrom(string2) {
   return `${string2}`.replace(ansiRegexPattern, "");
@@ -5317,21 +5711,21 @@ var styleObject = (rootStyleString) => {
     ]
   )));
 };
-var bold2 = styleObject(styleStrings.bold);
-var reset2 = styleObject(styleStrings.reset);
-var dim2 = styleObject(styleStrings.dim);
-var italic2 = styleObject(styleStrings.italic);
-var underline2 = styleObject(styleStrings.underline);
-var inverse = styleObject(styleStrings.inverse);
-var strikethrough = styleObject(styleStrings.strikethrough);
-var black = styleObject(styleStrings.black);
-var white = styleObject(styleStrings.white);
-var red2 = styleObject(styleStrings.red);
-var green2 = styleObject(styleStrings.green);
-var blue = styleObject(styleStrings.blue);
-var yellow2 = styleObject(styleStrings.yellow);
-var cyan2 = styleObject(styleStrings.cyan);
-var magenta = styleObject(styleStrings.magenta);
+var bold3 = styleObject(styleStrings.bold);
+var reset3 = styleObject(styleStrings.reset);
+var dim3 = styleObject(styleStrings.dim);
+var italic3 = styleObject(styleStrings.italic);
+var underline3 = styleObject(styleStrings.underline);
+var inverse2 = styleObject(styleStrings.inverse);
+var strikethrough2 = styleObject(styleStrings.strikethrough);
+var black2 = styleObject(styleStrings.black);
+var white2 = styleObject(styleStrings.white);
+var red3 = styleObject(styleStrings.red);
+var green3 = styleObject(styleStrings.green);
+var blue2 = styleObject(styleStrings.blue);
+var yellow3 = styleObject(styleStrings.yellow);
+var cyan3 = styleObject(styleStrings.cyan);
+var magenta2 = styleObject(styleStrings.magenta);
 var lightBlack = styleObject(styleStrings.lightBlack);
 var lightWhite = styleObject(styleStrings.lightWhite);
 var lightRed = styleObject(styleStrings.lightRed);
@@ -5356,7 +5750,7 @@ var lightBlueBackground = styleObject(styleStrings.lightBlueBackground);
 var lightMagentaBackground = styleObject(styleStrings.lightMagentaBackground);
 var lightCyanBackground = styleObject(styleStrings.lightCyanBackground);
 var lightWhiteBackground = styleObject(styleStrings.lightWhiteBackground);
-var gray = styleObject(styleStrings.gray);
+var gray2 = styleObject(styleStrings.gray);
 var grey = styleObject(styleStrings.grey);
 var lightGray = styleObject(styleStrings.lightGray);
 var lightGrey = styleObject(styleStrings.lightGrey);
@@ -5734,29 +6128,29 @@ function assertPath(path10) {
     );
   }
 }
-function isPosixPathSeparator(code2) {
-  return code2 === CHAR_FORWARD_SLASH;
+function isPosixPathSeparator(code3) {
+  return code3 === CHAR_FORWARD_SLASH;
 }
-function isPathSeparator(code2) {
-  return isPosixPathSeparator(code2) || code2 === CHAR_BACKWARD_SLASH;
+function isPathSeparator(code3) {
+  return isPosixPathSeparator(code3) || code3 === CHAR_BACKWARD_SLASH;
 }
-function isWindowsDeviceRoot(code2) {
-  return code2 >= CHAR_LOWERCASE_A && code2 <= CHAR_LOWERCASE_Z || code2 >= CHAR_UPPERCASE_A && code2 <= CHAR_UPPERCASE_Z;
+function isWindowsDeviceRoot(code3) {
+  return code3 >= CHAR_LOWERCASE_A && code3 <= CHAR_LOWERCASE_Z || code3 >= CHAR_UPPERCASE_A && code3 <= CHAR_UPPERCASE_Z;
 }
 function normalizeString(path10, allowAboveRoot, separator, isPathSeparator6) {
   let res = "";
   let lastSegmentLength = 0;
   let lastSlash = -1;
   let dots = 0;
-  let code2;
+  let code3;
   for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
     if (i2 < len)
-      code2 = path10.charCodeAt(i2);
-    else if (isPathSeparator6(code2))
+      code3 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code3))
       break;
     else
-      code2 = CHAR_FORWARD_SLASH;
-    if (isPathSeparator6(code2)) {
+      code3 = CHAR_FORWARD_SLASH;
+    if (isPathSeparator6(code3)) {
       if (lastSlash === i2 - 1 || dots === 1) {
       } else if (lastSlash !== i2 - 1 && dots === 2) {
         if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT || res.charCodeAt(res.length - 2) !== CHAR_DOT) {
@@ -5796,7 +6190,7 @@ function normalizeString(path10, allowAboveRoot, separator, isPathSeparator6) {
       }
       lastSlash = i2;
       dots = 0;
-    } else if (code2 === CHAR_DOT && dots !== -1) {
+    } else if (code3 === CHAR_DOT && dots !== -1) {
       ++dots;
     } else {
       dots = -1;
@@ -5873,9 +6267,9 @@ function resolve(...pathSegments) {
     let rootEnd = 0;
     let device = "";
     let isAbsolute15 = false;
-    const code2 = path10.charCodeAt(0);
+    const code3 = path10.charCodeAt(0);
     if (len > 1) {
-      if (isPathSeparator(code2)) {
+      if (isPathSeparator(code3)) {
         isAbsolute15 = true;
         if (isPathSeparator(path10.charCodeAt(1))) {
           let j = 2;
@@ -5909,7 +6303,7 @@ function resolve(...pathSegments) {
         } else {
           rootEnd = 1;
         }
-      } else if (isWindowsDeviceRoot(code2)) {
+      } else if (isWindowsDeviceRoot(code3)) {
         if (path10.charCodeAt(1) === CHAR_COLON) {
           device = path10.slice(0, 2);
           rootEnd = 2;
@@ -5921,7 +6315,7 @@ function resolve(...pathSegments) {
           }
         }
       }
-    } else if (isPathSeparator(code2)) {
+    } else if (isPathSeparator(code3)) {
       rootEnd = 1;
       isAbsolute15 = true;
     }
@@ -5954,9 +6348,9 @@ function normalize(path10) {
   let rootEnd = 0;
   let device;
   let isAbsolute15 = false;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator(code2)) {
+    if (isPathSeparator(code3)) {
       isAbsolute15 = true;
       if (isPathSeparator(path10.charCodeAt(1))) {
         let j = 2;
@@ -5989,7 +6383,7 @@ function normalize(path10) {
       } else {
         rootEnd = 1;
       }
-    } else if (isWindowsDeviceRoot(code2)) {
+    } else if (isWindowsDeviceRoot(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON) {
         device = path10.slice(0, 2);
         rootEnd = 2;
@@ -6001,7 +6395,7 @@ function normalize(path10) {
         }
       }
     }
-  } else if (isPathSeparator(code2)) {
+  } else if (isPathSeparator(code3)) {
     return "\\";
   }
   let tail;
@@ -6047,10 +6441,10 @@ function isAbsolute(path10) {
   const len = path10.length;
   if (len === 0)
     return false;
-  const code2 = path10.charCodeAt(0);
-  if (isPathSeparator(code2)) {
+  const code3 = path10.charCodeAt(0);
+  if (isPathSeparator(code3)) {
     return true;
-  } else if (isWindowsDeviceRoot(code2)) {
+  } else if (isWindowsDeviceRoot(code3)) {
     if (len > 2 && path10.charCodeAt(1) === CHAR_COLON) {
       if (isPathSeparator(path10.charCodeAt(2)))
         return true;
@@ -6200,8 +6594,8 @@ function toNamespacedPath(path10) {
   if (resolvedPath.length >= 3) {
     if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH) {
       if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH) {
-        const code2 = resolvedPath.charCodeAt(2);
-        if (code2 !== CHAR_QUESTION_MARK && code2 !== CHAR_DOT) {
+        const code3 = resolvedPath.charCodeAt(2);
+        if (code3 !== CHAR_QUESTION_MARK && code3 !== CHAR_DOT) {
           return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
         }
       }
@@ -6222,9 +6616,9 @@ function dirname(path10) {
   let end = -1;
   let matchedSlash = true;
   let offset = 0;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator(code2)) {
+    if (isPathSeparator(code3)) {
       rootEnd = offset = 1;
       if (isPathSeparator(path10.charCodeAt(1))) {
         let j = 2;
@@ -6254,7 +6648,7 @@ function dirname(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot(code2)) {
+    } else if (isWindowsDeviceRoot(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON) {
         rootEnd = offset = 2;
         if (len > 2) {
@@ -6263,7 +6657,7 @@ function dirname(path10) {
         }
       }
     }
-  } else if (isPathSeparator(code2)) {
+  } else if (isPathSeparator(code3)) {
     return path10;
   }
   for (let i2 = len - 1; i2 >= offset; --i2) {
@@ -6306,8 +6700,8 @@ function basename(path10, ext = "") {
     let extIdx = ext.length - 1;
     let firstNonSlashEnd = -1;
     for (i2 = path10.length - 1; i2 >= start; --i2) {
-      const code2 = path10.charCodeAt(i2);
-      if (isPathSeparator(code2)) {
+      const code3 = path10.charCodeAt(i2);
+      if (isPathSeparator(code3)) {
         if (!matchedSlash) {
           start = i2 + 1;
           break;
@@ -6318,7 +6712,7 @@ function basename(path10, ext = "") {
           firstNonSlashEnd = i2 + 1;
         }
         if (extIdx >= 0) {
-          if (code2 === ext.charCodeAt(extIdx)) {
+          if (code3 === ext.charCodeAt(extIdx)) {
             if (--extIdx === -1) {
               end = i2;
             }
@@ -6363,8 +6757,8 @@ function extname(path10) {
     start = startPart = 2;
   }
   for (let i2 = path10.length - 1; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPathSeparator(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPathSeparator(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -6375,7 +6769,7 @@ function extname(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT) {
+    if (code3 === CHAR_DOT) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -6406,9 +6800,9 @@ function parse(path10) {
   if (len === 0)
     return ret;
   let rootEnd = 0;
-  let code2 = path10.charCodeAt(0);
+  let code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator(code2)) {
+    if (isPathSeparator(code3)) {
       rootEnd = 1;
       if (isPathSeparator(path10.charCodeAt(1))) {
         let j = 2;
@@ -6437,7 +6831,7 @@ function parse(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot(code2)) {
+    } else if (isWindowsDeviceRoot(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON) {
         rootEnd = 2;
         if (len > 2) {
@@ -6454,7 +6848,7 @@ function parse(path10) {
         }
       }
     }
-  } else if (isPathSeparator(code2)) {
+  } else if (isPathSeparator(code3)) {
     ret.root = ret.dir = path10;
     return ret;
   }
@@ -6467,8 +6861,8 @@ function parse(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= rootEnd; --i2) {
-    code2 = path10.charCodeAt(i2);
-    if (isPathSeparator(code2)) {
+    code3 = path10.charCodeAt(i2);
+    if (isPathSeparator(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -6479,7 +6873,7 @@ function parse(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT) {
+    if (code3 === CHAR_DOT) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -6740,8 +7134,8 @@ function basename2(path10, ext = "") {
     let extIdx = ext.length - 1;
     let firstNonSlashEnd = -1;
     for (i2 = path10.length - 1; i2 >= 0; --i2) {
-      const code2 = path10.charCodeAt(i2);
-      if (code2 === CHAR_FORWARD_SLASH) {
+      const code3 = path10.charCodeAt(i2);
+      if (code3 === CHAR_FORWARD_SLASH) {
         if (!matchedSlash) {
           start = i2 + 1;
           break;
@@ -6752,7 +7146,7 @@ function basename2(path10, ext = "") {
           firstNonSlashEnd = i2 + 1;
         }
         if (extIdx >= 0) {
-          if (code2 === ext.charCodeAt(extIdx)) {
+          if (code3 === ext.charCodeAt(extIdx)) {
             if (--extIdx === -1) {
               end = i2;
             }
@@ -6793,8 +7187,8 @@ function extname2(path10) {
   let matchedSlash = true;
   let preDotState = 0;
   for (let i2 = path10.length - 1; i2 >= 0; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (code2 === CHAR_FORWARD_SLASH) {
+    const code3 = path10.charCodeAt(i2);
+    if (code3 === CHAR_FORWARD_SLASH) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -6805,7 +7199,7 @@ function extname2(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT) {
+    if (code3 === CHAR_DOT) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -6849,8 +7243,8 @@ function parse2(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (code2 === CHAR_FORWARD_SLASH) {
+    const code3 = path10.charCodeAt(i2);
+    if (code3 === CHAR_FORWARD_SLASH) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -6861,7 +7255,7 @@ function parse2(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT) {
+    if (code3 === CHAR_DOT) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -6993,29 +7387,29 @@ function assertPath2(path10) {
     );
   }
 }
-function isPosixPathSeparator2(code2) {
-  return code2 === CHAR_FORWARD_SLASH2;
+function isPosixPathSeparator2(code3) {
+  return code3 === CHAR_FORWARD_SLASH2;
 }
-function isPathSeparator2(code2) {
-  return isPosixPathSeparator2(code2) || code2 === CHAR_BACKWARD_SLASH2;
+function isPathSeparator2(code3) {
+  return isPosixPathSeparator2(code3) || code3 === CHAR_BACKWARD_SLASH2;
 }
-function isWindowsDeviceRoot2(code2) {
-  return code2 >= CHAR_LOWERCASE_A2 && code2 <= CHAR_LOWERCASE_Z2 || code2 >= CHAR_UPPERCASE_A2 && code2 <= CHAR_UPPERCASE_Z2;
+function isWindowsDeviceRoot2(code3) {
+  return code3 >= CHAR_LOWERCASE_A2 && code3 <= CHAR_LOWERCASE_Z2 || code3 >= CHAR_UPPERCASE_A2 && code3 <= CHAR_UPPERCASE_Z2;
 }
 function normalizeString2(path10, allowAboveRoot, separator, isPathSeparator6) {
   let res = "";
   let lastSegmentLength = 0;
   let lastSlash = -1;
   let dots = 0;
-  let code2;
+  let code3;
   for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
     if (i2 < len)
-      code2 = path10.charCodeAt(i2);
-    else if (isPathSeparator6(code2))
+      code3 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code3))
       break;
     else
-      code2 = CHAR_FORWARD_SLASH2;
-    if (isPathSeparator6(code2)) {
+      code3 = CHAR_FORWARD_SLASH2;
+    if (isPathSeparator6(code3)) {
       if (lastSlash === i2 - 1 || dots === 1) {
       } else if (lastSlash !== i2 - 1 && dots === 2) {
         if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT2 || res.charCodeAt(res.length - 2) !== CHAR_DOT2) {
@@ -7055,7 +7449,7 @@ function normalizeString2(path10, allowAboveRoot, separator, isPathSeparator6) {
       }
       lastSlash = i2;
       dots = 0;
-    } else if (code2 === CHAR_DOT2 && dots !== -1) {
+    } else if (code3 === CHAR_DOT2 && dots !== -1) {
       ++dots;
     } else {
       dots = -1;
@@ -7132,9 +7526,9 @@ function resolve4(...pathSegments) {
     let rootEnd = 0;
     let device = "";
     let isAbsolute15 = false;
-    const code2 = path10.charCodeAt(0);
+    const code3 = path10.charCodeAt(0);
     if (len > 1) {
-      if (isPathSeparator2(code2)) {
+      if (isPathSeparator2(code3)) {
         isAbsolute15 = true;
         if (isPathSeparator2(path10.charCodeAt(1))) {
           let j = 2;
@@ -7168,7 +7562,7 @@ function resolve4(...pathSegments) {
         } else {
           rootEnd = 1;
         }
-      } else if (isWindowsDeviceRoot2(code2)) {
+      } else if (isWindowsDeviceRoot2(code3)) {
         if (path10.charCodeAt(1) === CHAR_COLON2) {
           device = path10.slice(0, 2);
           rootEnd = 2;
@@ -7180,7 +7574,7 @@ function resolve4(...pathSegments) {
           }
         }
       }
-    } else if (isPathSeparator2(code2)) {
+    } else if (isPathSeparator2(code3)) {
       rootEnd = 1;
       isAbsolute15 = true;
     }
@@ -7213,9 +7607,9 @@ function normalize5(path10) {
   let rootEnd = 0;
   let device;
   let isAbsolute15 = false;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator2(code2)) {
+    if (isPathSeparator2(code3)) {
       isAbsolute15 = true;
       if (isPathSeparator2(path10.charCodeAt(1))) {
         let j = 2;
@@ -7248,7 +7642,7 @@ function normalize5(path10) {
       } else {
         rootEnd = 1;
       }
-    } else if (isWindowsDeviceRoot2(code2)) {
+    } else if (isWindowsDeviceRoot2(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON2) {
         device = path10.slice(0, 2);
         rootEnd = 2;
@@ -7260,7 +7654,7 @@ function normalize5(path10) {
         }
       }
     }
-  } else if (isPathSeparator2(code2)) {
+  } else if (isPathSeparator2(code3)) {
     return "\\";
   }
   let tail;
@@ -7306,10 +7700,10 @@ function isAbsolute4(path10) {
   const len = path10.length;
   if (len === 0)
     return false;
-  const code2 = path10.charCodeAt(0);
-  if (isPathSeparator2(code2)) {
+  const code3 = path10.charCodeAt(0);
+  if (isPathSeparator2(code3)) {
     return true;
-  } else if (isWindowsDeviceRoot2(code2)) {
+  } else if (isWindowsDeviceRoot2(code3)) {
     if (len > 2 && path10.charCodeAt(1) === CHAR_COLON2) {
       if (isPathSeparator2(path10.charCodeAt(2)))
         return true;
@@ -7459,8 +7853,8 @@ function toNamespacedPath4(path10) {
   if (resolvedPath.length >= 3) {
     if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH2) {
       if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH2) {
-        const code2 = resolvedPath.charCodeAt(2);
-        if (code2 !== CHAR_QUESTION_MARK2 && code2 !== CHAR_DOT2) {
+        const code3 = resolvedPath.charCodeAt(2);
+        if (code3 !== CHAR_QUESTION_MARK2 && code3 !== CHAR_DOT2) {
           return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
         }
       }
@@ -7481,9 +7875,9 @@ function dirname4(path10) {
   let end = -1;
   let matchedSlash = true;
   let offset = 0;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator2(code2)) {
+    if (isPathSeparator2(code3)) {
       rootEnd = offset = 1;
       if (isPathSeparator2(path10.charCodeAt(1))) {
         let j = 2;
@@ -7513,7 +7907,7 @@ function dirname4(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot2(code2)) {
+    } else if (isWindowsDeviceRoot2(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON2) {
         rootEnd = offset = 2;
         if (len > 2) {
@@ -7522,7 +7916,7 @@ function dirname4(path10) {
         }
       }
     }
-  } else if (isPathSeparator2(code2)) {
+  } else if (isPathSeparator2(code3)) {
     return path10;
   }
   for (let i2 = len - 1; i2 >= offset; --i2) {
@@ -7565,8 +7959,8 @@ function basename4(path10, ext = "") {
     let extIdx = ext.length - 1;
     let firstNonSlashEnd = -1;
     for (i2 = path10.length - 1; i2 >= start; --i2) {
-      const code2 = path10.charCodeAt(i2);
-      if (isPathSeparator2(code2)) {
+      const code3 = path10.charCodeAt(i2);
+      if (isPathSeparator2(code3)) {
         if (!matchedSlash) {
           start = i2 + 1;
           break;
@@ -7577,7 +7971,7 @@ function basename4(path10, ext = "") {
           firstNonSlashEnd = i2 + 1;
         }
         if (extIdx >= 0) {
-          if (code2 === ext.charCodeAt(extIdx)) {
+          if (code3 === ext.charCodeAt(extIdx)) {
             if (--extIdx === -1) {
               end = i2;
             }
@@ -7622,8 +8016,8 @@ function extname4(path10) {
     start = startPart = 2;
   }
   for (let i2 = path10.length - 1; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPathSeparator2(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPathSeparator2(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -7634,7 +8028,7 @@ function extname4(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT2) {
+    if (code3 === CHAR_DOT2) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -7665,9 +8059,9 @@ function parse4(path10) {
   if (len === 0)
     return ret;
   let rootEnd = 0;
-  let code2 = path10.charCodeAt(0);
+  let code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator2(code2)) {
+    if (isPathSeparator2(code3)) {
       rootEnd = 1;
       if (isPathSeparator2(path10.charCodeAt(1))) {
         let j = 2;
@@ -7696,7 +8090,7 @@ function parse4(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot2(code2)) {
+    } else if (isWindowsDeviceRoot2(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON2) {
         rootEnd = 2;
         if (len > 2) {
@@ -7713,7 +8107,7 @@ function parse4(path10) {
         }
       }
     }
-  } else if (isPathSeparator2(code2)) {
+  } else if (isPathSeparator2(code3)) {
     ret.root = ret.dir = path10;
     return ret;
   }
@@ -7726,8 +8120,8 @@ function parse4(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= rootEnd; --i2) {
-    code2 = path10.charCodeAt(i2);
-    if (isPathSeparator2(code2)) {
+    code3 = path10.charCodeAt(i2);
+    if (isPathSeparator2(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -7738,7 +8132,7 @@ function parse4(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT2) {
+    if (code3 === CHAR_DOT2) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -7999,8 +8393,8 @@ function basename5(path10, ext = "") {
     let extIdx = ext.length - 1;
     let firstNonSlashEnd = -1;
     for (i2 = path10.length - 1; i2 >= 0; --i2) {
-      const code2 = path10.charCodeAt(i2);
-      if (code2 === CHAR_FORWARD_SLASH2) {
+      const code3 = path10.charCodeAt(i2);
+      if (code3 === CHAR_FORWARD_SLASH2) {
         if (!matchedSlash) {
           start = i2 + 1;
           break;
@@ -8011,7 +8405,7 @@ function basename5(path10, ext = "") {
           firstNonSlashEnd = i2 + 1;
         }
         if (extIdx >= 0) {
-          if (code2 === ext.charCodeAt(extIdx)) {
+          if (code3 === ext.charCodeAt(extIdx)) {
             if (--extIdx === -1) {
               end = i2;
             }
@@ -8052,8 +8446,8 @@ function extname5(path10) {
   let matchedSlash = true;
   let preDotState = 0;
   for (let i2 = path10.length - 1; i2 >= 0; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (code2 === CHAR_FORWARD_SLASH2) {
+    const code3 = path10.charCodeAt(i2);
+    if (code3 === CHAR_FORWARD_SLASH2) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -8064,7 +8458,7 @@ function extname5(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT2) {
+    if (code3 === CHAR_DOT2) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -8108,8 +8502,8 @@ function parse5(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (code2 === CHAR_FORWARD_SLASH2) {
+    const code3 = path10.charCodeAt(i2);
+    if (code3 === CHAR_FORWARD_SLASH2) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -8120,7 +8514,7 @@ function parse5(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT2) {
+    if (code3 === CHAR_DOT2) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -8752,29 +9146,29 @@ function assertPath3(path10) {
     );
   }
 }
-function isPosixPathSeparator3(code2) {
-  return code2 === CHAR_FORWARD_SLASH3;
+function isPosixPathSeparator3(code3) {
+  return code3 === CHAR_FORWARD_SLASH3;
 }
-function isPathSeparator3(code2) {
-  return isPosixPathSeparator3(code2) || code2 === CHAR_BACKWARD_SLASH3;
+function isPathSeparator3(code3) {
+  return isPosixPathSeparator3(code3) || code3 === CHAR_BACKWARD_SLASH3;
 }
-function isWindowsDeviceRoot3(code2) {
-  return code2 >= CHAR_LOWERCASE_A3 && code2 <= CHAR_LOWERCASE_Z3 || code2 >= CHAR_UPPERCASE_A3 && code2 <= CHAR_UPPERCASE_Z3;
+function isWindowsDeviceRoot3(code3) {
+  return code3 >= CHAR_LOWERCASE_A3 && code3 <= CHAR_LOWERCASE_Z3 || code3 >= CHAR_UPPERCASE_A3 && code3 <= CHAR_UPPERCASE_Z3;
 }
 function normalizeString3(path10, allowAboveRoot, separator, isPathSeparator6) {
   let res = "";
   let lastSegmentLength = 0;
   let lastSlash = -1;
   let dots = 0;
-  let code2;
+  let code3;
   for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
     if (i2 < len)
-      code2 = path10.charCodeAt(i2);
-    else if (isPathSeparator6(code2))
+      code3 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code3))
       break;
     else
-      code2 = CHAR_FORWARD_SLASH3;
-    if (isPathSeparator6(code2)) {
+      code3 = CHAR_FORWARD_SLASH3;
+    if (isPathSeparator6(code3)) {
       if (lastSlash === i2 - 1 || dots === 1) {
       } else if (lastSlash !== i2 - 1 && dots === 2) {
         if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT3 || res.charCodeAt(res.length - 2) !== CHAR_DOT3) {
@@ -8814,7 +9208,7 @@ function normalizeString3(path10, allowAboveRoot, separator, isPathSeparator6) {
       }
       lastSlash = i2;
       dots = 0;
-    } else if (code2 === CHAR_DOT3 && dots !== -1) {
+    } else if (code3 === CHAR_DOT3 && dots !== -1) {
       ++dots;
     } else {
       dots = -1;
@@ -8935,9 +9329,9 @@ function resolve7(...pathSegments) {
     let rootEnd = 0;
     let device = "";
     let isAbsolute15 = false;
-    const code2 = path10.charCodeAt(0);
+    const code3 = path10.charCodeAt(0);
     if (len > 1) {
-      if (isPathSeparator3(code2)) {
+      if (isPathSeparator3(code3)) {
         isAbsolute15 = true;
         if (isPathSeparator3(path10.charCodeAt(1))) {
           let j = 2;
@@ -8971,7 +9365,7 @@ function resolve7(...pathSegments) {
         } else {
           rootEnd = 1;
         }
-      } else if (isWindowsDeviceRoot3(code2)) {
+      } else if (isWindowsDeviceRoot3(code3)) {
         if (path10.charCodeAt(1) === CHAR_COLON3) {
           device = path10.slice(0, 2);
           rootEnd = 2;
@@ -8983,7 +9377,7 @@ function resolve7(...pathSegments) {
           }
         }
       }
-    } else if (isPathSeparator3(code2)) {
+    } else if (isPathSeparator3(code3)) {
       rootEnd = 1;
       isAbsolute15 = true;
     }
@@ -9016,9 +9410,9 @@ function normalize9(path10) {
   let rootEnd = 0;
   let device;
   let isAbsolute15 = false;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator3(code2)) {
+    if (isPathSeparator3(code3)) {
       isAbsolute15 = true;
       if (isPathSeparator3(path10.charCodeAt(1))) {
         let j = 2;
@@ -9051,7 +9445,7 @@ function normalize9(path10) {
       } else {
         rootEnd = 1;
       }
-    } else if (isWindowsDeviceRoot3(code2)) {
+    } else if (isWindowsDeviceRoot3(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON3) {
         device = path10.slice(0, 2);
         rootEnd = 2;
@@ -9063,7 +9457,7 @@ function normalize9(path10) {
         }
       }
     }
-  } else if (isPathSeparator3(code2)) {
+  } else if (isPathSeparator3(code3)) {
     return "\\";
   }
   let tail;
@@ -9109,10 +9503,10 @@ function isAbsolute7(path10) {
   const len = path10.length;
   if (len === 0)
     return false;
-  const code2 = path10.charCodeAt(0);
-  if (isPathSeparator3(code2)) {
+  const code3 = path10.charCodeAt(0);
+  if (isPathSeparator3(code3)) {
     return true;
-  } else if (isWindowsDeviceRoot3(code2)) {
+  } else if (isWindowsDeviceRoot3(code3)) {
     if (len > 2 && path10.charCodeAt(1) === CHAR_COLON3) {
       if (isPathSeparator3(path10.charCodeAt(2)))
         return true;
@@ -9262,8 +9656,8 @@ function toNamespacedPath7(path10) {
   if (resolvedPath.length >= 3) {
     if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH3) {
       if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH3) {
-        const code2 = resolvedPath.charCodeAt(2);
-        if (code2 !== CHAR_QUESTION_MARK3 && code2 !== CHAR_DOT3) {
+        const code3 = resolvedPath.charCodeAt(2);
+        if (code3 !== CHAR_QUESTION_MARK3 && code3 !== CHAR_DOT3) {
           return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
         }
       }
@@ -9284,9 +9678,9 @@ function dirname7(path10) {
   let end = -1;
   let matchedSlash = true;
   let offset = 0;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator3(code2)) {
+    if (isPathSeparator3(code3)) {
       rootEnd = offset = 1;
       if (isPathSeparator3(path10.charCodeAt(1))) {
         let j = 2;
@@ -9316,7 +9710,7 @@ function dirname7(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot3(code2)) {
+    } else if (isWindowsDeviceRoot3(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON3) {
         rootEnd = offset = 2;
         if (len > 2) {
@@ -9325,7 +9719,7 @@ function dirname7(path10) {
         }
       }
     }
-  } else if (isPathSeparator3(code2)) {
+  } else if (isPathSeparator3(code3)) {
     return path10;
   }
   for (let i2 = len - 1; i2 >= offset; --i2) {
@@ -9379,8 +9773,8 @@ function extname7(path10) {
     start = startPart = 2;
   }
   for (let i2 = path10.length - 1; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPathSeparator3(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPathSeparator3(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -9391,7 +9785,7 @@ function extname7(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT3) {
+    if (code3 === CHAR_DOT3) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -9422,9 +9816,9 @@ function parse7(path10) {
   if (len === 0)
     return ret;
   let rootEnd = 0;
-  let code2 = path10.charCodeAt(0);
+  let code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator3(code2)) {
+    if (isPathSeparator3(code3)) {
       rootEnd = 1;
       if (isPathSeparator3(path10.charCodeAt(1))) {
         let j = 2;
@@ -9453,7 +9847,7 @@ function parse7(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot3(code2)) {
+    } else if (isWindowsDeviceRoot3(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON3) {
         rootEnd = 2;
         if (len > 2) {
@@ -9471,7 +9865,7 @@ function parse7(path10) {
         }
       }
     }
-  } else if (isPathSeparator3(code2)) {
+  } else if (isPathSeparator3(code3)) {
     ret.root = ret.dir = path10;
     ret.base = "\\";
     return ret;
@@ -9485,8 +9879,8 @@ function parse7(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= rootEnd; --i2) {
-    code2 = path10.charCodeAt(i2);
-    if (isPathSeparator3(code2)) {
+    code3 = path10.charCodeAt(i2);
+    if (isPathSeparator3(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -9497,7 +9891,7 @@ function parse7(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT3) {
+    if (code3 === CHAR_DOT3) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -9770,8 +10164,8 @@ function extname8(path10) {
   let matchedSlash = true;
   let preDotState = 0;
   for (let i2 = path10.length - 1; i2 >= 0; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPosixPathSeparator3(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPosixPathSeparator3(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -9782,7 +10176,7 @@ function extname8(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT3) {
+    if (code3 === CHAR_DOT3) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -9826,8 +10220,8 @@ function parse8(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPosixPathSeparator3(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPosixPathSeparator3(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -9838,7 +10232,7 @@ function parse8(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT3) {
+    if (code3 === CHAR_DOT3) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -12742,8 +13136,8 @@ var DEFAULT_BUFFER_SIZE2 = 32 * 1024;
 
 // https://deno.land/std@0.128.0/fmt/colors.ts
 var { Deno: Deno3 } = globalThis;
-var noColor2 = typeof Deno3?.noColor === "boolean" ? Deno3.noColor : true;
-var ANSI_PATTERN2 = new RegExp(
+var noColor3 = typeof Deno3?.noColor === "boolean" ? Deno3.noColor : true;
+var ANSI_PATTERN3 = new RegExp(
   [
     "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
     "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))"
@@ -12814,29 +13208,29 @@ function assertPath4(path10) {
     );
   }
 }
-function isPosixPathSeparator4(code2) {
-  return code2 === CHAR_FORWARD_SLASH4;
+function isPosixPathSeparator4(code3) {
+  return code3 === CHAR_FORWARD_SLASH4;
 }
-function isPathSeparator4(code2) {
-  return isPosixPathSeparator4(code2) || code2 === CHAR_BACKWARD_SLASH4;
+function isPathSeparator4(code3) {
+  return isPosixPathSeparator4(code3) || code3 === CHAR_BACKWARD_SLASH4;
 }
-function isWindowsDeviceRoot4(code2) {
-  return code2 >= CHAR_LOWERCASE_A4 && code2 <= CHAR_LOWERCASE_Z4 || code2 >= CHAR_UPPERCASE_A4 && code2 <= CHAR_UPPERCASE_Z4;
+function isWindowsDeviceRoot4(code3) {
+  return code3 >= CHAR_LOWERCASE_A4 && code3 <= CHAR_LOWERCASE_Z4 || code3 >= CHAR_UPPERCASE_A4 && code3 <= CHAR_UPPERCASE_Z4;
 }
 function normalizeString4(path10, allowAboveRoot, separator, isPathSeparator6) {
   let res = "";
   let lastSegmentLength = 0;
   let lastSlash = -1;
   let dots = 0;
-  let code2;
+  let code3;
   for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
     if (i2 < len)
-      code2 = path10.charCodeAt(i2);
-    else if (isPathSeparator6(code2))
+      code3 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code3))
       break;
     else
-      code2 = CHAR_FORWARD_SLASH4;
-    if (isPathSeparator6(code2)) {
+      code3 = CHAR_FORWARD_SLASH4;
+    if (isPathSeparator6(code3)) {
       if (lastSlash === i2 - 1 || dots === 1) {
       } else if (lastSlash !== i2 - 1 && dots === 2) {
         if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT4 || res.charCodeAt(res.length - 2) !== CHAR_DOT4) {
@@ -12876,7 +13270,7 @@ function normalizeString4(path10, allowAboveRoot, separator, isPathSeparator6) {
       }
       lastSlash = i2;
       dots = 0;
-    } else if (code2 === CHAR_DOT4 && dots !== -1) {
+    } else if (code3 === CHAR_DOT4 && dots !== -1) {
       ++dots;
     } else {
       dots = -1;
@@ -12953,9 +13347,9 @@ function resolve9(...pathSegments) {
     let rootEnd = 0;
     let device = "";
     let isAbsolute15 = false;
-    const code2 = path10.charCodeAt(0);
+    const code3 = path10.charCodeAt(0);
     if (len > 1) {
-      if (isPathSeparator4(code2)) {
+      if (isPathSeparator4(code3)) {
         isAbsolute15 = true;
         if (isPathSeparator4(path10.charCodeAt(1))) {
           let j = 2;
@@ -12989,7 +13383,7 @@ function resolve9(...pathSegments) {
         } else {
           rootEnd = 1;
         }
-      } else if (isWindowsDeviceRoot4(code2)) {
+      } else if (isWindowsDeviceRoot4(code3)) {
         if (path10.charCodeAt(1) === CHAR_COLON4) {
           device = path10.slice(0, 2);
           rootEnd = 2;
@@ -13001,7 +13395,7 @@ function resolve9(...pathSegments) {
           }
         }
       }
-    } else if (isPathSeparator4(code2)) {
+    } else if (isPathSeparator4(code3)) {
       rootEnd = 1;
       isAbsolute15 = true;
     }
@@ -13034,9 +13428,9 @@ function normalize12(path10) {
   let rootEnd = 0;
   let device;
   let isAbsolute15 = false;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator4(code2)) {
+    if (isPathSeparator4(code3)) {
       isAbsolute15 = true;
       if (isPathSeparator4(path10.charCodeAt(1))) {
         let j = 2;
@@ -13069,7 +13463,7 @@ function normalize12(path10) {
       } else {
         rootEnd = 1;
       }
-    } else if (isWindowsDeviceRoot4(code2)) {
+    } else if (isWindowsDeviceRoot4(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON4) {
         device = path10.slice(0, 2);
         rootEnd = 2;
@@ -13081,7 +13475,7 @@ function normalize12(path10) {
         }
       }
     }
-  } else if (isPathSeparator4(code2)) {
+  } else if (isPathSeparator4(code3)) {
     return "\\";
   }
   let tail;
@@ -13127,10 +13521,10 @@ function isAbsolute9(path10) {
   const len = path10.length;
   if (len === 0)
     return false;
-  const code2 = path10.charCodeAt(0);
-  if (isPathSeparator4(code2)) {
+  const code3 = path10.charCodeAt(0);
+  if (isPathSeparator4(code3)) {
     return true;
-  } else if (isWindowsDeviceRoot4(code2)) {
+  } else if (isWindowsDeviceRoot4(code3)) {
     if (len > 2 && path10.charCodeAt(1) === CHAR_COLON4) {
       if (isPathSeparator4(path10.charCodeAt(2)))
         return true;
@@ -13280,8 +13674,8 @@ function toNamespacedPath9(path10) {
   if (resolvedPath.length >= 3) {
     if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH4) {
       if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH4) {
-        const code2 = resolvedPath.charCodeAt(2);
-        if (code2 !== CHAR_QUESTION_MARK4 && code2 !== CHAR_DOT4) {
+        const code3 = resolvedPath.charCodeAt(2);
+        if (code3 !== CHAR_QUESTION_MARK4 && code3 !== CHAR_DOT4) {
           return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
         }
       }
@@ -13302,9 +13696,9 @@ function dirname9(path10) {
   let end = -1;
   let matchedSlash = true;
   let offset = 0;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator4(code2)) {
+    if (isPathSeparator4(code3)) {
       rootEnd = offset = 1;
       if (isPathSeparator4(path10.charCodeAt(1))) {
         let j = 2;
@@ -13334,7 +13728,7 @@ function dirname9(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot4(code2)) {
+    } else if (isWindowsDeviceRoot4(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON4) {
         rootEnd = offset = 2;
         if (len > 2) {
@@ -13343,7 +13737,7 @@ function dirname9(path10) {
         }
       }
     }
-  } else if (isPathSeparator4(code2)) {
+  } else if (isPathSeparator4(code3)) {
     return path10;
   }
   for (let i2 = len - 1; i2 >= offset; --i2) {
@@ -13386,8 +13780,8 @@ function basename9(path10, ext = "") {
     let extIdx = ext.length - 1;
     let firstNonSlashEnd = -1;
     for (i2 = path10.length - 1; i2 >= start; --i2) {
-      const code2 = path10.charCodeAt(i2);
-      if (isPathSeparator4(code2)) {
+      const code3 = path10.charCodeAt(i2);
+      if (isPathSeparator4(code3)) {
         if (!matchedSlash) {
           start = i2 + 1;
           break;
@@ -13398,7 +13792,7 @@ function basename9(path10, ext = "") {
           firstNonSlashEnd = i2 + 1;
         }
         if (extIdx >= 0) {
-          if (code2 === ext.charCodeAt(extIdx)) {
+          if (code3 === ext.charCodeAt(extIdx)) {
             if (--extIdx === -1) {
               end = i2;
             }
@@ -13443,8 +13837,8 @@ function extname9(path10) {
     start = startPart = 2;
   }
   for (let i2 = path10.length - 1; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPathSeparator4(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPathSeparator4(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -13455,7 +13849,7 @@ function extname9(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT4) {
+    if (code3 === CHAR_DOT4) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -13486,9 +13880,9 @@ function parse9(path10) {
   if (len === 0)
     return ret;
   let rootEnd = 0;
-  let code2 = path10.charCodeAt(0);
+  let code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator4(code2)) {
+    if (isPathSeparator4(code3)) {
       rootEnd = 1;
       if (isPathSeparator4(path10.charCodeAt(1))) {
         let j = 2;
@@ -13517,7 +13911,7 @@ function parse9(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot4(code2)) {
+    } else if (isWindowsDeviceRoot4(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON4) {
         rootEnd = 2;
         if (len > 2) {
@@ -13534,7 +13928,7 @@ function parse9(path10) {
         }
       }
     }
-  } else if (isPathSeparator4(code2)) {
+  } else if (isPathSeparator4(code3)) {
     ret.root = ret.dir = path10;
     return ret;
   }
@@ -13547,8 +13941,8 @@ function parse9(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= rootEnd; --i2) {
-    code2 = path10.charCodeAt(i2);
-    if (isPathSeparator4(code2)) {
+    code3 = path10.charCodeAt(i2);
+    if (isPathSeparator4(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -13559,7 +13953,7 @@ function parse9(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT4) {
+    if (code3 === CHAR_DOT4) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -13820,8 +14214,8 @@ function basename10(path10, ext = "") {
     let extIdx = ext.length - 1;
     let firstNonSlashEnd = -1;
     for (i2 = path10.length - 1; i2 >= 0; --i2) {
-      const code2 = path10.charCodeAt(i2);
-      if (code2 === CHAR_FORWARD_SLASH4) {
+      const code3 = path10.charCodeAt(i2);
+      if (code3 === CHAR_FORWARD_SLASH4) {
         if (!matchedSlash) {
           start = i2 + 1;
           break;
@@ -13832,7 +14226,7 @@ function basename10(path10, ext = "") {
           firstNonSlashEnd = i2 + 1;
         }
         if (extIdx >= 0) {
-          if (code2 === ext.charCodeAt(extIdx)) {
+          if (code3 === ext.charCodeAt(extIdx)) {
             if (--extIdx === -1) {
               end = i2;
             }
@@ -13873,8 +14267,8 @@ function extname10(path10) {
   let matchedSlash = true;
   let preDotState = 0;
   for (let i2 = path10.length - 1; i2 >= 0; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (code2 === CHAR_FORWARD_SLASH4) {
+    const code3 = path10.charCodeAt(i2);
+    if (code3 === CHAR_FORWARD_SLASH4) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -13885,7 +14279,7 @@ function extname10(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT4) {
+    if (code3 === CHAR_DOT4) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -13929,8 +14323,8 @@ function parse10(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (code2 === CHAR_FORWARD_SLASH4) {
+    const code3 = path10.charCodeAt(i2);
+    if (code3 === CHAR_FORWARD_SLASH4) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -13941,7 +14335,7 @@ function parse10(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT4) {
+    if (code3 === CHAR_DOT4) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -14403,7 +14797,7 @@ Deno.openSync = function(...args) {
   }
   return alreadyOpenFiles[path10];
 }.bind(Deno);
-var run2 = (maybeStrings, ...args) => {
+var run3 = (maybeStrings, ...args) => {
   let newArgs = [];
   const argSplitter = /[ \t]+/;
   if (maybeStrings instanceof Array) {
@@ -14836,22 +15230,22 @@ This was from a run() call, which was converted to Deno.run(${JSON.stringify(run
       }
     }
     let statusPromise2 = process.status();
-    statusPromise2.then(({ code: code2, success }) => {
+    statusPromise2.then(({ code: code3, success }) => {
       syncStatus.done = true;
-      syncStatus.exitCode = code2;
+      syncStatus.exitCode = code3;
       syncStatus.success = success;
     });
     let processFinishedValue;
     if (hasReturnString) {
       processFinishedValue = statusPromise2.then(() => stdoutAndStderrDoneWritingPromise.then(() => returnStringChunks.join("")));
     } else {
-      processFinishedValue = statusPromise2.then(({ success, code: code2 }) => {
+      processFinishedValue = statusPromise2.then(({ success, code: code3 }) => {
         return {
           isDone: true,
           status: syncStatus,
           sendSignal: () => 0,
           success,
-          exitCode: code2,
+          exitCode: code3,
           pid: process.pid,
           rid: process.rid,
           kill: () => 0,
@@ -14898,7 +15292,7 @@ This was from a run() call, which was converted to Deno.run(${JSON.stringify(run
       return statusPromise.then(({ success }) => success);
     } },
     exitCode: { get() {
-      return statusPromise.then(({ code: code2 }) => code2);
+      return statusPromise.then(({ code: code3 }) => code3);
     } },
     outcome: { get() {
       return statusPromise;
@@ -14935,18 +15329,18 @@ This was from a run() call, which was converted to Deno.run(${JSON.stringify(run
   });
   return returnValuePromise;
 };
-run2.Timeout = Timeout;
-run2.Env = Env;
-run2.Cwd = Cwd;
-run2.Stdin = Stdin;
-run2.Stdout = Stdout;
-run2.Stderr = Stderr;
-run2.Out = Out;
-run2.Overwrite = Overwrite;
-run2.AppendTo = AppendTo;
-run2.zipInto = zipInto;
-run2.mergeInto = mergeInto;
-run2.returnAsString = returnAsString;
+run3.Timeout = Timeout;
+run3.Env = Env;
+run3.Cwd = Cwd;
+run3.Stdin = Stdin;
+run3.Stdout = Stdout;
+run3.Stderr = Stderr;
+run3.Out = Out;
+run3.Overwrite = Overwrite;
+run3.AppendTo = AppendTo;
+run3.zipInto = zipInto;
+run3.mergeInto = mergeInto;
+run3.returnAsString = returnAsString;
 
 // https://deno.land/x/good@1.5.1.0/string.js
 var indent3 = ({ string: string2, by = "    ", noLead = false }) => (noLead ? "" : by) + string2.replace(/\n/g, "\n" + by);
@@ -15600,15 +15994,15 @@ var BASE64_MAP = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
 function resolveYamlBinary(data) {
   if (data === null)
     return false;
-  let code2;
+  let code3;
   let bitlen = 0;
   const max = data.length;
   const map2 = BASE64_MAP;
   for (let idx = 0; idx < max; idx++) {
-    code2 = map2.indexOf(data.charAt(idx));
-    if (code2 > 64)
+    code3 = map2.indexOf(data.charAt(idx));
+    if (code3 > 64)
       continue;
-    if (code2 < 0)
+    if (code3 < 0)
       return false;
     bitlen += 6;
   }
@@ -15812,10 +16206,10 @@ var float = new Type2("tag:yaml.org,2002:float", {
 });
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/function.ts
-function reconstructFunction(code2) {
-  const func2 = new Function(`return ${code2}`)();
+function reconstructFunction(code3) {
+  const func2 = new Function(`return ${code3}`)();
   if (!(func2 instanceof Function)) {
-    throw new TypeError(`Expected function but got ${typeof func2}: ${code2}`);
+    throw new TypeError(`Expected function but got ${typeof func2}: ${code3}`);
   }
   return func2;
 }
@@ -17715,9 +18109,9 @@ function encode(data) {
 }
 
 // subrepos/cliffy/ansi/ansi_escapes.ts
-var ESC = "\x1B";
-var CSI = `${ESC}[`;
-var OSC = `${ESC}]`;
+var ESC2 = "\x1B";
+var CSI = `${ESC2}[`;
+var OSC = `${ESC2}]`;
 var SEP5 = ";";
 var bel = "\x07";
 var cursorPosition = `${CSI}6n`;
@@ -17762,8 +18156,8 @@ function cursorPrevLine(count4 = 1) {
 var cursorLeft = `${CSI}G`;
 var cursorHide = `${CSI}?25l`;
 var cursorShow = `${CSI}?25h`;
-var cursorSave = `${ESC}7`;
-var cursorRestore = `${ESC}8`;
+var cursorSave = `${ESC2}7`;
+var cursorRestore = `${ESC2}8`;
 function scrollUp(count4 = 1) {
   return `${CSI}S`.repeat(count4);
 }
@@ -18022,7 +18416,7 @@ function parse13(data) {
       }
     }
     if (escaped && (ch === "O" || ch === "[")) {
-      let code2 = ch;
+      let code3 = ch;
       let modifier = 0;
       if (ch === "O") {
         s += ch = next();
@@ -18030,11 +18424,11 @@ function parse13(data) {
           modifier = (Number(ch) >> 0) - 1;
           s += ch = next();
         }
-        code2 += ch;
+        code3 += ch;
       } else if (ch === "[") {
         s += ch = next();
         if (ch === "[") {
-          code2 += ch;
+          code3 += ch;
           s += ch = next();
         }
         const cmdStart = s.length - 1;
@@ -18053,26 +18447,26 @@ function parse13(data) {
         const cmd = s.slice(cmdStart);
         let match;
         if (match = cmd.match(/^(\d\d?)(;(\d))?([~^$])$/)) {
-          code2 += match[1] + match[4];
+          code3 += match[1] + match[4];
           modifier = (Number(match[3]) || 1) - 1;
         } else if (match = cmd.match(/^((\d;)?(\d))?([A-Za-z])$/)) {
-          code2 += match[4];
+          code3 += match[4];
           modifier = (Number(match[3]) || 1) - 1;
         } else {
-          code2 += cmd;
+          code3 += cmd;
         }
       }
       key.ctrl = !!(modifier & 4);
       key.meta = !!(modifier & 10);
       key.shift = !!(modifier & 1);
-      key.code = code2;
-      if (code2 in KeyMap) {
-        key.name = KeyMap[code2];
-      } else if (code2 in KeyMapShift) {
-        key.name = KeyMapShift[code2];
+      key.code = code3;
+      if (code3 in KeyMap) {
+        key.name = KeyMap[code3];
+      } else if (code3 in KeyMapShift) {
+        key.name = KeyMapShift[code3];
         key.shift = true;
-      } else if (code2 in KeyMapCtrl) {
-        key.name = KeyMapCtrl[code2];
+      } else if (code3 in KeyMapCtrl) {
+        key.name = KeyMapCtrl[code3];
         key.ctrl = true;
       } else {
         key.name = "undefined";
@@ -18173,29 +18567,29 @@ function assertPath5(path10) {
     );
   }
 }
-function isPosixPathSeparator5(code2) {
-  return code2 === CHAR_FORWARD_SLASH5;
+function isPosixPathSeparator5(code3) {
+  return code3 === CHAR_FORWARD_SLASH5;
 }
-function isPathSeparator5(code2) {
-  return isPosixPathSeparator5(code2) || code2 === CHAR_BACKWARD_SLASH5;
+function isPathSeparator5(code3) {
+  return isPosixPathSeparator5(code3) || code3 === CHAR_BACKWARD_SLASH5;
 }
-function isWindowsDeviceRoot5(code2) {
-  return code2 >= CHAR_LOWERCASE_A5 && code2 <= CHAR_LOWERCASE_Z5 || code2 >= CHAR_UPPERCASE_A5 && code2 <= CHAR_UPPERCASE_Z5;
+function isWindowsDeviceRoot5(code3) {
+  return code3 >= CHAR_LOWERCASE_A5 && code3 <= CHAR_LOWERCASE_Z5 || code3 >= CHAR_UPPERCASE_A5 && code3 <= CHAR_UPPERCASE_Z5;
 }
 function normalizeString5(path10, allowAboveRoot, separator, isPathSeparator6) {
   let res = "";
   let lastSegmentLength = 0;
   let lastSlash = -1;
   let dots = 0;
-  let code2;
+  let code3;
   for (let i2 = 0, len = path10.length; i2 <= len; ++i2) {
     if (i2 < len)
-      code2 = path10.charCodeAt(i2);
-    else if (isPathSeparator6(code2))
+      code3 = path10.charCodeAt(i2);
+    else if (isPathSeparator6(code3))
       break;
     else
-      code2 = CHAR_FORWARD_SLASH5;
-    if (isPathSeparator6(code2)) {
+      code3 = CHAR_FORWARD_SLASH5;
+    if (isPathSeparator6(code3)) {
       if (lastSlash === i2 - 1 || dots === 1) {
       } else if (lastSlash !== i2 - 1 && dots === 2) {
         if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== CHAR_DOT5 || res.charCodeAt(res.length - 2) !== CHAR_DOT5) {
@@ -18235,7 +18629,7 @@ function normalizeString5(path10, allowAboveRoot, separator, isPathSeparator6) {
       }
       lastSlash = i2;
       dots = 0;
-    } else if (code2 === CHAR_DOT5 && dots !== -1) {
+    } else if (code3 === CHAR_DOT5 && dots !== -1) {
       ++dots;
     } else {
       dots = -1;
@@ -18343,9 +18737,9 @@ function resolve12(...pathSegments) {
     let rootEnd = 0;
     let device = "";
     let isAbsolute15 = false;
-    const code2 = path10.charCodeAt(0);
+    const code3 = path10.charCodeAt(0);
     if (len > 1) {
-      if (isPathSeparator5(code2)) {
+      if (isPathSeparator5(code3)) {
         isAbsolute15 = true;
         if (isPathSeparator5(path10.charCodeAt(1))) {
           let j = 2;
@@ -18379,7 +18773,7 @@ function resolve12(...pathSegments) {
         } else {
           rootEnd = 1;
         }
-      } else if (isWindowsDeviceRoot5(code2)) {
+      } else if (isWindowsDeviceRoot5(code3)) {
         if (path10.charCodeAt(1) === CHAR_COLON5) {
           device = path10.slice(0, 2);
           rootEnd = 2;
@@ -18391,7 +18785,7 @@ function resolve12(...pathSegments) {
           }
         }
       }
-    } else if (isPathSeparator5(code2)) {
+    } else if (isPathSeparator5(code3)) {
       rootEnd = 1;
       isAbsolute15 = true;
     }
@@ -18424,9 +18818,9 @@ function normalize16(path10) {
   let rootEnd = 0;
   let device;
   let isAbsolute15 = false;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator5(code2)) {
+    if (isPathSeparator5(code3)) {
       isAbsolute15 = true;
       if (isPathSeparator5(path10.charCodeAt(1))) {
         let j = 2;
@@ -18459,7 +18853,7 @@ function normalize16(path10) {
       } else {
         rootEnd = 1;
       }
-    } else if (isWindowsDeviceRoot5(code2)) {
+    } else if (isWindowsDeviceRoot5(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON5) {
         device = path10.slice(0, 2);
         rootEnd = 2;
@@ -18471,7 +18865,7 @@ function normalize16(path10) {
         }
       }
     }
-  } else if (isPathSeparator5(code2)) {
+  } else if (isPathSeparator5(code3)) {
     return "\\";
   }
   let tail;
@@ -18517,10 +18911,10 @@ function isAbsolute12(path10) {
   const len = path10.length;
   if (len === 0)
     return false;
-  const code2 = path10.charCodeAt(0);
-  if (isPathSeparator5(code2)) {
+  const code3 = path10.charCodeAt(0);
+  if (isPathSeparator5(code3)) {
     return true;
-  } else if (isWindowsDeviceRoot5(code2)) {
+  } else if (isWindowsDeviceRoot5(code3)) {
     if (len > 2 && path10.charCodeAt(1) === CHAR_COLON5) {
       if (isPathSeparator5(path10.charCodeAt(2)))
         return true;
@@ -18670,8 +19064,8 @@ function toNamespacedPath12(path10) {
   if (resolvedPath.length >= 3) {
     if (resolvedPath.charCodeAt(0) === CHAR_BACKWARD_SLASH5) {
       if (resolvedPath.charCodeAt(1) === CHAR_BACKWARD_SLASH5) {
-        const code2 = resolvedPath.charCodeAt(2);
-        if (code2 !== CHAR_QUESTION_MARK5 && code2 !== CHAR_DOT5) {
+        const code3 = resolvedPath.charCodeAt(2);
+        if (code3 !== CHAR_QUESTION_MARK5 && code3 !== CHAR_DOT5) {
           return `\\\\?\\UNC\\${resolvedPath.slice(2)}`;
         }
       }
@@ -18692,9 +19086,9 @@ function dirname12(path10) {
   let end = -1;
   let matchedSlash = true;
   let offset = 0;
-  const code2 = path10.charCodeAt(0);
+  const code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator5(code2)) {
+    if (isPathSeparator5(code3)) {
       rootEnd = offset = 1;
       if (isPathSeparator5(path10.charCodeAt(1))) {
         let j = 2;
@@ -18724,7 +19118,7 @@ function dirname12(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot5(code2)) {
+    } else if (isWindowsDeviceRoot5(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON5) {
         rootEnd = offset = 2;
         if (len > 2) {
@@ -18733,7 +19127,7 @@ function dirname12(path10) {
         }
       }
     }
-  } else if (isPathSeparator5(code2)) {
+  } else if (isPathSeparator5(code3)) {
     return path10;
   }
   for (let i2 = len - 1; i2 >= offset; --i2) {
@@ -18787,8 +19181,8 @@ function extname12(path10) {
     start = startPart = 2;
   }
   for (let i2 = path10.length - 1; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPathSeparator5(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPathSeparator5(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -18799,7 +19193,7 @@ function extname12(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT5) {
+    if (code3 === CHAR_DOT5) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -18830,9 +19224,9 @@ function parse14(path10) {
   if (len === 0)
     return ret;
   let rootEnd = 0;
-  let code2 = path10.charCodeAt(0);
+  let code3 = path10.charCodeAt(0);
   if (len > 1) {
-    if (isPathSeparator5(code2)) {
+    if (isPathSeparator5(code3)) {
       rootEnd = 1;
       if (isPathSeparator5(path10.charCodeAt(1))) {
         let j = 2;
@@ -18861,7 +19255,7 @@ function parse14(path10) {
           }
         }
       }
-    } else if (isWindowsDeviceRoot5(code2)) {
+    } else if (isWindowsDeviceRoot5(code3)) {
       if (path10.charCodeAt(1) === CHAR_COLON5) {
         rootEnd = 2;
         if (len > 2) {
@@ -18879,7 +19273,7 @@ function parse14(path10) {
         }
       }
     }
-  } else if (isPathSeparator5(code2)) {
+  } else if (isPathSeparator5(code3)) {
     ret.root = ret.dir = path10;
     ret.base = "\\";
     return ret;
@@ -18893,8 +19287,8 @@ function parse14(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= rootEnd; --i2) {
-    code2 = path10.charCodeAt(i2);
-    if (isPathSeparator5(code2)) {
+    code3 = path10.charCodeAt(i2);
+    if (isPathSeparator5(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -18905,7 +19299,7 @@ function parse14(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT5) {
+    if (code3 === CHAR_DOT5) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -19178,8 +19572,8 @@ function extname13(path10) {
   let matchedSlash = true;
   let preDotState = 0;
   for (let i2 = path10.length - 1; i2 >= 0; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPosixPathSeparator5(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPosixPathSeparator5(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -19190,7 +19584,7 @@ function extname13(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT5) {
+    if (code3 === CHAR_DOT5) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -19234,8 +19628,8 @@ function parse15(path10) {
   let i2 = path10.length - 1;
   let preDotState = 0;
   for (; i2 >= start; --i2) {
-    const code2 = path10.charCodeAt(i2);
-    if (isPosixPathSeparator5(code2)) {
+    const code3 = path10.charCodeAt(i2);
+    if (isPosixPathSeparator5(code3)) {
       if (!matchedSlash) {
         startPart = i2 + 1;
         break;
@@ -19246,7 +19640,7 @@ function parse15(path10) {
       matchedSlash = false;
       end = i2 + 1;
     }
-    if (code2 === CHAR_DOT5) {
+    if (code3 === CHAR_DOT5) {
       if (startDot === -1)
         startDot = i2;
       else if (preDotState !== 1)
@@ -19424,7 +19818,7 @@ var GenericPrompt = class _GenericPrompt {
       reader: options.reader ?? Deno.stdin,
       writer: options.writer ?? Deno.stdout,
       pointer: options.pointer ?? brightBlue(Figures.POINTER_SMALL),
-      prefix: options.prefix ?? yellow("? "),
+      prefix: options.prefix ?? yellow2("? "),
       indent: options.indent ?? "",
       keys: {
         submit: ["enter", "return"],
@@ -19479,7 +19873,7 @@ var GenericPrompt = class _GenericPrompt {
     const lines = content.split("\n");
     const columns = getColumns();
     const linesCount = columns ? lines.reduce((prev, next) => {
-      const length = stripColor(next).length;
+      const length = stripColor2(next).length;
       return prev + (length > columns ? Math.ceil(length / columns) : 1);
     }, 0) : content.split("\n").length;
     const y = linesCount - this.cursor.y - 1;
@@ -19513,27 +19907,27 @@ var GenericPrompt = class _GenericPrompt {
     return this.#validateValue(this.getValue());
   }
   message() {
-    return `${this.settings.indent}${this.settings.prefix}` + bold(this.settings.message) + this.defaults();
+    return `${this.settings.indent}${this.settings.prefix}` + bold2(this.settings.message) + this.defaults();
   }
   defaults() {
     let defaultMessage = "";
     if (typeof this.settings.default !== "undefined" && !this.settings.hideDefault) {
-      defaultMessage += dim(` (${this.format(this.settings.default)})`);
+      defaultMessage += dim2(` (${this.format(this.settings.default)})`);
     }
     return defaultMessage;
   }
   /** Get prompt success message. */
   success(value) {
-    return `${this.settings.indent}${this.settings.prefix}` + bold(this.settings.message) + this.defaults() + " " + this.settings.pointer + " " + green(this.format(value));
+    return `${this.settings.indent}${this.settings.prefix}` + bold2(this.settings.message) + this.defaults() + " " + this.settings.pointer + " " + green2(this.format(value));
   }
   footer() {
     return this.error() ?? this.hint();
   }
   error() {
-    return this.#lastError ? this.settings.indent + red(bold(`${Figures.CROSS} `) + this.#lastError) : void 0;
+    return this.#lastError ? this.settings.indent + red2(bold2(`${Figures.CROSS} `) + this.#lastError) : void 0;
   }
   hint() {
-    return this.settings.hint ? this.settings.indent + italic(brightBlue(dim(`${Figures.POINTER} `) + this.settings.hint)) : void 0;
+    return this.settings.hint ? this.settings.indent + italic2(brightBlue(dim2(`${Figures.POINTER} `) + this.settings.hint)) : void 0;
   }
   setErrorMessage(message) {
     this.#lastError = message;
@@ -19654,13 +20048,13 @@ var GenericInput = class extends GenericPrompt {
   }
   message() {
     const message = super.message() + " " + this.settings.pointer + " ";
-    this.cursor.x = stripColor(message).length + this.inputIndex + 1;
+    this.cursor.x = stripColor2(message).length + this.inputIndex + 1;
     return message + this.input();
   }
   input() {
-    return underline(this.inputValue);
+    return underline2(this.inputValue);
   }
-  highlight(value, color1 = dim, color2 = brightBlue) {
+  highlight(value, color1 = dim2, color2 = brightBlue) {
     value = value.toString();
     const inputLowerCase = this.getCurrentInputValue().toLowerCase();
     const valueLowerCase = value.toLowerCase();
@@ -19843,7 +20237,7 @@ var GenericSuggestions = class extends GenericInput {
     );
   }
   input() {
-    return super.input() + dim(this.getSuggestion());
+    return super.input() + dim2(this.getSuggestion());
   }
   getSuggestion() {
     return this.suggestions[this.suggestionsIndex]?.toString().substr(
@@ -19874,7 +20268,7 @@ var GenericSuggestions = class extends GenericInput {
       return suggestions;
     }
     return suggestions.filter(
-      (value) => stripColor(value.toString()).toLowerCase().startsWith(input.toLowerCase())
+      (value) => stripColor2(value.toString()).toLowerCase().startsWith(input.toLowerCase())
     ).sort(
       (a, b) => distance2((a || a).toString(), input) - distance2((b || b).toString(), input)
     );
@@ -19915,9 +20309,9 @@ var GenericSuggestions = class extends GenericInput {
     );
     let info = this.settings.indent;
     if (this.suggestions.length) {
-      info += brightBlue(Figures.INFO) + bold(` ${selected}/${matched} `);
+      info += brightBlue(Figures.INFO) + bold2(` ${selected}/${matched} `);
     }
-    info += actions.map((cur) => `${cur[0]}: ${bold(cur[1].join(" "))}`).join(", ");
+    info += actions.map((cur) => `${cur[0]}: ${bold2(cur[1].join(" "))}`).join(", ");
     return info;
   }
   getList() {
@@ -19930,7 +20324,7 @@ var GenericSuggestions = class extends GenericInput {
     for (let i2 = this.suggestionsOffset; i2 < this.suggestionsOffset + height; i2++) {
       list.push(
         this.getListItem(
-          `${this.suggestions[i2]}`.replace(/❄️(.+)/, reset(cyan("\u2744\uFE0F")) + dim(green("$1"))),
+          `${this.suggestions[i2]}`.replace(/❄️(.+)/, reset2(cyan2("\u2744\uFE0F")) + dim2(green2("$1"))),
           this.suggestionsIndex === i2,
           suggestionToDescription[this.suggestions[i2]]
         )
@@ -19950,12 +20344,12 @@ var GenericSuggestions = class extends GenericInput {
     let line = this.settings.indent ?? "";
     line += isSelected ? `${this.settings.listPointer} ` : "  ";
     if (isSelected) {
-      line += underline(this.highlight(value));
+      line += underline2(this.highlight(value));
     } else {
       line += this.highlight(value);
     }
     if (description) {
-      line += dim(`${description}`);
+      line += dim2(`${description}`);
     }
     return line;
   }
@@ -20216,7 +20610,7 @@ function selectOne({ message, showList, showInfo, options, optionDescriptions, a
         offset = 3;
       }
       suggestionDescriptions.push(
-        stripColor(suggestion.padEnd(longest2 + offset, " ") + ": " + description).slice(0, maxOptionWidth).slice(suggestion.length + 2)
+        stripColor2(suggestion.padEnd(longest2 + offset, " ") + ": " + description).slice(0, maxOptionWidth).slice(suggestion.length + 2)
       );
     }
   }
@@ -20235,7 +20629,7 @@ function selectOne({ message, showList, showInfo, options, optionDescriptions, a
       return options[answer];
     } else {
       optionStrings = optionStrings.filter(
-        (value) => stripColor(value.toString()).toLowerCase().startsWith(answer)
+        (value) => stripColor2(value.toString()).toLowerCase().startsWith(answer)
       ).sort(
         (a, b) => distance2((a || a).toString(), answer) - distance2((b || b).toString(), answer)
       );
@@ -20278,10 +20672,10 @@ function passStringToWasm0(arg, malloc, realloc) {
   const mem = getUint8Memory0();
   let offset = 0;
   for (; offset < len; offset++) {
-    const code2 = arg.charCodeAt(offset);
-    if (code2 > 127)
+    const code3 = arg.charCodeAt(offset);
+    if (code3 > 127)
       break;
-    mem[ptr + offset] = code2;
+    mem[ptr + offset] = code3;
   }
   if (offset !== len) {
     if (offset !== 0) {
@@ -23305,7 +23699,7 @@ function Factory(global, Export) {
       nodeset,
       results
     };
-  }, _closest, _matches, _querySelector, _querySelectorAll, install = function(all) {
+  }, _closest, _matches, _querySelector, _querySelectorAll, install2 = function(all) {
     _closest = Element.prototype.closest;
     _matches = Element.prototype.matches;
     _querySelector = Document.prototype.querySelector;
@@ -23395,7 +23789,7 @@ function Factory(global, Export) {
     Config,
     Snapshot,
     Version: version,
-    install,
+    install: install2,
     uninstall,
     Operators,
     Selectors,
@@ -27135,7 +27529,7 @@ globalThis.console = new Proxy(originalThing2, {
     return Reflect.set(original, key, ...args);
   }
 });
-var codeToEscapeString2 = (code2) => `\x1B[${code2}m`;
+var codeToEscapeString2 = (code3) => `\x1B[${code3}m`;
 var ansiRegexPattern2 = /[\u001B\u009B][[\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\d\/#&.:=?%@~_]+)*|[a-zA-Z\d]+(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g;
 function clearAnsiStylesFrom2(string2) {
   return `${string2}`.replace(ansiRegexPattern2, "");
@@ -27281,21 +27675,21 @@ var styleObject2 = (rootStyleString) => {
     ]
   )));
 };
-var bold4 = styleObject2(styleStrings2.bold);
-var reset3 = styleObject2(styleStrings2.reset);
-var dim3 = styleObject2(styleStrings2.dim);
-var italic3 = styleObject2(styleStrings2.italic);
-var underline3 = styleObject2(styleStrings2.underline);
-var inverse2 = styleObject2(styleStrings2.inverse);
-var strikethrough2 = styleObject2(styleStrings2.strikethrough);
-var black2 = styleObject2(styleStrings2.black);
-var white3 = styleObject2(styleStrings2.white);
-var red4 = styleObject2(styleStrings2.red);
-var green4 = styleObject2(styleStrings2.green);
-var blue2 = styleObject2(styleStrings2.blue);
-var yellow3 = styleObject2(styleStrings2.yellow);
-var cyan3 = styleObject2(styleStrings2.cyan);
-var magenta2 = styleObject2(styleStrings2.magenta);
+var bold5 = styleObject2(styleStrings2.bold);
+var reset4 = styleObject2(styleStrings2.reset);
+var dim4 = styleObject2(styleStrings2.dim);
+var italic4 = styleObject2(styleStrings2.italic);
+var underline4 = styleObject2(styleStrings2.underline);
+var inverse3 = styleObject2(styleStrings2.inverse);
+var strikethrough3 = styleObject2(styleStrings2.strikethrough);
+var black3 = styleObject2(styleStrings2.black);
+var white4 = styleObject2(styleStrings2.white);
+var red5 = styleObject2(styleStrings2.red);
+var green5 = styleObject2(styleStrings2.green);
+var blue3 = styleObject2(styleStrings2.blue);
+var yellow4 = styleObject2(styleStrings2.yellow);
+var cyan4 = styleObject2(styleStrings2.cyan);
+var magenta3 = styleObject2(styleStrings2.magenta);
 var lightBlack2 = styleObject2(styleStrings2.lightBlack);
 var lightWhite2 = styleObject2(styleStrings2.lightWhite);
 var lightRed2 = styleObject2(styleStrings2.lightRed);
@@ -27320,7 +27714,7 @@ var lightBlueBackground2 = styleObject2(styleStrings2.lightBlueBackground);
 var lightMagentaBackground2 = styleObject2(styleStrings2.lightMagentaBackground);
 var lightCyanBackground2 = styleObject2(styleStrings2.lightCyanBackground);
 var lightWhiteBackground2 = styleObject2(styleStrings2.lightWhiteBackground);
-var gray3 = styleObject2(styleStrings2.gray);
+var gray4 = styleObject2(styleStrings2.gray);
 var grey2 = styleObject2(styleStrings2.grey);
 var lightGray2 = styleObject2(styleStrings2.lightGray);
 var lightGrey2 = styleObject2(styleStrings2.lightGrey);
@@ -27661,7 +28055,7 @@ Deno.openSync = function(...args) {
   }
   return alreadyOpenFiles2[path10];
 }.bind(Deno);
-var run3 = (maybeStrings, ...args) => {
+var run4 = (maybeStrings, ...args) => {
   let newArgs = [];
   const argSplitter = /[ \t]+/;
   if (maybeStrings instanceof Array) {
@@ -28091,22 +28485,22 @@ This was from a run() call, which was converted to Deno.run(${JSON.stringify(run
       }
     }
     let statusPromise2 = process.status();
-    statusPromise2.then(({ code: code2, success }) => {
+    statusPromise2.then(({ code: code3, success }) => {
       syncStatus.done = true;
-      syncStatus.exitCode = code2;
+      syncStatus.exitCode = code3;
       syncStatus.success = success;
     });
     let processFinishedValue;
     if (hasReturnString) {
       processFinishedValue = statusPromise2.then(() => stdoutAndStderrDoneWritingPromise.then(() => returnStringChunks.join("")));
     } else {
-      processFinishedValue = statusPromise2.then(({ success, code: code2 }) => {
+      processFinishedValue = statusPromise2.then(({ success, code: code3 }) => {
         return {
           isDone: true,
           status: syncStatus,
           sendSignal: () => 0,
           success,
-          exitCode: code2,
+          exitCode: code3,
           pid: process.pid,
           rid: process.rid,
           kill: () => 0,
@@ -28153,7 +28547,7 @@ This was from a run() call, which was converted to Deno.run(${JSON.stringify(run
       return statusPromise.then(({ success }) => success);
     } },
     exitCode: { get() {
-      return statusPromise.then(({ code: code2 }) => code2);
+      return statusPromise.then(({ code: code3 }) => code3);
     } },
     outcome: { get() {
       return statusPromise;
@@ -28190,18 +28584,18 @@ This was from a run() call, which was converted to Deno.run(${JSON.stringify(run
   });
   return returnValuePromise;
 };
-run3.Timeout = Timeout2;
-run3.Env = Env2;
-run3.Cwd = Cwd2;
-run3.Stdin = Stdin2;
-run3.Stdout = Stdout2;
-run3.Stderr = Stderr2;
-run3.Out = Out2;
-run3.Overwrite = Overwrite2;
-run3.AppendTo = AppendTo2;
-run3.zipInto = zipInto2;
-run3.mergeInto = mergeInto2;
-run3.returnAsString = returnAsString2;
+run4.Timeout = Timeout2;
+run4.Env = Env2;
+run4.Cwd = Cwd2;
+run4.Stdin = Stdin2;
+run4.Stdout = Stdout2;
+run4.Stderr = Stderr2;
+run4.Out = Out2;
+run4.Overwrite = Overwrite2;
+run4.AppendTo = AppendTo2;
+run4.zipInto = zipInto2;
+run4.mergeInto = mergeInto2;
+run4.returnAsString = returnAsString2;
 
 // tools/misc.js
 var versionToList = (version) => `${version}`.split(".").map((each2) => each2.split(/(?<=\d)(?=\D)|(?<=\D)(?=\d)/)).flat(1).map((each2) => each2.match(/^\d+$/) ? each2 - 0 : each2);
@@ -28435,22 +28829,22 @@ var determinateSystems = {
   async getVersionsFor(flakePackage) {
     const { org, project, description, labels } = flakePackage;
     const url = `https://flakehub.com/f/${org}/${project}`;
-    let versionInfo;
+    let versionInfo2;
     try {
-      versionInfo = await fetch(`${url}/releases`).then((result2) => result2.json());
+      versionInfo2 = await fetch(`${url}/releases`).then((result2) => result2.json());
     } catch (error) {
       return [];
     }
     const extractOutputs = async (version) => {
       try {
-        const info = await run3`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout2(returnAsString2)} ${Stderr2(null)}`;
+        const info = await run4`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout2(returnAsString2)} ${Stderr2(null)}`;
         return [...new Set(Object.values(JSON.parse(info).packages).map((each2) => Object.keys(each2)).flat(1))];
       } catch (error) {
         return [];
       }
     };
     await Promise.all(
-      versionInfo.map(
+      versionInfo2.map(
         (each2) => extractOutputs(each2.simplified_version).then(
           (result2) => {
             each2.packageOutputs = result2;
@@ -28458,7 +28852,7 @@ var determinateSystems = {
         )
       )
     );
-    return versionInfo;
+    return versionInfo2;
   },
   async search(query) {
     const results = await this.searchBasePackage(query);
@@ -28470,31 +28864,40 @@ var determinateSystems = {
 };
 
 // main.js
+var terminalSpinner = new TerminalSpinner("fetching");
+terminalSpinner.start();
 var posixShellEscape = (string2) => "'" + string2.replace(/'/g, `'"'"'`) + "'";
 var clearScreen2 = () => console.log("\x1B[2J");
 var escapeNixString = (string2) => {
   return `"${string2.replace(/\$\{|[\\"]/g, "\\$&").replace(/\u0000/g, "\\0")}"`;
 };
 var listNixPackages = async () => {
-  const packageList = await run2`nix profile list ${Stdout(returnAsString)}`;
+  const packageList = await run3`nix profile list ${Stdout(returnAsString)}`;
   return parse12(
     clearAnsiStylesFrom(
       indent3({ string: packageList, by: "    " }).replace(/^    Index:/gm, "-\n    Index:")
     )
   );
 };
-var cachePath = `${FileSystem.home}/.cache/nvs/has_flakes_enabled.check`;
+terminalSpinner.start();
+var cachePath = `${FileSystem.home}/.cache/nvs/has_flakes_enabled.check.json`;
 var hasFlakesEnabledString = FileSystem.sync.read(cachePath);
 if (hasFlakesEnabledString == null) {
   console.log(`
-Let me check real quick if you have flakes enabled`);
-  console.log(`(this will only run once)`);
+${cyan3`❄️`} Checking if you use flakes...`);
+  console.log(dim3`- (this will only run once)`);
   try {
-    const result2 = await run2`nix profile list ${Stdout(returnAsString)} ${Stderr(null)}`;
+    const result2 = await run3`nix profile list ${Stdout(returnAsString)} ${Stderr(null)}`;
     hasFlakesEnabledString = !!result2.match(/^Flake attribute: /m);
   } catch (error) {
     hasFlakesEnabledString = false;
   }
+  if (hasFlakesEnabledString) {
+    console.log(`${dim3`- Okay looks like you do use flakes!`} ${cyan3`❄️`}`);
+  } else {
+    console.log(`${dim3`- Okay looks like you dont use flakes`} ${red3`X`}`);
+  }
+  console.log(`${dim3`- Saving this preference to disk at:\n    `}${yellow3(JSON.stringify(cachePath))}`);
   hasFlakesEnabledString = JSON.stringify(hasFlakesEnabledString);
   console.log(`
 `);
@@ -28504,6 +28907,97 @@ Let me check real quick if you have flakes enabled`);
   });
 }
 var hasFlakesEnabled = JSON.parse(hasFlakesEnabledString);
+var removeExistingPackage = async ({ urlOrPath, storePath, packages }) => {
+  packages = packages || await listNixPackages();
+  try {
+    if (removeExisting) {
+      const uninstallList = packages.filter(
+        (each2) => urlOrPath && each2["Original flake URL"] == urlOrPath || storePath && each2["Store paths"] == storePath
+      );
+      for (const each2 of uninstallList) {
+        if (each2.Index != null) {
+          try {
+            await run3`nix profile remove ${`${each2.Index}`.trim()}`;
+          } catch (error) {
+          }
+        }
+      }
+    }
+  } catch (error) {
+  }
+};
+async function install({ hasFlakesEnabled: hasFlakesEnabled2, humanPackageSummary, urlOrPath, force }) {
+  if (hasFlakesEnabled2) {
+    console.log(`Okay installing ${humanPackageSummary}`);
+    let noProgressLoopDetection;
+    install:
+      while (1) {
+        let stderrOutput = "";
+        const listener = {
+          write(chunk) {
+            stderrOutput += new TextDecoder().decode(chunk);
+          }
+        };
+        await run3`nix profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`;
+        if (noProgressLoopDetection == stderrOutput) {
+          throw Error(`Sorry, it looks like I was unable to install the package`);
+        }
+        noProgressLoopDetection = stderrOutput;
+        const conflictMatch = stderrOutput.match(/error: An existing package already provides the following file:(?:\w|\W)+?(?<existing>\/nix\/store\/.+)(?:\w|\W)+?This is the conflicting file from the new package:(?:\w|\W)+?(?<newPackage>\/nix\/store\/.+)(?:\w|\W)+?To remove the existing package:(?:\w|\W)+?(?<removeExisting>nix profile remove.+)(?:\w|\W)+?To prioritise the new package:(?:\w|\W)+?(?<prioritiseNew>nix profile install.+)(?:\w|\W)+?To prioritise the existing package:(?:\w|\W)+?(?<prioritiseExisting>nix profile install.+)/);
+        if (conflictMatch) {
+          const { existing, newPackage, removeExisting: removeExisting2, prioritiseNew, prioritiseExisting } = conflictMatch.groups;
+          const [folders, name, ext] = FileSystem.pathPieces(existing);
+          const simpleName = cyan3(folders.slice(4).join("/")) + cyan3("/") + green3(name + ext);
+          clearScreen2();
+          const packages = await listNixPackages();
+          if (force) {
+            const urlOrPath2 = (removeExisting2.slice("nix profile remove ".length).match(/(.+?)#/) || "")[1];
+            await removeExistingPackage({ urlOrPath: urlOrPath2, storePath: existing, packages });
+            continue install;
+          } else {
+            console.log(bold3`Looks like there was a conflict:`);
+            console.log(`    The install adds: ${simpleName}`);
+            console.log(`    Which already exists from:
+        ${yellow3((removeExisting2 || "").trim().slice("nix profile remove ".length) || existing)}`);
+            console.log(``);
+            const uninstallOption = "uninstall: remove the old package, install the one you just picked";
+            const newHigherPriorityOption = "higher: install the one you just picked with a higher priority";
+            const installAsLowerOption = "lower: install one you just picked, but have it be lower priority";
+            const choice = await selectOne({
+              message: "Choose an action:",
+              showList: true,
+              showInfo: false,
+              options: [
+                uninstallOption,
+                ...prioritiseNew ? [newHigherPriorityOption] : [],
+                installAsLowerOption,
+                "cancel"
+              ]
+            });
+            if (choice == "cancel") {
+              throw Error(`cancel`);
+            } else if (choice == newHigherPriorityOption) {
+              await run3(prioritiseNew.trim().split(/\s/g));
+            } else if (choice == installAsLowerOption) {
+              await run3(prioritiseExisting.trim().split(/\s/g));
+            } else if (choice == uninstallOption) {
+              const urlOrPath2 = (removeExisting2.slice("nix profile remove ".length).match(/(.+?)#/) || "")[1];
+              await removeExistingPackage({ urlOrPath: urlOrPath2, storePath: existing, packages });
+            }
+            continue install;
+          }
+        } else {
+          console.log(`
+ - \u2705 ${humanPackageSummary} should now be installed`);
+        }
+        break;
+      }
+  } else {
+    await run3`nix-env -iA ${versionInfo.attrPath} -f {https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz}`;
+    console.log(`
+ - \u2705 ${versionInfo.attrPath}@${versionInfo.version} should now be installed`);
+  }
+}
 var command = await new Command().name("Nix Version Search").version("1.0.0").description(`Find/install exact versions of nix packages
 
 Examples:
@@ -28514,15 +29008,22 @@ Examples:
   if (args.length == 0) {
     return command.parse(["--help"].concat(Deno.args));
   }
-  if (args[0].startsWith("https://") && options.install) {
-    if (hasFlakesEnabled) {
-      var { success } = await run2`nix profile install ${args[0]}`;
-      Deno.exit(success);
-    } else {
-      var { success } = await run2`nix-env -i -f ${args[0]}`;
-      await run2`nix profile install ${args[0]}`;
-      Deno.exit(success);
+  if ((args[0].startsWith("https://") || args[0].startsWith("./")) && options.install) {
+    try {
+      await install({
+        hasFlakesEnabled,
+        humanPackageSummary: `${args[0]}`,
+        urlOrPath: args[0],
+        force: options.force
+      });
+    } catch (error) {
+      if (error.message = `Sorry, it looks like I was unable to install the package`) {
+        Deno.exit(7);
+      } else {
+        Deno.exit(0);
+      }
     }
+    Deno.exit(0);
   }
   var [name, versionPrefix] = args[0].split("@");
   versionPrefix = versionPrefix || "";
@@ -28572,6 +29073,7 @@ Examples:
     console.log(JSON.stringify(choiceOptions));
     return;
   }
+  terminalSpinner.succeed("finished fetch");
   while (1) {
     const optionDescriptions = Object.values(choiceOptions).map((each2) => (each2.Description || each2.description || "").replace(/\n/g, " "));
     const packageInfo = await selectOne({
@@ -28582,14 +29084,14 @@ Examples:
       optionDescriptions
     });
     if (!packageInfo) {
-      console.log(red2`Sorry, I checked just now`);
-      console.log(red2`it looks like that package doesn't have any versions matching ${JSON.stringify(versionPrefix)}\n`);
+      console.log(red3`Sorry, I checked just now`);
+      console.log(red3`it looks like that package doesn't have any versions matching ${JSON.stringify(versionPrefix)}\n`);
       continue;
     }
     const versionOptions = (await packageInfo?.versionsPromise || []).filter((each2) => each2.version.startsWith(versionPrefix));
     if (versionOptions.length == 0) {
-      console.log(red2`Sorry, I checked just now`);
-      console.log(red2`it looks like ${cyan2(packageInfo.attrPath)} doesn't have any versions matching ${JSON.stringify(versionPrefix)}\n`);
+      console.log(red3`Sorry, I checked just now`);
+      console.log(red3`it looks like ${cyan3(packageInfo.attrPath)} doesn't have any versions matching ${JSON.stringify(versionPrefix)}\n`);
       delete choiceOptions[packageInfo.attrPath];
       continue;
     }
@@ -28605,11 +29107,11 @@ Examples:
       throw Error(`Sorry I don't see that version`);
     }
     const pureVersions = viableVersions.filter((each2) => each2.version.match(/^[\.0-9]+$/));
-    let versionInfo;
+    let versionInfo2;
     if (pureVersions.length != 0) {
-      versionInfo = versionSort({ array: pureVersions, elementToVersion: (each2) => each2.version })[0];
+      versionInfo2 = versionSort({ array: pureVersions, elementToVersion: (each2) => each2.version })[0];
     } else {
-      versionInfo = versionSort({ array: viableVersions, elementToVersion: (each2) => each2.version })[0];
+      versionInfo2 = versionSort({ array: viableVersions, elementToVersion: (each2) => each2.version })[0];
     }
     let didSomething = false;
     let humanPackageSummary;
@@ -28618,103 +29120,29 @@ Examples:
     if (hasFlakesEnabled) {
       if (packageInfo.project) {
         packageName = packageInfo.project;
-        humanPackageSummary = `${green2(packageInfo.project)}${cyan2`@${versionInfo.version}`}${dim2` from `}${yellow2(packageInfo.org)}`;
-        url = `https://flakehub.com/f/${packageInfo.org}/${packageInfo.project}/${versionInfo.simplified_version}.tar.gz`;
+        humanPackageSummary = `${green3(packageInfo.project)}${cyan3`@${versionInfo2.version}`}${dim3` from `}${yellow3(packageInfo.org)}`;
+        url = `https://flakehub.com/f/${packageInfo.org}/${packageInfo.project}/${versionInfo2.simplified_version}.tar.gz`;
       } else {
         packageName = packageInfo.attrPath;
-        humanPackageSummary = `${green2(packageInfo.attrPath)}${cyan2`@${versionInfo.version}`}${dim2` from `}${yellow2("nixpkgs")}`;
-        url = `https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz#${versionInfo.attrPath}`;
+        humanPackageSummary = `${green3(packageInfo.attrPath)}${cyan3`@${versionInfo2.version}`}${dim3` from `}${yellow3("nixpkgs")}`;
+        url = `https://github.com/NixOS/nixpkgs/archive/${versionInfo2.hash}.tar.gz#${versionInfo2.attrPath}`;
       }
     }
     if (options.install) {
       didSomething = true;
-      if (hasFlakesEnabled) {
-        console.log(`Okay installing ${humanPackageSummary}`);
-        let noProgressLoopDetection;
-        install:
-          while (1) {
-            var stderrOutput = "";
-            var listener = {
-              async write(chunk) {
-                stderrOutput += new TextDecoder().decode(chunk);
-              }
-            };
-            await run2`nix profile install ${url} ${Stderr(Deno.stderr, listener)}`;
-            if (noProgressLoopDetection == stderrOutput) {
-              console.error(`
-Sorry, it looks like I was unable to install the package`);
-              Deno.exit(7);
-            }
-            noProgressLoopDetection = stderrOutput;
-            const conflictMatch = stderrOutput.match(/error: An existing package already provides the following file:(?:\w|\W)+?(?<existing>\/nix\/store\/.+)(?:\w|\W)+?This is the conflicting file from the new package:(?:\w|\W)+?(?<newPackage>\/nix\/store\/.+)(?:\w|\W)+?To remove the existing package:(?:\w|\W)+?(?<removeExisting>nix profile remove.+)(?:\w|\W)+?To prioritise the new package:(?:\w|\W)+?(?<prioritiseNew>nix profile install.+)(?:\w|\W)+?To prioritise the existing package:(?:\w|\W)+?(?<prioritiseExisting>nix profile install.+)/);
-            if (conflictMatch) {
-              const { existing, newPackage, removeExisting, prioritiseNew, prioritiseExisting } = conflictMatch.groups;
-              const [folders, name2, ext] = FileSystem.pathPieces(existing);
-              const simpleName = cyan2(folders.slice(4).join("/")) + cyan2("/") + green2(name2 + ext);
-              clearScreen2();
-              const packages = await listNixPackages();
-              const removeExistingPackage = async () => {
-                try {
-                  if (removeExisting) {
-                    const url2 = (removeExisting.slice("nix profile remove ".length).match(/(.+?)#/) || "")[1];
-                    const uninstallList = packages.filter((each2) => each2["Original flake URL"] == url2 || each2["Store paths"] == existing);
-                    for (const each2 of uninstallList) {
-                      if (each2.Index != null) {
-                        try {
-                          await run2`nix profile remove ${`${each2.Index}`.trim()}`;
-                        } catch (error) {
-                        }
-                      }
-                    }
-                  }
-                } catch (error) {
-                }
-              };
-              if (options.force) {
-                await removeExistingPackage();
-                continue install;
-              } else {
-                console.log(bold2`Looks like there was a conflict:`);
-                console.log(`    The install adds: ${simpleName}`);
-                console.log(`    Which already exists from:
-        ${yellow2((removeExisting || "").trim().slice("nix profile remove ".length) || existing)}`);
-                console.log(``);
-                const uninstallOption = "uninstall: remove the old package, install the one you just picked";
-                const newHigherPriorityOption = "higher: install the one you just picked with a higher priority";
-                const installAsLowerOption = "lower: install one you just picked, but have it be lower priority";
-                const choice = await selectOne({
-                  message: "Choose an action:",
-                  showList: true,
-                  showInfo: false,
-                  options: [
-                    uninstallOption,
-                    ...prioritiseNew ? [newHigherPriorityOption] : [],
-                    installAsLowerOption,
-                    "cancel"
-                  ]
-                });
-                if (choice == "cancel") {
-                  Deno.exit(0);
-                  return;
-                } else if (choice == newHigherPriorityOption) {
-                  await run2(prioritiseNew.trim().split(/\s/g));
-                } else if (choice == installAsLowerOption) {
-                  await run2(prioritiseExisting.trim().split(/\s/g));
-                } else if (choice == uninstallOption) {
-                  await removeExistingPackage();
-                }
-                continue install;
-              }
-            } else {
-              console.log(`
- - \u2705 ${humanPackageSummary} should now be installed`);
-            }
-            break;
-          }
-      } else {
-        await run2`nix-env -iA ${versionInfo.attrPath} -f {https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz}`;
-        console.log(`
- - \u2705 ${versionInfo.attrPath}@${versionInfo.version} should now be installed`);
+      try {
+        await install({
+          hasFlakesEnabled,
+          humanPackageSummary,
+          urlOrPath: url,
+          force: options.force
+        });
+      } catch (error) {
+        if (error.message = `Sorry, it looks like I was unable to install the package`) {
+          Deno.exit(7);
+        } else {
+          Deno.exit(0);
+        }
       }
     }
     if (options.dryInstall) {
@@ -28722,12 +29150,12 @@ Sorry, it looks like I was unable to install the package`);
       if (hasFlakesEnabled) {
         console.log(`Okay run the following to get ${humanPackageSummary}`);
         console.log(``);
-        console.log(cyan2`nix profile install ${posixShellEscape(url)}`);
+        console.log(cyan3`nix profile install ${posixShellEscape(url)}`);
         console.log(``);
       } else {
-        console.log(`Okay run the following to get version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+        console.log(`Okay run the following to get version ${yellow3(versionInfo2.version)} of ${yellow3(packageInfo.attrPath)}`);
         console.log(``);
-        console.log(cyan2`nix-env -iA ${posixShellEscape(versionInfo.attrPath)} -f https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
+        console.log(cyan3`nix-env -iA ${posixShellEscape(versionInfo2.attrPath)} -f https://github.com/NixOS/nixpkgs/archive/${versionInfo2.hash}.tar.gz`);
         console.log(``);
       }
     }
@@ -28736,124 +29164,124 @@ Sorry, it looks like I was unable to install the package`);
       if (hasFlakesEnabled) {
         console.log(`Okay, run the following to a shell that has ${humanPackageSummary}`);
         console.log(``);
-        console.log(cyan2`nix develop ${posixShellEscape(url)}`);
+        console.log(cyan3`nix develop ${posixShellEscape(url)}`);
         console.log(``);
       } else {
-        console.log(`Okay, run the following to a shell that has version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+        console.log(`Okay, run the following to a shell that has version ${yellow3(versionInfo2.version)} of ${yellow3(packageInfo.attrPath)}`);
         console.log(``);
-        console.log(cyan2`nix-shell -p ${posixShellEscape(versionInfo.attrPath)} -I https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`);
+        console.log(cyan3`nix-shell -p ${posixShellEscape(versionInfo2.attrPath)} -I https://github.com/NixOS/nixpkgs/archive/${versionInfo2.hash}.tar.gz`);
         console.log(``);
       }
     }
     if (!didSomething) {
       if (hasFlakesEnabled) {
         const name2 = toCamelCase(packageName);
-        const nonDefaultPackages = (versionInfo?.packageOutputs || []).filter((each2) => each2 != "default");
+        const nonDefaultPackages = (versionInfo2?.packageOutputs || []).filter((each2) => each2 != "default");
         if (!options.explain) {
           console.log(`Okay use the following to get ${humanPackageSummary}`);
           console.log(``);
-          console.log(cyan2`    ${name2}.url = ${escapeNixString(url)}`);
+          console.log(cyan3`    ${name2}.url = ${escapeNixString(url)}`);
           if (nonDefaultPackages.length > 0) {
             console.log(``);
-            console.log(dim2`Note: you may need to use one of the following to get what you want:`);
-            console.log(nonDefaultPackages.map((each2) => dim2.lightRed`    ${name2}.${each2}`).join("\n"));
+            console.log(dim3`Note: you may need to use one of the following to get what you want:`);
+            console.log(nonDefaultPackages.map((each2) => dim3.lightRed`    ${name2}.${each2}`).join("\n"));
           }
           console.log(``);
-          console.log(dim2`Run again with ${yellow2`--explain`} if you're not sure how to use this^`);
+          console.log(dim3`Run again with ${yellow3`--explain`} if you're not sure how to use this^`);
         } else {
-          console.log(`If you have a ${yellow2`flake.nix`} file it might look like:
+          console.log(`If you have a ${yellow3`flake.nix`} file it might look like:
 `);
-          console.log(dim2`   {`);
-          console.log(dim2`     description = "something";`);
-          console.log(dim2`     inputs = {`);
-          console.log(dim2`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`);
-          console.log(dim2`     };`);
-          console.log(dim2`     outputs = { self, nixpkgs, }:`);
-          console.log(dim2`       let`);
-          console.log(dim2`          somethingSomething = 10;`);
-          console.log(dim2`       in`);
-          console.log(dim2`         {`);
-          console.log(dim2`         }`);
-          console.log(dim2`   }`);
-          console.log(dim2``);
-          prompt(cyan2`[press enter to continue]`);
+          console.log(dim3`   {`);
+          console.log(dim3`     description = "something";`);
+          console.log(dim3`     inputs = {`);
+          console.log(dim3`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`);
+          console.log(dim3`     };`);
+          console.log(dim3`     outputs = { self, nixpkgs, }:`);
+          console.log(dim3`       let`);
+          console.log(dim3`          somethingSomething = 10;`);
+          console.log(dim3`       in`);
+          console.log(dim3`         {`);
+          console.log(dim3`         }`);
+          console.log(dim3`   }`);
+          console.log(dim3``);
+          prompt(cyan3`[press enter to continue]`);
           console.log(``);
           console.log(`To make it work with ${humanPackageSummary}`);
           console.log(`You would change it to be:
 `);
-          console.log(dim2`   {`);
-          console.log(dim2`     description = "something";`);
-          console.log(dim2`     inputs = {`);
-          console.log(dim2`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`);
-          console.log(green2`       ${name2}.url = ${escapeNixString(url)};`);
-          console.log(dim2`     };`);
-          console.log(`     outputs = { self, nixpkgs, ${green2(name2)} }:`);
-          console.log(dim2`       let`);
-          console.log(dim2`          somethingSomething = 10;`);
+          console.log(dim3`   {`);
+          console.log(dim3`     description = "something";`);
+          console.log(dim3`     inputs = {`);
+          console.log(dim3`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`);
+          console.log(green3`       ${name2}.url = ${escapeNixString(url)};`);
+          console.log(dim3`     };`);
+          console.log(`     outputs = { self, nixpkgs, ${green3(name2)} }:`);
+          console.log(dim3`       let`);
+          console.log(dim3`          somethingSomething = 10;`);
           if (nonDefaultPackages.length > 0) {
-            console.log(dim2.cyan`          # Note: you may need to use one of the following to get what you want:`);
-            console.log(nonDefaultPackages.map((each2) => dim2.cyan`          #    ${name2}.${each2}`).join("\n"));
+            console.log(dim3.cyan`          # Note: you may need to use one of the following to get what you want:`);
+            console.log(nonDefaultPackages.map((each2) => dim3.cyan`          #    ${name2}.${each2}`).join("\n"));
           }
-          console.log(dim2`       in`);
-          console.log(dim2`         {`);
-          console.log(dim2`         }`);
-          console.log(dim2`   }`);
+          console.log(dim3`       in`);
+          console.log(dim3`         {`);
+          console.log(dim3`         }`);
+          console.log(dim3`   }`);
           console.log(``);
         }
       } else {
         if (!options.explain) {
           console.log(`Here's what to include in your nix code:`);
           console.log(``);
-          console.log(cyan2`    yourVarName = (`);
-          console.log(cyan2`      (import (builtins.fetchTarball {`);
-          console.log(cyan2`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
-          console.log(cyan2`      }) {}).${versionInfo.attrPath}`);
-          console.log(cyan2`    );`);
+          console.log(cyan3`    yourVarName = (`);
+          console.log(cyan3`      (import (builtins.fetchTarball {`);
+          console.log(cyan3`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo2.hash}.tar.gz";`);
+          console.log(cyan3`      }) {}).${versionInfo2.attrPath}`);
+          console.log(cyan3`    );`);
           console.log(``);
-          console.log(dim2`Run again with ${yellow2`--explain`} if you're not sure how to use this^`);
+          console.log(dim3`Run again with ${yellow3`--explain`} if you're not sure how to use this^`);
         } else {
-          console.log(`If you have a ${yellow2`shell.nix`} or ${yellow2`default.nix`} file it might look like:
+          console.log(`If you have a ${yellow3`shell.nix`} or ${yellow3`default.nix`} file it might look like:
 `);
-          console.log(dim2`     { pkgs ? import <nixpkgs> {} }:`);
-          console.log(dim2`     let`);
-          console.log(dim2`       python = pkgs.python;`);
-          console.log(dim2`     in`);
-          console.log(dim2`       pkgs.mkShell {`);
-          console.log(dim2`         buildInputs = [`);
-          console.log(dim2`           python`);
-          console.log(dim2`         ];`);
-          console.log(dim2`         nativeBuildInputs = [`);
-          console.log(dim2`         ];`);
-          console.log(dim2`         shellHook = ''`);
-          console.log(dim2`             # blah blah blah`);
-          console.log(dim2`         '';`);
-          console.log(dim2`       }`);
-          console.log(dim2``);
-          prompt(cyan2`[press enter to continue]`);
+          console.log(dim3`     { pkgs ? import <nixpkgs> {} }:`);
+          console.log(dim3`     let`);
+          console.log(dim3`       python = pkgs.python;`);
+          console.log(dim3`     in`);
+          console.log(dim3`       pkgs.mkShell {`);
+          console.log(dim3`         buildInputs = [`);
+          console.log(dim3`           python`);
+          console.log(dim3`         ];`);
+          console.log(dim3`         nativeBuildInputs = [`);
+          console.log(dim3`         ];`);
+          console.log(dim3`         shellHook = ''`);
+          console.log(dim3`             # blah blah blah`);
+          console.log(dim3`         '';`);
+          console.log(dim3`       }`);
+          console.log(dim3``);
+          prompt(cyan3`[press enter to continue]`);
           console.log(``);
-          console.log(`To make it work with version ${yellow2(versionInfo.version)} of ${yellow2(packageInfo.attrPath)}`);
+          console.log(`To make it work with version ${yellow3(versionInfo2.version)} of ${yellow3(packageInfo.attrPath)}`);
           console.log(`You would change it to be:
 `);
-          console.log(dim2`     { pkgs ? import <nixpkgs> {} }:`);
-          console.log(dim2`     let`);
-          console.log(dim2`       python = pkgs.python;`);
-          console.log(green2`       YOUR_THING = (`);
-          console.log(green2`         (import (builtins.fetchTarball {`);
-          console.log(green2`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`);
-          console.log(green2`         }) {}).${versionInfo.attrPath}`);
-          console.log(green2`       );`);
-          console.log(dim2`     in`);
-          console.log(dim2`       pkgs.mkShell {`);
-          console.log(dim2`         buildInputs = [`);
-          console.log(dim2`           python`);
-          console.log(green2`           YOUR_THING`);
-          console.log(dim2`         ];`);
-          console.log(dim2`         nativeBuildInputs = [`);
-          console.log(dim2`         ];`);
-          console.log(dim2`         shellHook = ''`);
-          console.log(dim2`             # blah blah blah`);
-          console.log(dim2`         '';`);
-          console.log(dim2`       }`);
+          console.log(dim3`     { pkgs ? import <nixpkgs> {} }:`);
+          console.log(dim3`     let`);
+          console.log(dim3`       python = pkgs.python;`);
+          console.log(green3`       YOUR_THING = (`);
+          console.log(green3`         (import (builtins.fetchTarball {`);
+          console.log(green3`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo2.hash}.tar.gz";`);
+          console.log(green3`         }) {}).${versionInfo2.attrPath}`);
+          console.log(green3`       );`);
+          console.log(dim3`     in`);
+          console.log(dim3`       pkgs.mkShell {`);
+          console.log(dim3`         buildInputs = [`);
+          console.log(dim3`           python`);
+          console.log(green3`           YOUR_THING`);
+          console.log(dim3`         ];`);
+          console.log(dim3`         nativeBuildInputs = [`);
+          console.log(dim3`         ];`);
+          console.log(dim3`         shellHook = ''`);
+          console.log(dim3`             # blah blah blah`);
+          console.log(dim3`         '';`);
+          console.log(dim3`       }`);
         }
       }
     }

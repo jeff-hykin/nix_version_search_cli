@@ -1,3 +1,6 @@
+import { TerminalSpinner } from "https://deno.land/x/spinners@v1.1.2/mod.ts"
+const terminalSpinner = new TerminalSpinner("fetching")
+terminalSpinner.start()
 import { Command, EnumType } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts"
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
 // import { FileSystem } from "https://deno.land/x/quickr@0.6.51/main/file_system.js"
@@ -28,17 +31,24 @@ const listNixPackages =  async ()=>{
 // 
 // flakes check
 // 
-const cachePath = `${FileSystem.home}/.cache/nvs/has_flakes_enabled.check`
+terminalSpinner.start()
+const cachePath = `${FileSystem.home}/.cache/nvs/has_flakes_enabled.check.json`
 let hasFlakesEnabledString = FileSystem.sync.read(cachePath)
 if (hasFlakesEnabledString == null) {
-    console.log(`\nLet me check real quick if you have flakes enabled`)
-    console.log(`(this will only run once)`)
+    console.log(`\n${cyan`❄️`} Checking if you use flakes...`)
+    console.log(dim`- (this will only run once)`)
     try {
         const result = await run`nix profile list ${Stdout(returnAsString)} ${Stderr(null)}`
         hasFlakesEnabledString = !!result.match(/^Flake attribute: /m)
     } catch (error) {
         hasFlakesEnabledString = false
     }
+    if (hasFlakesEnabledString) {
+        console.log(`${dim`- Okay looks like you do use flakes!`} ${cyan`❄️`}`)
+    } else {
+        console.log(`${dim`- Okay looks like you dont use flakes`} ${red`X`}`)
+    }
+    console.log(`${dim`- Saving this preference to disk at:\n    `}${yellow(JSON.stringify(cachePath))}`)
     hasFlakesEnabledString = JSON.stringify(hasFlakesEnabledString)
     console.log(`\n`)
     FileSystem.sync.write({
@@ -47,6 +57,137 @@ if (hasFlakesEnabledString == null) {
     })
 }
 const hasFlakesEnabled = JSON.parse(hasFlakesEnabledString)
+
+
+// 
+// tools
+// 
+const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
+    packages = packages || await listNixPackages()
+    try {
+        if (removeExisting) {
+            // "Store paths" is for the non-flake installs
+            const uninstallList = packages.filter(each=>(
+                    urlOrPath && (each["Original flake URL"] == urlOrPath)
+                ) || (
+                    storePath && (each["Store paths"] == storePath)
+                )
+            )
+            for (const each of uninstallList) {
+                if (each.Index!=null) {
+                    try {
+                        await run`nix profile remove ${`${each.Index}`.trim()}`
+                    } catch (error) {
+                    }
+                }
+            }
+        }
+    } catch (error) {
+    }
+}
+
+async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}) {
+    if (hasFlakesEnabled) {
+        console.log(`Okay installing ${humanPackageSummary}`)
+        let noProgressLoopDetection
+        install: while (1) {
+            let stderrOutput = ""
+            const listener = {
+                write(chunk) {
+                    stderrOutput += (new TextDecoder()).decode(chunk)
+                }
+            }
+            // try the install
+            await run`nix profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`
+            if (noProgressLoopDetection == stderrOutput) {
+                throw Error(`Sorry, it looks like I was unable to install the package`)
+            }
+            noProgressLoopDetection = stderrOutput
+            const conflictMatch = stderrOutput.match(/error: An existing package already provides the following file:(?:\w|\W)+?(?<existing>\/nix\/store\/.+)(?:\w|\W)+?This is the conflicting file from the new package:(?:\w|\W)+?(?<newPackage>\/nix\/store\/.+)(?:\w|\W)+?To remove the existing package:(?:\w|\W)+?(?<removeExisting>nix profile remove.+)(?:\w|\W)+?To prioritise the new package:(?:\w|\W)+?(?<prioritiseNew>nix profile install.+)(?:\w|\W)+?To prioritise the existing package:(?:\w|\W)+?(?<prioritiseExisting>nix profile install.+)/)
+            if (conflictMatch) {
+                const { existing, newPackage, removeExisting, prioritiseNew, prioritiseExisting } = conflictMatch.groups
+                const [ folders, name, ext ] = FileSystem.pathPieces(existing)
+                const simpleName = cyan(folders.slice(4,).join("/"))+cyan("/")+green(name+ext)
+                clearScreen()
+                const packages = await listNixPackages()
+                
+
+                if (force) {
+                    const urlOrPath = (removeExisting.slice(("nix profile remove ").length).match(/(.+?)#/)||"")[1]
+                    await removeExistingPackage({urlOrPath, storePath: existing, packages})
+                    continue install
+                } else {
+                    console.log(bold`Looks like there was a conflict:`)
+                    console.log(`    The install adds: ${simpleName}`)
+                    console.log(`    Which already exists from:\n        ${yellow((removeExisting||"").trim().slice(("nix profile remove ").length)||existing)}`)
+                    console.log(``)
+                    const uninstallOption = "uninstall: remove the old package, install the one you just picked"
+                    const newHigherPriorityOption = "higher: install the one you just picked with a higher priority"
+                    const installAsLowerOption = "lower: install one you just picked, but have it be lower priority"
+                    const choice = await selectOne({
+                        message: "Choose an action:",
+                        showList: true,
+                        showInfo: false,
+                        options: [
+                            uninstallOption,
+                            ...(prioritiseNew ? [newHigherPriorityOption] : []),
+                            installAsLowerOption,
+                            "cancel",
+                        ],
+                    })
+                    if (choice == "cancel") {
+                        throw Error(`cancel`)
+                    } else if (choice == newHigherPriorityOption) {
+                        await run(prioritiseNew.trim().split(/\s/g))
+                    } else if (choice == installAsLowerOption) {
+                        await run(prioritiseExisting.trim().split(/\s/g))
+                    } else if (choice == uninstallOption) {
+                        const urlOrPath = (removeExisting.slice(("nix profile remove ").length).match(/(.+?)#/)||"")[1]
+                        await removeExistingPackage({urlOrPath, storePath: existing, packages})
+                    }
+                    continue install
+                }
+            } else {
+                console.log(`\n - ✅ ${humanPackageSummary} should now be installed`)
+            }
+            break
+        }
+    } else {
+        await run`nix-env -iA ${versionInfo.attrPath} -f {https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz}`
+        console.log(`\n - ✅ ${versionInfo.attrPath}@${versionInfo.version} should now be installed`)
+    }
+}
+
+// TODO: enable this sanity checker of conflicting bins:
+        // const packages = await listNixPackages()
+        // const binSources = {}
+        // for (const each of packages) {
+        //     const name = each["Original flake URL"] || each.Index
+        //     binSources[name] = []
+        //     let storePaths = each["Store paths"]
+        //     if (storePaths) {
+        //         storePaths = storePaths.split(":")
+        //         for (const each of storePaths) {
+        //             binSources[name].push(
+        //                 FileSystem.listFilePathsIn(`${each}/bin/`)
+        //             )
+        //         }
+        //     }
+        // }
+        // const conflicts = {}
+        // for (const [key, value] of Object.entries(binSources)) {
+        //     const executables = await Promise.all(value)
+        //     const executableNames = executables.flat(2).map(each=>FileSystem.basename(each))
+        //     for (let each of executableNames) {
+        //         conflicts[each] = conflicts[each] || []
+        //         conflicts[each].push(key)
+        //     }
+        // }
+        // for (const [key, value] of Object.entries(conflicts)) {
+        //     if (value.length > 1) {
+        //         console.warn(`! looks like multiple packages supply the ${green(key)} executable:`,JSON.stringify(value,0,4))
+        //     }
+        // }
 
 const command = await new Command()
     // Main command.
@@ -67,14 +208,22 @@ const command = await new Command()
         }
         
         // quick install http
-        if (args[0].startsWith("https://") && options.install) {
-            if (hasFlakesEnabled) {
-                var {success} = await run`nix profile install ${args[0]}`
-                Deno.exit(success)
-            } else {
-                var {success} = await run`nix-env -i -f ${args[0]}`
-                Deno.exit(success)
+        if ((args[0].startsWith("https://") || args[0].startsWith("./")) && options.install) {
+            try {
+                await install({
+                    hasFlakesEnabled,
+                    humanPackageSummary: `${args[0]}`,
+                    urlOrPath: args[0],
+                    force: options.force,
+                })
+            } catch (error) {
+                if (error.message = `Sorry, it looks like I was unable to install the package`) {
+                    Deno.exit(7)
+                } else {
+                    Deno.exit(0)
+                }
             }
+            Deno.exit(0)
         }
         
         // normal version search
@@ -132,6 +281,7 @@ const command = await new Command()
             console.log(JSON.stringify(choiceOptions))
             return
         }
+        terminalSpinner.succeed("finished fetch")
 
         // 
         // interactive mode
@@ -203,121 +353,19 @@ const command = await new Command()
             // 
             if (options.install) {
                 didSomething = true
-                if (hasFlakesEnabled) {
-                    console.log(`Okay installing ${humanPackageSummary}`)
-                    let noProgressLoopDetection
-                    install: while (1) {
-                        var stderrOutput = ""
-                        var listener = {
-                            async write(chunk) {
-                                stderrOutput += (new TextDecoder()).decode(chunk)
-                            }
-                        }
-                        // try the install
-                        await run`nix profile install ${url} ${Stderr(Deno.stderr, listener)}`
-                        if (noProgressLoopDetection == stderrOutput) {
-                            console.error(`\nSorry, it looks like I was unable to install the package`)
-                            Deno.exit(7)
-                        }
-                        noProgressLoopDetection = stderrOutput
-                        const conflictMatch = stderrOutput.match(/error: An existing package already provides the following file:(?:\w|\W)+?(?<existing>\/nix\/store\/.+)(?:\w|\W)+?This is the conflicting file from the new package:(?:\w|\W)+?(?<newPackage>\/nix\/store\/.+)(?:\w|\W)+?To remove the existing package:(?:\w|\W)+?(?<removeExisting>nix profile remove.+)(?:\w|\W)+?To prioritise the new package:(?:\w|\W)+?(?<prioritiseNew>nix profile install.+)(?:\w|\W)+?To prioritise the existing package:(?:\w|\W)+?(?<prioritiseExisting>nix profile install.+)/)
-                        if (conflictMatch) {
-                            const { existing, newPackage, removeExisting, prioritiseNew, prioritiseExisting } = conflictMatch.groups
-                            const [ folders, name, ext ] = FileSystem.pathPieces(existing)
-                            const simpleName = cyan(folders.slice(4,).join("/"))+cyan("/")+green(name+ext)
-                            clearScreen()
-                            const packages = await listNixPackages()
-                            const removeExistingPackage = async ()=>{
-                                try {
-                                    if (removeExisting) {
-                                        const url = (removeExisting.slice(("nix profile remove ").length).match(/(.+?)#/)||"")[1]
-                                        // "Store paths" is for the non-flake installs
-                                        const uninstallList = packages.filter(each=>each["Original flake URL"] == url || each["Store paths"] == existing)
-                                        for (const each of uninstallList) {
-                                            if (each.Index!=null) {
-                                                try {
-                                                    await run`nix profile remove ${`${each.Index}`.trim()}`
-                                                } catch (error) {
-                                                }
-                                            }
-                                        }
-                                    }
-                                } catch (error) {
-                                }
-                            }
-
-                            if (options.force) {
-                                await removeExistingPackage()
-                                continue install
-                            } else {
-                                console.log(bold`Looks like there was a conflict:`)
-                                console.log(`    The install adds: ${simpleName}`)
-                                console.log(`    Which already exists from:\n        ${yellow((removeExisting||"").trim().slice(("nix profile remove ").length)||existing)}`)
-                                console.log(``)
-                                const uninstallOption = "uninstall: remove the old package, install the one you just picked"
-                                const newHigherPriorityOption = "higher: install the one you just picked with a higher priority"
-                                const installAsLowerOption = "lower: install one you just picked, but have it be lower priority"
-                                const choice = await selectOne({
-                                    message: "Choose an action:",
-                                    showList: true,
-                                    showInfo: false,
-                                    options: [
-                                        uninstallOption,
-                                        ...(prioritiseNew ? [newHigherPriorityOption] : []),
-                                        installAsLowerOption,
-                                        "cancel",
-                                    ],
-                                })
-                                if (choice == "cancel") {
-                                    Deno.exit(0)
-                                    return
-                                } else if (choice == newHigherPriorityOption) {
-                                    await run(prioritiseNew.trim().split(/\s/g))
-                                } else if (choice == installAsLowerOption) {
-                                    await run(prioritiseExisting.trim().split(/\s/g))
-                                } else if (choice == uninstallOption) {
-                                    await removeExistingPackage()
-                                }
-                                continue install
-                            }
-                        } else {
-                            console.log(`\n - ✅ ${humanPackageSummary} should now be installed`)
-                        }
-                        break
+                try {
+                    await install({
+                        hasFlakesEnabled,
+                        humanPackageSummary,
+                        urlOrPath: url,
+                        force: options.force,
+                    })
+                } catch (error) {
+                    if (error.message = `Sorry, it looks like I was unable to install the package`) {
+                        Deno.exit(7)
+                    } else {
+                        Deno.exit(0)
                     }
-                    // TODO: enable this sanity checker of conflicting bins:
-                    // const packages = await listNixPackages()
-                    // const binSources = {}
-                    // for (const each of packages) {
-                    //     const name = each["Original flake URL"] || each.Index
-                    //     binSources[name] = []
-                    //     let storePaths = each["Store paths"]
-                    //     if (storePaths) {
-                    //         storePaths = storePaths.split(":")
-                    //         for (const each of storePaths) {
-                    //             binSources[name].push(
-                    //                 FileSystem.listFilePathsIn(`${each}/bin/`)
-                    //             )
-                    //         }
-                    //     }
-                    // }
-                    // const conflicts = {}
-                    // for (const [key, value] of Object.entries(binSources)) {
-                    //     const executables = await Promise.all(value)
-                    //     const executableNames = executables.flat(2).map(each=>FileSystem.basename(each))
-                    //     for (let each of executableNames) {
-                    //         conflicts[each] = conflicts[each] || []
-                    //         conflicts[each].push(key)
-                    //     }
-                    // }
-                    // for (const [key, value] of Object.entries(conflicts)) {
-                    //     if (value.length > 1) {
-                    //         console.warn(`! looks like multiple packages supply the ${green(key)} executable:`,JSON.stringify(value,0,4))
-                    //     }
-                    // }
-                } else {
-                    await run`nix-env -iA ${versionInfo.attrPath} -f {https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz}`
-                    console.log(`\n - ✅ ${versionInfo.attrPath}@${versionInfo.version} should now be installed`)
                 }
             }
 
