@@ -22,7 +22,7 @@ export const rikudoeSage = {
                     output = [ { attrPath: query } ]
                 }
             } else {
-                const names = await import(cachePath)
+                const names = (await import(`data:text/javascript;base64,${btoa(await Deno.readTextFile(cachePath))}`)).default
                 if (names.has(query)) {
                     output = [ { attrPath: query } ]
                 }
