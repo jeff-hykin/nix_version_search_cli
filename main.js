@@ -73,7 +73,6 @@ const command = await new Command()
                 Deno.exit(success)
             } else {
                 var {success} = await run`nix-env -i -f ${args[0]}`
-                await run`nix profile install ${args[0]}`
                 Deno.exit(success)
             }
         }
