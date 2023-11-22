@@ -23,15 +23,20 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/a4d1be1f47b58537b6a8cc5a5e924fde3878c704.tar.gz
-# or
-nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/a4d1be1f47b58537b6a8cc5a5e924fde3878c704.tar.gz#nvs'
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/c80e745f36e56cd5e641f1b9d7ba79bccd67c372.tar.gz
+# or, if you have flakes:
+nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/c80e745f36e56cd5e641f1b9d7ba79bccd67c372.tar.gz#nvs'
 ```
 
 ## How to use
 
 There's one command with three usages:
-- `nvs` for nix code (for `shell.nix`, `default.nix`, or `flake.nix`)
+- use `nvs <nameOfSomething>` for package-as-an-input (e.g. `shell.nix`, `default.nix`, or `flake.nix`)
+- use `nvs --repl <nameOfSomething>` for package-as-a-nix-value (e.g. inside a `nix repl`)
+- use `nvs --install <nameOfSomething>` to system-install whatever package you select (e.g. `apt-get install` or `brew install`)
+- use `nvs --shell <nameOfSomething>` for a command that starts a `nix-shell` or `nix develop` with the package
+
+## Example
 
 If you want to use the "python" package in some nix code do:
 
@@ -64,12 +69,13 @@ Selected: python
 
 Here is what to include in your nix code:
 
-    yourVarName = (
+    python = (
       (import (builtins.fetchTarball {
           url = "https://github.com/NixOS/nixpkgs/archive/75a52265bda7fd25e06e3a67dee3f0354e73243c.tar.gz";
       }) {}).python312
     );
 
-Run again with --explain if you are not sure how to use this^
+If you are not sure how to use this^
+Run: nvs --explain python@3
 ```
 

@@ -440,7 +440,7 @@ const command = await new Command()
                     console.log(cyan`    )${isRepl?"":";"}`)
                     console.log(``)
                     if (showTip) {
-                        console.log(dim`If you're not sure how to use this^\nRun: ${commandWithExplainFlag}`)
+                        console.log(dim`If you are not sure how to use this^\nRun: ${commandWithExplainFlag}`)
                     }
                 } else {
                     console.log(`If you have a ${yellow`shell.nix`} or ${yellow`default.nix`} file it might look like:\n`)
@@ -510,7 +510,7 @@ const command = await new Command()
                             console.log(nonDefaultPackages.map(each=>dim.lightRed`    ${name}.${each}`).join("\n"))
                         }
                         console.log(``)
-                        console.log(dim`If you're not sure how to use this^\nRun: ${commandWithExplainFlag}`)
+                        console.log(dim`If you are not sure how to use this^\nRun: ${commandWithExplainFlag}`)
                     } else {
                         clearScreen()
                         console.log(`There's 3 main ways to use a nix package`)
