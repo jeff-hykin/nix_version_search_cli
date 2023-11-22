@@ -10,6 +10,7 @@ import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, to
 import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.js"
 import * as yaml from "https://deno.land/std@0.168.0/encoding/yaml.ts"
 
+import { version } from "./tools/version.js"
 import { selectOne } from "./tools/input_tools.js"
 import { search, determinateSystems } from "./tools/search_tools.js"
 import { versionSort, versionToList } from "./tools/misc.js"
@@ -214,7 +215,7 @@ async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}
 const command = await new Command()
     // Main command.
     .name("Nix Version Search")
-    .version("1.0.0")
+    .version(version)
     .description(`Find/install exact versions of nix packages\n\nExamples:\n    nvs --install python@3\n    nvs python@3\n    nvs --repl python@3\n    nvs --shell python@3\n    nvs --json python@3`)
     .globalOption("--install", "Install into the system")
     .globalOption("--explain", "Include beginner-friendly explanations with the output")

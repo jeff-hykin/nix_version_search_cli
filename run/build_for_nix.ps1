@@ -62,6 +62,7 @@ await bundle({
 
 const latestCommitHash = (await run`git rev-parse HEAD ${Stdout(returnAsString)}`).trim()
 
+import {version} from "../tools/version.js"
 await FileSystem.write({
     path: nixFilePath,
     data: `
@@ -71,7 +72,7 @@ await FileSystem.write({
     #
     #
     
-    `.replace(/\n    /g, "\n")+(await FileSystem.read(nixFileTemplate)).replace(/REPLACEME_420492093/g, latestCommitHash)
+    `.replace(/\n    /g, "\n")+(await FileSystem.read(nixFileTemplate)).replace(/REPLACEME_420492093/g, latestCommitHash).replace(/REPLACEME_VERSION_9409841/g, version)
 })
 
 await FileSystem.write({
