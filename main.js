@@ -1,5 +1,5 @@
 import { TerminalSpinner } from "https://deno.land/x/spinners@v1.1.2/mod.ts"
-const terminalSpinner = new TerminalSpinner("fetching")
+let terminalSpinner = new TerminalSpinner("fetching")
 terminalSpinner.start()
 import { Command, EnumType } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts"
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
@@ -64,24 +64,28 @@ const hasFlakesEnabled = JSON.parse(hasFlakesEnabledString)
 const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
     packages = packages || await listNixPackages()
     try {
-        if (removeExisting) {
-            // "Store paths" is for the non-flake installs
-            const uninstallList = packages.filter(each=>(
-                    urlOrPath && (each["Original flake URL"] == urlOrPath)
-                ) || (
-                    storePath && (each["Store paths"] == storePath)
-                )
-            )
-            for (const each of uninstallList) {
-                if (each.Index!=null) {
-                    try {
-                        await run`nix profile remove ${`${each.Index}`.trim()}`
-                    } catch (error) {
-                    }
+        const uninstallList = []
+        for (const eachPackage of packages) {
+            const storePaths = eachPackage["Store paths"].split(":").filter(each=>each.length > 0)
+            const storePathMatches = storePaths.some(eachStorePath=>`${storePath}`.startsWith(eachStorePath))
+            if (storePath && storePathMatches) {
+                uninstallList.push(eachPackage)
+            } else if (urlOrPath) {
+                if (eachPackage["Original flake URL"] == urlOrPath) {
+                    uninstallList.push(eachPackage)
+                }
+            }
+        }
+        for (const each of uninstallList) {
+            if (each.Index!=null) {
+                try {
+                    await run`nix profile remove ${`${each.Index}`.trim()}`
+                } catch (error) {
                 }
             }
         }
     } catch (error) {
+        console.warn(error)
     }
 }
 
@@ -97,8 +101,14 @@ async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}
                 }
             }
             // try the install
-            await run`nix profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`
+            const installCommand = `nix profile install ${escapeNixString(urlOrPath)}`
+            terminalSpinner = new TerminalSpinner()
+            terminalSpinner.start(dim`- running: ${installCommand}`)
+            var { success } = await run`nix profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`
+            terminalSpinner.stop()
             if (noProgressLoopDetection == stderrOutput) {
+                console.error(red(stderrOutput))
+                console.error(`\n - ❌ there was an issue installing ${humanPackageSummary}`)
                 throw Error(`Sorry, it looks like I was unable to install the package`)
             }
             noProgressLoopDetection = stderrOutput
@@ -110,10 +120,11 @@ async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}
                 clearScreen()
                 const packages = await listNixPackages()
                 
-
                 if (force) {
                     const urlOrPath = (removeExisting.slice(("nix profile remove ").length).match(/(.+?)#/)||"")[1]
-                    await removeExistingPackage({urlOrPath, storePath: existing, packages})
+                    if (removeExisting) {
+                        await removeExistingPackage({urlOrPath, storePath: existing, packages})
+                    }
                     continue install
                 } else {
                     console.log(bold`Looks like there was a conflict:`)
@@ -142,18 +153,31 @@ async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}
                         await run(prioritiseExisting.trim().split(/\s/g))
                     } else if (choice == uninstallOption) {
                         const urlOrPath = (removeExisting.slice(("nix profile remove ").length).match(/(.+?)#/)||"")[1]
-                        await removeExistingPackage({urlOrPath, storePath: existing, packages})
+                        console.debug(`urlOrPath is:`,urlOrPath)
+                        if (removeExisting) {
+                            await removeExistingPackage({urlOrPath, storePath: existing, packages})
+                        }
                     }
                     continue install
                 }
+            } else if (!success) {
+                console.error(red(stderrOutput))
+                console.error(`\n - ❌ there was an issue installing ${humanPackageSummary}`)
+                throw Error(`Sorry, it looks like I was unable to install the package`)
             } else {
                 console.log(`\n - ✅ ${humanPackageSummary} should now be installed`)
             }
             break
         }
     } else {
-        await run`nix-env -iA ${versionInfo.attrPath} -f ${`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`}`
-        console.log(`\n - ✅ ${versionInfo.attrPath}@${versionInfo.version} should now be installed`)
+        const installCommand = `nix-env -iA ${escapeNixString(versionInfo.attrPath)} -f ${escapeNixString(`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`)}`
+        console.log(dim`- running: ${installCommand}`)
+        var {success} = await run`nix-env -iA ${versionInfo.attrPath} -f ${`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`}`
+        if (success) {
+            console.log(`\n - ✅ ${versionInfo.attrPath}@${versionInfo.version} should now be installed`)
+        } else {
+            console.error(`\n - ❌ there was an issue installing ${versionInfo.attrPath}@${versionInfo.version}`)
+        }
     }
 }
 
@@ -192,19 +216,21 @@ const command = await new Command()
     // Main command.
     .name("Nix Version Search")
     .version("1.0.0")
-    .description(`Find/install exact versions of nix packages\n\nExamples:\n    nvs --install python@3\n    nvs python@3\n    nvs --shell python@3`)
+    .description(`Find/install exact versions of nix packages\n\nExamples:\n    nvs --install python@3\n    nvs python@3\n    nvs --repl python@3\n    nvs --shell python@3\n    nvs --json python@3`)
     .globalOption("--install", "Install into the system")
-    .globalOption("--dry-install", "Show the nix command for installing into the system")
-    .globalOption("--shell", "Show the shell command info")
-    .globalOption("--force", "Uninstall any packages that conflict with an install")
-    .globalOption("--json", "Return json output of the results (force enables non-interactive)")
     .globalOption("--explain", "Include beginner-friendly explanations with the output")
+    .globalOption("--repl", "Show how to get the package in `nix repl`")
+    .globalOption("--shell", "Show how to use the package with `nix-shell`/`nix develop`")
+    .globalOption("--force", "Uninstall any packages that conflict with an install")
+    .globalOption("--dry-install", "Show the nix command for installing into the system")
+    .globalOption("--json", "Return json output of all search results (non-interactive)")
     .arguments("[...args:string]")
     .action(async function (options, ...args) {
         args = args.concat(this.getLiteralArgs())
         if (args.length == 0) {
             return command.parse(["--help"].concat(Deno.args))
         }
+        const commandWithExplainFlag = green`nvs `+yellow`--explain `+dim`${Deno.args.map(posixShellEscape).join(" ")}`
         
         // quick install http
         if ((args[0].startsWith("https://") || args[0].startsWith("./")) && options.install) {
@@ -400,6 +426,73 @@ const command = await new Command()
                     console.log(``)
                 }
             }
+            
+            // 
+            // repl output
+            // 
+            const asInlineNixValue = ({isRepl, explain, showTip=true})=>{
+                if (!explain) {
+                    console.log(`Here's what to include in your nix code:`)
+                    console.log(``)
+                    console.log(cyan`    ${toCamelCase(packageName)} = (`)
+                    console.log(cyan`      (import (builtins.fetchTarball {`)
+                    console.log(cyan`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`)
+                    console.log(cyan`      }) {}).${versionInfo.attrPath}`)
+                    console.log(cyan`    )${isRepl?"":";"}`)
+                    console.log(``)
+                    if (showTip) {
+                        console.log(dim`If you're not sure how to use this^\nRun: ${commandWithExplainFlag}`)
+                    }
+                } else {
+                    console.log(`If you have a ${yellow`shell.nix`} or ${yellow`default.nix`} file it might look like:\n`)
+                    console.log(dim`     { pkgs ? import <nixpkgs> {} }:`)
+                    console.log(dim`     let`)
+                    console.log(dim`       python = pkgs.python;`)
+                    console.log(dim`     in`)
+                    console.log(dim`       pkgs.mkShell {`)
+                    console.log(dim`         buildInputs = [`)
+                    console.log(dim`           python`)
+                    console.log(dim`         ];`)
+                    console.log(dim`         nativeBuildInputs = [`)
+                    console.log(dim`         ];`)
+                    console.log(dim`         shellHook = ''`)
+                    console.log(dim`             # blah blah blah`)
+                    console.log(dim`         '';`)
+                    console.log(dim`       }`)
+                    console.log(dim``)
+                    prompt(cyan`[press enter to continue]`)
+                    console.log(``)
+                    console.log(`To make it work with version ${yellow(versionInfo.version)} of ${yellow(packageInfo.attrPath)}`)
+                    console.log(`You would change it to be:\n`)
+                    console.log(dim`     { pkgs ? import <nixpkgs> {} }:`)
+                    console.log(dim`     let`)
+                    console.log(dim`       python = pkgs.python;`)
+                    console.log(green`        ${toCamelCase(packageName)} = (`)
+                    console.log(green`         (import (builtins.fetchTarball {`)
+                    console.log(green`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`)
+                    console.log(green`         }) {}).${versionInfo.attrPath}`)
+                    console.log(green`       );`)
+                    console.log(dim`     in`)
+                    console.log(dim`       pkgs.mkShell {`)
+                    console.log(dim`         buildInputs = [`)
+                    console.log(dim`           python`)
+                    console.log(green`           ${toCamelCase(packageName)}`)
+                    console.log(dim`         ];`)
+                    console.log(dim`         nativeBuildInputs = [`)
+                    console.log(dim`         ];`)
+                    console.log(dim`         shellHook = ''`)
+                    console.log(dim`             # blah blah blah`)
+                    console.log(dim`         '';`)
+                    console.log(dim`       }`)
+                }
+            }
+            if (options.repl) {
+                didSomething = true
+                asInlineNixValue({
+                    isRepl: true,
+                    explain: options.explain
+                })
+            }
 
             // 
             // default output
@@ -418,8 +511,17 @@ const command = await new Command()
                             console.log(nonDefaultPackages.map(each=>dim.lightRed`    ${name}.${each}`).join("\n"))
                         }
                         console.log(``)
-                        console.log(dim`Run again with ${yellow`--explain`} if you're not sure how to use this^`)
+                        console.log(dim`If you're not sure how to use this^\nRun: ${commandWithExplainFlag}`)
                     } else {
+                        clearScreen()
+                        console.log(`There's 3 main ways to use a nix package`)
+                        console.log(`1. install it (e.g. ${green`nvs --install ...`})`)
+                        console.log(`2. use it as a value/variable inside nix code (e.g. ${green`nvs --repl ...`}) `)
+                        console.log(`3. add the package as an input to a ${cyan`flake.nix`}`)
+                        console.log(``)
+                        console.log(`I'm only showing #3 right now`)
+                        prompt(cyan`[press enter to continue]`)
+                        clearScreen()
                         console.log(`If you have a ${yellow`flake.nix`} file it might look like:\n`)
                         console.log(dim`   {`)
                         console.log(dim`     description = "something";`)
@@ -458,58 +560,10 @@ const command = await new Command()
                         console.log(``)
                     }
                 } else {
-                    if (!options.explain) {
-                        console.log(`Here's what to include in your nix code:`)
-                        console.log(``)
-                        console.log(cyan`    yourVarName = (`)
-                        console.log(cyan`      (import (builtins.fetchTarball {`)
-                        console.log(cyan`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`)
-                        console.log(cyan`      }) {}).${versionInfo.attrPath}`)
-                        console.log(cyan`    );`)
-                        console.log(``)
-                        console.log(dim`Run again with ${yellow`--explain`} if you're not sure how to use this^`)
-                    } else {
-                        console.log(`If you have a ${yellow`shell.nix`} or ${yellow`default.nix`} file it might look like:\n`)
-                        console.log(dim`     { pkgs ? import <nixpkgs> {} }:`)
-                        console.log(dim`     let`)
-                        console.log(dim`       python = pkgs.python;`)
-                        console.log(dim`     in`)
-                        console.log(dim`       pkgs.mkShell {`)
-                        console.log(dim`         buildInputs = [`)
-                        console.log(dim`           python`)
-                        console.log(dim`         ];`)
-                        console.log(dim`         nativeBuildInputs = [`)
-                        console.log(dim`         ];`)
-                        console.log(dim`         shellHook = ''`)
-                        console.log(dim`             # blah blah blah`)
-                        console.log(dim`         '';`)
-                        console.log(dim`       }`)
-                        console.log(dim``)
-                        prompt(cyan`[press enter to continue]`)
-                        console.log(``)
-                        console.log(`To make it work with version ${yellow(versionInfo.version)} of ${yellow(packageInfo.attrPath)}`)
-                        console.log(`You would change it to be:\n`)
-                        console.log(dim`     { pkgs ? import <nixpkgs> {} }:`)
-                        console.log(dim`     let`)
-                        console.log(dim`       python = pkgs.python;`)
-                        console.log(green`       YOUR_THING = (`)
-                        console.log(green`         (import (builtins.fetchTarball {`)
-                        console.log(green`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`)
-                        console.log(green`         }) {}).${versionInfo.attrPath}`)
-                        console.log(green`       );`)
-                        console.log(dim`     in`)
-                        console.log(dim`       pkgs.mkShell {`)
-                        console.log(dim`         buildInputs = [`)
-                        console.log(dim`           python`)
-                        console.log(green`           YOUR_THING`)
-                        console.log(dim`         ];`)
-                        console.log(dim`         nativeBuildInputs = [`)
-                        console.log(dim`         ];`)
-                        console.log(dim`         shellHook = ''`)
-                        console.log(dim`             # blah blah blah`)
-                        console.log(dim`         '';`)
-                        console.log(dim`       }`)
-                    }
+                    asInlineNixValue({
+                        isRepl: false,
+                        explain: options.explain,
+                    })
                 }
             }
             break
