@@ -330,7 +330,7 @@ export abstract class GenericSuggestions<TValue, TRawValue>
     ) {
       list.push(
         this.getListItem(
-          this.suggestions[i].replace(/❄️(.+)/, reset(cyan("❄️"))+dim(green("$1"))),
+          `${this.suggestions[i]}`.replace(/❄️(.+)/, reset(cyan("❄️"))+dim(green("$1"))),
           this.suggestionsIndex === i,
           suggestionToDescription[this.suggestions[i]],
         ),
