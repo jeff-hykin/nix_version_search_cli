@@ -13,9 +13,7 @@
             ]; 
         })
     ),
-    _src ? _core.fetchTarball ({
-        url="https://github.com/jeff-hykin/nix_version_search_cli/archive/REPLACEME_420492093.tar.gz";
-    }),
+    _src ? ./.,
     system ? _core.currentSystem,
     deno ? _pkgs.deno,
     bash ? _pkgs.bash,
