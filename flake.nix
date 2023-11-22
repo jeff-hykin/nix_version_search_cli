@@ -3,24 +3,24 @@
 
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-        flake-utils.url = "github:numtide/flake-utils";
+        flakeUtils.url = "github:numtide/flake-utils";
     };
 
     outputs = { self, nixpkgs, flake-utils }:
-        flake-utils.lib.eachDefaultSystem (system:
+        flakeUtils.lib.eachDefaultSystem (system:
             let
                 pkgs = nixpkgs.legacyPackages.${system};
-                nvsBase = (pkgs.callPackage
+                nvs = (pkgs.callPackage
                     (builtins.import ./default.nix)
                     {
-                        pkgs = pkgs;
+                        _core = builtins;
+                        _pkgs = pkgs;
+                        _src = self;
+                        system = system;
                         deno = pkgs.deno;
                         bash = pkgs.bash;
                     }
                 );
-                nvs = nvsBase.overrideAttrs {
-                    src = self;
-                };
             in
                 {
                     packages = {
