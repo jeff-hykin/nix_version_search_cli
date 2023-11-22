@@ -153,7 +153,6 @@ async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}
                         await run(prioritiseExisting.trim().split(/\s/g))
                     } else if (choice == uninstallOption) {
                         const urlOrPath = (removeExisting.slice(("nix profile remove ").length).match(/(.+?)#/)||"")[1]
-                        console.debug(`urlOrPath is:`,urlOrPath)
                         if (removeExisting) {
                             await removeExistingPackage({urlOrPath, storePath: existing, packages})
                         }
