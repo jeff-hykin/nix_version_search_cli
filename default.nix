@@ -6,51 +6,42 @@
 #
 
 {
-    # local install command: nix-env -i -f ./  
-    pkgs ? (builtins.import 
-        (builtins.fetchTarball
-            ({url="https://github.com/NixOS/nixpkgs/archive/a7df6bc9d1a5621b3ec2750c82d3356c4fe88dbe.tar.gz";})
+    # local install command:
+    #     nix-env -i -f ./  
+    # or
+    #     nix profile install ./flake.nix
+    _core ? builtins,
+    _pkgs ? (_core.import 
+        (_core.fetchTarball
+            ({url="https://github.com/NixOS/nixpkgs/archive/6d9c572be2b199be0456845a61d7e4b3e3ac6280.tar.gz";})
         )
         ({
             overlays = [ 
             ]; 
         })
     ),
-    deno ? pkgs.deno,
-    bash ? pkgs.bash,
+    _src ? ./.,
+    system ? _core.currentSystem,
+    deno ? _pkgs.deno,
+    bash ? _pkgs.bash,
 }:
-    pkgs.stdenv.mkDerivation (finalAttrs: {
-        pname = "nvs";
-        version = "0.2.0";
-        
-        dontPatchShebangs = 1;
-        gcc = pkgs.gcc;
-        coreutils = pkgs.coreutils;
-        src = builtins.fetchTarball ({
-            url="https://github.com/jeff-hykin/nix_version_search_cli/archive/26f19cfa0308cdf33e57c63817dfc89fe612a383.tar.gz";
-        });
-        
-        buildInputs = [
-            deno
-            bash
+    _core.derivation {
+        system = system;
+        name = "nvs";
+        version = "1.0.0";
+        builder = "${bash}/bin/bash";
+        src = _src;
+        args = [
+            "-c"
+            ''
+                export PATH="$PATH:${deno}/bin/:${_pkgs.coreutils}/bin"
+                # 
+                # commands
+                # 
+                export HOME="$out/bin/home"
+                mkdir -p "$out/bin"
+                "${deno}/bin/deno" compile --allow-all --output "$out/bin/nvs" "$src/build_helper/main.bundle.js"
+                "$out/bin/nvs" --help > "$out/bin/help.txt"
+            ''
         ];
-        
-        # separateDebugInfo = true;
-        # We override the install phase, as the emojify project doesn't use make
-        installPhase = ''
-            # 
-            # imports
-            # 
-            deno="${deno}/bin/deno"  # TODO: it would be best to shell-escape these before interpolating
-            
-            export HOME="$out/temp_home"
-            
-            # 
-            # commands
-            # 
-            mkdir -p "$out/bin"
-            "$deno" compile --allow-all --output "$out/bin/nvsc" "$src/build_helper/bins/nvsc.js"
-            "$deno" compile --allow-all --output "$out/bin/nvsg" "$src/build_helper/bins/nvsg.js"
-            "$deno" compile --allow-all --output "$out/bin/nvsr" "$src/build_helper/bins/nvsr.js"
-        '';
-    })
+    }
