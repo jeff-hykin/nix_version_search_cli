@@ -1,4 +1,10 @@
+const versionPattern = /^\d+(\.\d+)*/
+import { versionCompare } from "../../../tools/misc.js"
+
 export function distance(a: string, b: string): number {
+  if (a.match(versionPattern) && b.match(versionPattern)) {
+    return versionCompare(a, b)
+  }
   let aFlakeIndex = a.indexOf("❄️")
   if (aFlakeIndex!=-1) {
     a = a.slice(0,aFlakeIndex-1)
