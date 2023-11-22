@@ -31,12 +31,11 @@ const listNixPackages =  async ()=>{
 // 
 // flakes check
 // 
-terminalSpinner.start()
 const cachePath = `${FileSystem.home}/.cache/nvs/has_flakes_enabled.check.json`
 let hasFlakesEnabledString = FileSystem.sync.read(cachePath)
 if (hasFlakesEnabledString == null) {
-    console.log(`\n${cyan`❄️`} Checking if you use flakes...`)
-    console.log(dim`- (this will only run once)`)
+    console.warn(`\n${cyan`❄️`} Checking if you use flakes...`)
+    console.warn(dim`- (this will only run once)`)
     try {
         const result = await run`nix profile list ${Stdout(returnAsString)} ${Stderr(null)}`
         hasFlakesEnabledString = !!result.match(/^Flake attribute: /m)
@@ -44,13 +43,13 @@ if (hasFlakesEnabledString == null) {
         hasFlakesEnabledString = false
     }
     if (hasFlakesEnabledString) {
-        console.log(`${dim`- Okay looks like you do use flakes!`} ${cyan`❄️`}`)
+        console.warn(`${dim`- Okay looks like you do use flakes!`} ${cyan`❄️`}`)
     } else {
-        console.log(`${dim`- Okay looks like you dont use flakes`} ${red`X`}`)
+        console.warn(`${dim`- Okay looks like you dont use flakes`} ${red`X`}`)
     }
-    console.log(`${dim`- Saving this preference to disk at:\n    `}${yellow(JSON.stringify(cachePath))}`)
+    console.warn(`${dim`- Saving this preference to disk at:\n    `}${yellow(JSON.stringify(cachePath))}`)
     hasFlakesEnabledString = JSON.stringify(hasFlakesEnabledString)
-    console.log(`\n`)
+    console.warn(`\n`)
     FileSystem.sync.write({
         data: hasFlakesEnabledString,
         path: cachePath,
