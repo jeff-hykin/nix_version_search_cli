@@ -111,6 +111,7 @@ interface LocalStorage {
 
 const sep = Deno.build.os === "windows" ? "\\" : "/";
 
+let selectedWithArrowKeys
 /** Generic input prompt representation. */
 export abstract class GenericSuggestions<TValue, TRawValue>
   extends GenericInput<TValue, TRawValue> {
@@ -420,13 +421,18 @@ export abstract class GenericSuggestions<TValue, TRawValue>
         }
         break;
       case this.isKey(this.settings.keys, "submit", event):
-        if (this.settings.completeOnSubmit || ((this.getCurrentInputValue().trim().length == 0) && this.suggestionsIndex != -1)) {
+        if (this.settings.completeOnSubmit || ((this.getCurrentInputValue().trim().length == 0) && this.suggestionsIndex != -1) || selectedWithArrowKeys) {
             await this.#completeValue()
         }
         await this.submit();
         break;
       default:
         await super.handleEvent(event);
+    }
+    if (event.name == "up" || event.name == "down") {
+        selectedWithArrowKeys = true
+    } else {
+        selectedWithArrowKeys = false
     }
   }
 
