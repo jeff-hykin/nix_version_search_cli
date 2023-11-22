@@ -23,15 +23,13 @@ nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archiv
 
 ## How to use
 
-There's three commands:
-- `nvsc` for nix code (for `shell.nix`, `default.nix`, or `flake.nix`)
-- `nvsg` for global installs (e.g. `nix-env`)
-- `nvsr` for interactive nix shells
+There's one command with three usages:
+- `nvs` for nix code (for `shell.nix`, `default.nix`, or `flake.nix`)
 
 If you want to use the "python" package in some nix code do:
 
 ```sh
-➜ nvsc python@3
+➜ nvs python@3
 
 ? Which Package [type OR press enter OR use arrows] › 
   python                : A high-level dynamically-typed programming language
@@ -57,7 +55,7 @@ Selected: python
   3.12.0b1
   ...
 
-Here's what to include in your nix code:
+Here is what to include in your nix code:
 
     yourVarName = (
       (import (builtins.fetchTarball {
@@ -65,6 +63,6 @@ Here's what to include in your nix code:
       }) {}).python312
     );
 
-Run again with --explain if you're not sure how to use this^
+Run again with --explain if you are not sure how to use this^
 ```
 
