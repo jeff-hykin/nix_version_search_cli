@@ -4,6 +4,7 @@ import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "htt
 import { deepCopy, deepCopySymbol, allKeyDescriptions, deepSortObject, shallowSortObject, isGeneratorType,isAsyncIterable, isSyncIterable, isTechnicallyIterable, isSyncIterableObjectOrContainer, allKeys } from "https://deno.land/x/good@1.5.1.0/value.js"
 import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.54/main/run.js"
 import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.js"
+import DateTime from "https://deno.land/x/good@1.5.1.2/date.js"
 
 // import { Parser, parserFromWasm } from "https://deno.land/x/deno_tree_sitter@0.1.3.0/main.js"
 // import html from "https://github.com/jeff-hykin/common_tree_sitter_languages/raw/4d8a6d34d7f6263ff570f333cdcf5ded6be89e3d/main/html.js"
@@ -11,22 +12,51 @@ import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.j
 import { versionToList, versionSort } from "./misc.js"
 import names from "../names.js"
 
+const refreshCacheEvery = 1 // days
+
 export const rikudoeSage = {
     async searchBasePackage(query, {cacheFolder}) {
         try {
-            const cachePath = `${cacheFolder}/rikudoeSage.allPackages.cache.js`
-            const info = await FileSystem.info(cachePath)
+            const nameCachePath = `${cacheFolder}/rikudoeSage.allPackages.cache.js`
+            const mostRecentCheckPath = `${cacheFolder}/lastChecked.json`
+            const [nameCacheInfo, recentCheckInfo ] = await Promise.all([
+                FileSystem.info(nameCachePath),
+                FileSystem.info(mostRecentCheckPath),
+            ])
+            
             let output = []
-            if (!info.isFile) {
+            if (!nameCacheInfo.isFile) {
                 if (names.has(query)) {
                     output = [ { attrPath: query } ]
                 }
             } else {
-                const names = (await import(`data:text/javascript;base64,${btoa(await Deno.readTextFile(cachePath))}`)).default
+                const names = (await import(`data:text/javascript;base64,${btoa(await Deno.readTextFile(nameCachePath))}`)).default
                 if (names.has(query)) {
                     output = [ { attrPath: query } ]
                 }
             }
+            
+            if (recentCheckInfo.isFile) {
+                let lastCheckedUnixTime
+                try {
+                    lastCheckedUnixTime = JSON.parse(await FileSystem.read(mostRecentCheckPath))
+                } catch (error) {
+                    // e.g. dont fetch data again
+                    return output
+                }
+                const lastCheckedTime = new DateTime(lastCheckedUnixTime)
+                const oneDayAgo = (new DateTime()).add({days: -refreshCacheEvery})
+                const lastFetchWasWithin24Hours = oneDayAgo.unix < lastCheckedTime
+                if (lastFetchWasWithin24Hours) {
+                    // e.g. dont fetch data again
+                    return output
+                }
+            }
+            const now =(new DateTime())
+            FileSystem.write({
+                data: JSON.stringify(now.unix),
+                path: recentCheckInfo.path,
+            }).catch(_=>0)
             // dont await because it doesn't matter
             fetch("https://api.history.nix-packages.com/packages", {
                 "credentials": "omit",
@@ -43,7 +73,7 @@ export const rikudoeSage = {
                 "mode": "cors"
             }).catch(_=>0).then(result=>result.json().catch(_=>0)).then(listOfPackageNames=>{
                 FileSystem.write({
-                    path: cachePath,
+                    path: nameCachePath,
                     data: "export default new Set("+JSON.stringify(listOfPackageNames)+")",
                 }).catch(_=>0)
             })
