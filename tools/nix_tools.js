@@ -1,4 +1,5 @@
 import { Command, EnumType } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts"
+import { TerminalSpinner } from "https://deno.land/x/spinners@v1.1.2/mod.ts"
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
 // import { FileSystem } from "https://deno.land/x/quickr@0.6.51/main/file_system.js"
 import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.6.56/main/console.js"
@@ -188,7 +189,7 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
             }
             // try the install
             const installCommand = `nix profile install ${jsStringToNixString(urlOrPath)}`
-            terminalSpinner = new TerminalSpinner()
+            const terminalSpinner = new TerminalSpinner()
             terminalSpinner.start(dim`- running: ${installCommand}`)
             var { success } = await run`nix profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`
             terminalSpinner.stop()

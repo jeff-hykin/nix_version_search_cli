@@ -31,7 +31,7 @@ const command = await new Command()
     .name("Nix Version Search")
     .version(version)
     .description(`Find/install exact versions of nix packages\n\nExamples:\n    nvs --install python@3\n    nvs python@3\n    nvs --repl python@3\n    nvs --shell python@3\n    nvs --json python@3`)
-    .globalOption("--install", "Install into the system")
+    .globalOption("--install", "Find then install a package")
     .globalOption("--explain", "Include beginner-friendly explanations with the output")
     .globalOption("--repl", "Show how to get the package in `nix repl`")
     .globalOption("--shell", "Show how to use the package with `nix-shell`/`nix develop`")
@@ -60,8 +60,11 @@ const command = await new Command()
             } catch (error) {
                 if (error.message = `Sorry, it looks like I was unable to install the package`) {
                     Deno.exit(7)
-                } else {
+                } else if (error.message == "cancel") {
                     Deno.exit(0)
+                } else {
+                    console.error(error)
+                    Deno.exit(1)
                 }
             }
             Deno.exit(0)
