@@ -259,7 +259,43 @@ export async function search(query, { cacheFolder }) {
         })
     }
 
-    return basePackages
+    for (const each of basePackages) {
+        for (const [key, value] of Object.entries(each)) {
+            each[key.toLowerCase()] = value
+        }
+    }
+
+    // 
+    // remove version-in-attr-name duplicates based on short-description equality
+    // 
+    const names = {}
+    for (const each of basePackages) {
+        if (each.description && each.attrPath) {
+            if (each.attrPath.split(".").length == 1) {
+                names[each.attrPath] = each
+            }
+        }
+    }
+    const outputList = []
+    for (const each of basePackages) {
+        const wasNotExactMatch = each.attrPath != query
+        if (wasNotExactMatch && each.description && each.attrPath) {
+            // only worry about base name for now, in future we could do this for sub-packages as well (ex: pythonPackages.opencv3)
+            if (each.attrPath.split(".").length == 1) {
+                const attrName = each.attrPath
+                if (attrName.match(/\d+$/)) {
+                    const simplifiedName = attrName.replace(/\d+$/,"")
+                    // then its almost certainly the same package, e.g. skip it
+                    if (names[simplifiedName] && (names[simplifiedName].description == each.description)) {
+                        continue
+                    }
+                }
+            }
+        }
+        outputList.push(each)
+    }
+    
+    return outputList
 }
 
 export const determinateSystems = {
