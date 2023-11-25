@@ -97,13 +97,30 @@ function packageEntryToNames(packageEntry) {
 
 export async function remove({name, hasFlakesEnabled}) {
     if (!hasFlakesEnabled) {
-        const installCommand = `nix-env -e ${escapeNixString(name)}`
-        console.log(dim`- running: ${installCommand}`)
-        var {success} = await run`nix-env -e ${name}`
-        if (success) {
-            console.log(`\n - ✅ removed ${name}`)
+        const isInteractive = !name
+        if (!isInteractive) {
+            const installCommand = `nix-env -e ${escapeNixString(name)}`
+            console.log(dim`- running: ${installCommand}`)
+            var {success} = await run`nix-env -e ${name}`
+            if (success) {
+                console.log(`\n - ✅ removed ${name}`)
+            } else {
+                console.error(`\n - ❌ there was an issue removing ${name}`)
+            }
         } else {
-            console.error(`\n - ❌ there was an issue removing ${name}`)
+            const packagesString = await run`nix-env -q --installed ${Stdout(returnAsString)}`
+            const cancelOption = "[[cancel]]"
+            const choice = await selectOne({
+                message: "Which package would you like to uninstall?",
+                showList: true,
+                showInfo: false,
+                options: packagesString.trim()+`\n${cancelOption}`.split("\n"),
+            })
+            if (choice == cancelOption) {
+                return
+            } else {
+                await remove({name: choice, hasFlakesEnabled})
+            }
         }
     } else {
         console.log(`Okay removing ${name}`)
