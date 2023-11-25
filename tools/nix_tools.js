@@ -7,12 +7,9 @@ import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, to
 import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.js"
 import * as yaml from "https://deno.land/std@0.168.0/encoding/yaml.ts"
 
-import { version } from "./tools/version.js"
-import { selectOne } from "./tools/input_tools.js"
-import { search, determinateSystems } from "./tools/search_tools.js"
-import { versionSort, versionToList } from "./tools/misc.js"
+import { selectOne } from "./input_tools.js"
 
-export const escapeNixString = (string)=>{
+export const jsStringToNixString = (string)=>{
     return `"${string.replace(/\$\{|[\\"]/g, '\\$&').replace(/\u0000/g, '\\0')}"`
 }
 export const listNixPackages =  async ()=>{
@@ -25,12 +22,11 @@ export const listNixPackages =  async ()=>{
 }
 
 let hasFlakesEnabledString
-export const checkIfFlakesEnabled = async ()=>{
+export const checkIfFlakesEnabled = async ({cacheFolder})=>{
     if (!hasFlakesEnabledString) {
         // 
         // flakes check
         // 
-        const cacheFolder = `${FileSystem.home}/.cache/nvs/`
         const flakesCheckPath = `${cacheFolder}/has_flakes_enabled.check.json`
         hasFlakesEnabledString = FileSystem.sync.read(flakesCheckPath)
         if (hasFlakesEnabledString == null) {
@@ -59,12 +55,7 @@ export const checkIfFlakesEnabled = async ()=>{
     return JSON.parse(hasFlakesEnabledString)
 }
 
-
-
-// 
-// tools
-// 
-const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
+export const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
     packages = packages || await listNixPackages()
     try {
         const uninstallList = []
@@ -92,7 +83,7 @@ const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
     }
 }
 
-async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}) {
+export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}) {
     if (hasFlakesEnabled) {
         console.log(`Okay installing ${humanPackageSummary}`)
         let noProgressLoopDetection
@@ -104,7 +95,7 @@ async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}
                 }
             }
             // try the install
-            const installCommand = `nix profile install ${escapeNixString(urlOrPath)}`
+            const installCommand = `nix profile install ${jsStringToNixString(urlOrPath)}`
             terminalSpinner = new TerminalSpinner()
             terminalSpinner.start(dim`- running: ${installCommand}`)
             var { success } = await run`nix profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`
@@ -172,7 +163,7 @@ async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}
             break
         }
     } else {
-        const installCommand = `nix-env -iA ${escapeNixString(versionInfo.attrPath)} -f ${escapeNixString(`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`)}`
+        const installCommand = `nix-env -iA ${jsStringToNixString(versionInfo.attrPath)} -f ${jsStringToNixString(`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`)}`
         console.log(dim`- running: ${installCommand}`)
         var {success} = await run`nix-env -iA ${versionInfo.attrPath} -f ${`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`}`
         if (success) {
