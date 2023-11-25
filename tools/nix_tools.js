@@ -9,6 +9,8 @@ import * as yaml from "https://deno.land/std@0.168.0/encoding/yaml.ts"
 
 import { selectOne } from "./input_tools.js"
 
+export const nixStoreHashPattern = /[0123456789abcdfghijklmnpqrsvwxyz]{32}/
+
 export const jsStringToNixString = (string)=>{
     return `"${string.replace(/\$\{|[\\"]/g, '\\$&').replace(/\u0000/g, '\\0')}"`
 }
@@ -53,6 +55,79 @@ export const checkIfFlakesEnabled = async ({cacheFolder})=>{
         }
     }
     return JSON.parse(hasFlakesEnabledString)
+}
+
+function packageEntryToNames(packageEntry) {
+    const names = []
+    if (typeof packageEntry["Flake attribute"] == "string") {
+        const components = packageEntry["Flake attribute"].split(/\./g)
+        if (components[0] == "packages" || components[0] == "legacyPackages") {
+            const nameParts = components.slice(2,)
+            if (nameParts.slice(-1)[0] == "default") {
+                nameParts.pop()
+            }
+            if (nameParts.length > 0) {
+                names.push(nameParts.join("."))
+            }
+        }
+    }
+    const storePaths = `${packageEntry["Store paths"]}`.split(":").filter(each=>each.length > 0)
+    for (const eachStorePath of storePaths) {
+        const [ folders, name, ext ] = FileSystem.pathPieces(eachStorePath)
+        let match
+        let prevFolderNameWasStore = false
+        for (const each of folders) {
+            if (prevFolderNameWasStore) {
+                if (match = each.match(nixStoreHashPattern)) {
+                    if (match.index == 0) {
+                        // the +1 is for the dash
+                        const derivationName = each.slice(match[0].length+1,)
+                        if (derivationName) {
+                            names.push(derivationName)
+                        }
+                    }
+                }
+                break
+            }
+            prevFolderNameWasStore = each == "store"
+        }
+    }
+    return names
+}
+
+export async function remove({name, hasFlakesEnabled}) {
+    if (!hasFlakesEnabled) {
+        const installCommand = `nix-env -e ${escapeNixString(name)}`
+        console.log(dim`- running: ${installCommand}`)
+        var {success} = await run`nix-env -e ${name}`
+        if (success) {
+            console.log(`\n - ✅ removed ${name}`)
+        } else {
+            console.error(`\n - ❌ there was an issue removing ${name}`)
+        }
+    } else {
+        console.log(`Okay removing ${name}`)
+        const packages = await listNixPackages()
+        try {
+            const uninstallList = []
+            for (const eachPackage of packages) {
+                const names = packageEntryToNames(eachPackage)
+                if (names.some(each=>each.match(regex`${/^/}${name}${/\b/}`.ig))) {
+                    uninstallList.push(eachPackage)
+                }
+            }
+            for (const each of uninstallList) {
+                if (each.Index!=null) {
+                    try {
+                        await run`nix profile remove ${`${each.Index}`.trim()}`
+                    } catch (error) {
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn(error)
+        }
+    }
 }
 
 export const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
