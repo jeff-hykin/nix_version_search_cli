@@ -15,6 +15,8 @@ import { selectOne } from "./tools/input_tools.js"
 import { search, determinateSystems } from "./tools/search_tools.js"
 import { versionSort, versionToList } from "./tools/misc.js"
 
+import { hasFlakesEnabled } from "./tools/nix_tools.js"
+
 const posixShellEscape = (string)=>"'"+string.replace(/'/g, `'"'"'`)+"'"
 const clearScreen = ()=>console.log('\x1B[2J')
 const escapeNixString = (string)=>{
@@ -28,36 +30,6 @@ const listNixPackages =  async ()=>{
         )
     )
 }
-
-// 
-// flakes check
-// 
-const cacheFolder = `${FileSystem.home}/.cache/nvs/`
-const flakesCheckPath = `${cacheFolder}/has_flakes_enabled.check.json`
-let hasFlakesEnabledString = FileSystem.sync.read(flakesCheckPath)
-if (hasFlakesEnabledString == null) {
-    console.warn(`\n${cyan`❄️`} Checking if you use flakes...`)
-    console.warn(dim`- (this will only run once)`)
-    try {
-        const result = await run`nix profile list ${Stdout(returnAsString)} ${Stderr(null)}`
-        hasFlakesEnabledString = !!result.match(/^Flake attribute: /m)
-    } catch (error) {
-        hasFlakesEnabledString = false
-    }
-    if (hasFlakesEnabledString) {
-        console.warn(`${dim`- Okay looks like you do use flakes!`} ${cyan`❄️`}`)
-    } else {
-        console.warn(`${dim`- Okay looks like you dont use flakes`} ${red`X`}`)
-    }
-    console.warn(`${dim`- Saving this preference to disk at:\n    `}${yellow(JSON.stringify(flakesCheckPath))}`)
-    hasFlakesEnabledString = JSON.stringify(hasFlakesEnabledString)
-    console.warn(`\n`)
-    FileSystem.sync.write({
-        data: hasFlakesEnabledString,
-        path: flakesCheckPath,
-    })
-}
-const hasFlakesEnabled = JSON.parse(hasFlakesEnabledString)
 
 
 // 
@@ -233,6 +205,8 @@ const command = await new Command()
         }
         const commandWithExplainFlag = green`nvs `+yellow`--explain `+dim`${Deno.args.map(posixShellEscape).join(" ")}`
         
+        const hasFlakesEnabled = await checkIfFlakesEnabled()
+
         // quick install http
         if ((args[0].startsWith("https://") || args[0].startsWith("./")) && options.install) {
             try {
