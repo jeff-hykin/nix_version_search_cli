@@ -7,7 +7,7 @@
 
 ## What is this?
 
-A CLI tool for finding old versions of nix packages!
+A CLI tool(s) for finding old versions of nix packages!
 
 <img src="/docs/nvs_fast.gif" alt="description">
 <img src="/docs/nvsr_1.gif" alt="description">
