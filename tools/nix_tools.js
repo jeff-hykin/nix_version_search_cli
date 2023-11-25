@@ -15,12 +15,12 @@ export const jsStringToNixString = (string)=>{
     return `"${string.replace(/\$\{|[\\"]/g, '\\$&').replace(/\u0000/g, '\\0')}"`
 }
 export const listNixPackages =  async ()=>{
-    const packageList = await run`nix profile list ${Stdout(returnAsString)}`
-    return yaml.parse(
-        clearAnsiStylesFrom(
-            indent({string:packageList, by: "    "}).replace(/^    Index:/gm, "-\n    Index:")
-        )
-    )
+    const packageList = await run`nix profile list --json ${Stdout(returnAsString)}`
+    const elements = JSON.parse(packageList).elements
+    for (const [index, each] of enumerate(elements)) {
+        each.Index = index
+    }
+    return elements
 }
 
 let hasFlakesEnabledString
@@ -59,8 +59,8 @@ export const checkIfFlakesEnabled = async ({cacheFolder})=>{
 
 function packageEntryToNames(packageEntry) {
     const names = []
-    if (typeof packageEntry["Flake attribute"] == "string") {
-        const components = packageEntry["Flake attribute"].split(/\./g)
+    if (typeof packageEntry.attrPath == "string") {
+        const components = packageEntry.attrPath.split(/\./g)
         if (components[0] == "packages" || components[0] == "legacyPackages") {
             const nameParts = components.slice(2,)
             if (nameParts.slice(-1)[0] == "default") {
@@ -71,7 +71,7 @@ function packageEntryToNames(packageEntry) {
             }
         }
     }
-    const storePaths = `${packageEntry["Store paths"]}`.split(":").filter(each=>each.length > 0)
+    const storePaths = packageEntry.storePaths.filter(each=>each.length > 0)
     for (const eachStorePath of storePaths) {
         const [ folders, name, ext ] = FileSystem.pathPieces(eachStorePath)
         let match
@@ -152,12 +152,12 @@ export const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
     try {
         const uninstallList = []
         for (const eachPackage of packages) {
-            const storePaths = eachPackage["Store paths"].split(":").filter(each=>each.length > 0)
+            const storePaths = packageEntry.storePaths.filter(each=>each.length > 0)
             const storePathMatches = storePaths.some(eachStorePath=>`${storePath}`.startsWith(eachStorePath))
             if (storePath && storePathMatches) {
                 uninstallList.push(eachPackage)
             } else if (urlOrPath) {
-                if (eachPackage["Original flake URL"] == urlOrPath) {
+                if (eachPackage.originalUrl == urlOrPath) {
                     uninstallList.push(eachPackage)
                 }
             }
