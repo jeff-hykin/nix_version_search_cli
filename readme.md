@@ -7,7 +7,7 @@
 
 ## What is this?
 
-A CLI tool(s) for finding old versions of nix packages!
+A CLI tool for finding old versions of nix packages!
 
 <img src="/docs/nvs_fast.gif" alt="description">
 <img src="/docs/nvsr_1.gif" alt="description">
@@ -23,9 +23,9 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/bb49e879892b81689d35652e97533be4608f801e.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/6980b49cd1a8a1e79ff50e4fc0dd981e9bc37ba9.tar.gz
 # or, if you have flakes:
-nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/bb49e879892b81689d35652e97533be4608f801e.tar.gz#nvs'
+nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/6980b49cd1a8a1e79ff50e4fc0dd981e9bc37ba9.tar.gz#nvs'
 ```
 
 ## How to use
