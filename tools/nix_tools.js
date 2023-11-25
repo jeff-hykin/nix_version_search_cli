@@ -245,6 +245,7 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
                     }
                     continue install
                 }
+                console.log(`\n - ✅ ${humanPackageSummary} should now be installed`)
             } else if (!success) {
                 console.error(red(stderrOutput))
                 console.error(`\n - ❌ there was an issue installing ${humanPackageSummary}`)
