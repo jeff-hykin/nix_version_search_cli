@@ -27,7 +27,7 @@ const cacheFolder = `${FileSystem.home}/.cache/nvs/`
     // add a --issue flag for getting the URL to report a problem for a package
     // add support for detecting the binary outputs of a package
 
-const command = await new Command()
+const command =new Command()
     .name("Nix Version Search")
     .version(version)
     .description(`Find/install exact versions of nix packages\n\nExamples:\n    nvs --install python@3\n    nvs python@3\n    nvs --repl python@3\n    nvs --shell python@3\n    nvs --json python@3`)
@@ -388,4 +388,5 @@ const command = await new Command()
             break
         }
     })
-    .parse(Deno.args)
+
+await command.parse(Deno.args)
