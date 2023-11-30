@@ -318,12 +318,25 @@ const command =new Command()
             // 
             if (!didSomething) {
                 if (hasFlakesEnabled) {
-                    const name = toCamelCase(packageName)
+                    const name = toCamelCase("nixpkgsWith"+packageName)
                     const nonDefaultPackages = (versionInfo?.packageOutputs||[]).filter(each=>each!="default")
+                    let [basePath, trailingName] = url.split("#")
+                    const originalTrailingName = trailingName
+                    if (!(trailingName && trailingName!="default")) {
+                        trailingName = ""
+                    } else {
+                        // if its a non-normal name or keyword, escape it
+                        if (!trailingName.match(/^[a-zA-Z0-9\-_]+$/)) {
+                            trailingName = jsStringToNixString(trailingName)
+                        }
+                    }
                     if (!options.explain) {
                         console.log(`Okay use the following to get ${humanPackageSummary}`)
                         console.log(``)
-                        console.log(cyan`    ${name}.url = ${jsStringToNixString(url)}`)
+                        console.log(cyan`    ${name}.url = ${jsStringToNixString(basePath)}`)
+                        if (trailingName) {
+                            console.log(cyan`    # access^ using: ${name}.${trailingName}`)
+                        } 
                         if (nonDefaultPackages.length > 0) {
                             console.log(``)
                             console.log(dim`Note: you may need to use one of the following to get what you want:`)
@@ -364,10 +377,13 @@ const command =new Command()
                         console.log(dim`     description = "something";`)
                         console.log(dim`     inputs = {`)
                         console.log(dim`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`)
-                        console.log(green`       ${name}.url = ${jsStringToNixString(url)};`)
+                        console.log(green`       ${name}.url = ${jsStringToNixString(basePath)};`)
                         console.log(dim`     };`)
                         console.log(`     outputs = { self, nixpkgs, ${green(name)} }:`)
                         console.log(dim`       let`)
+                        if (trailingName) {
+                            console.log(green`          ${toCamelCase(originalTrailingName)} = ${name}.${trailingName};`)
+                        }
                         console.log(dim`          somethingSomething = 10;`)
                         if (nonDefaultPackages.length > 0) {
                             console.log(dim.cyan`          # Note: you may need to use one of the following to get what you want:`)
