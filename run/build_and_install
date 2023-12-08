@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+run/build_for_nix
+deno run -A ./remove.js nvs
+nix profile install ./
