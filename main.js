@@ -256,6 +256,7 @@ const command =new Command()
 
             if (options.dryInstall) {
                 didSomething = true
+                console.log(``)
                 if (hasFlakesEnabled) {
                     console.log(`Okay run the following to get ${humanPackageSummary}`)
                     console.log(``)
@@ -273,6 +274,7 @@ const command =new Command()
             // shell output
             // 
             if (options.shell) {
+                console.log(``)
                 didSomething = true
                 if (hasFlakesEnabled) {
                     console.log(`Okay, run the following to a shell that has ${humanPackageSummary}`)
@@ -343,6 +345,7 @@ const command =new Command()
                         ]
                     }
                 ]
+                console.log(``)
                 if (!explain) {
                     saveExplain(explainationConversation)
                     console.log(`Here's what to include in your nix code:`)
@@ -354,7 +357,7 @@ const command =new Command()
                     console.log(cyan`    )${isRepl?"":";"}`)
                     console.log(``)
                     if (showTip) {
-                        console.log(dim`If you are not sure how to use this^\nRun the following: ${green`nvs `+yellow`--explain`}`)
+                        console.log(dim`If you are not sure how to use this^ run:\n    ${green`nvs `+yellow.dim`--explain`}`)
                     }
                 } else {
                     executeConversation(explainationConversation)
