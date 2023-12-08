@@ -23,9 +23,9 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/3a18b9156704877e84bcbf5caf85258c07cb93cf.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/6e620af29834dff55bb00616e47ad08cd1cd1215.tar.gz
 # or, if you have flakes:
-nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/3a18b9156704877e84bcbf5caf85258c07cb93cf.tar.gz#nvs'
+nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/6e620af29834dff55bb00616e47ad08cd1cd1215.tar.gz#nvs'
 ```
 
 ## How to use
