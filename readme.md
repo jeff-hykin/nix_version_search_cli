@@ -9,8 +9,7 @@
 
 A CLI tool for finding/using versions of nix packages!
 
-<img src="/docs/nvs_fast.gif" alt="description">
-<img src="/docs/nvsr_1.gif" alt="description">
+<img src="/docs/nvs_updated.gif" alt="cli command usage with dynamic responses">
 
 ## How to install
 
@@ -23,9 +22,9 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/e13242ccbe7b58350b9b223774ec046b97c6bec4.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/02b766c4df3271676165766964b50860ac2b565b.tar.gz
 # or, if you have flakes:
-nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/e13242ccbe7b58350b9b223774ec046b97c6bec4.tar.gz#nvs'
+nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/02b766c4df3271676165766964b50860ac2b565b.tar.gz#nvs'
 ```
 
 ## How to use

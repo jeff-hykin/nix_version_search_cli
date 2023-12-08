@@ -2,8 +2,7 @@
 
 A CLI tool for finding/using versions of nix packages!
 
-<img src="/docs/nvs_fast.gif" alt="description">
-<img src="/docs/nvsr_1.gif" alt="description">
+<img src="/docs/nvs_updated.gif" alt="cli command usage with dynamic responses">
 
 ## How to install
 
