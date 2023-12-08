@@ -1,5 +1,5 @@
 {
-    description = "A CLI tool(s) for finding old versions of nix packages!";
+    description = "A CLI tool (nvs) for finding old versions of nix packages!";
 
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
