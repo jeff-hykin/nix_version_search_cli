@@ -22,3 +22,23 @@ export const versionCompare = (a, b) => {
 export const versionSort = ({array, elementToVersion})=>{
     return [...array].sort((a,b)=>versionCompare(elementToVersion(a),elementToVersion(b)))
 }
+
+export const clearScreen = ()=>console.log('\x1B[2J')
+
+export const executeConversation = (conversationArray)=>{
+    for (const each of conversationArray) {
+        if (each.clearScreen) {
+            clearScreen()
+        }
+        if (each.text) {
+            if (each.text instanceof Array) {
+                console.log(each.text.join("\n"))
+            } else {
+                console.log(each.text)
+            }
+        }
+        if (each.prompt) {
+            prompt(each.prompt)
+        }
+    }
+}

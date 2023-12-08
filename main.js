@@ -1,19 +1,17 @@
-import { TerminalSpinner } from "https://deno.land/x/spinners@v1.1.2/mod.ts"
-let terminalSpinner = new TerminalSpinner("fetching")
-terminalSpinner.start()
+import { TerminalSpinner, SpinnerTypes } from "https://deno.land/x/spinners@v1.1.2/mod.ts"
 import { Command, EnumType } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts"
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
 // import { FileSystem } from "https://deno.land/x/quickr@0.6.51/main/file_system.js"
-import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.6.56/main/console.js"
-import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.56/main/run.js"
+import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.6.58/main/console.js"
+import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.57/main/run.js"
 import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString, regex, findAll, iterativelyFindAll, escapeRegexMatch, escapeRegexReplace, extractFirst, isValidIdentifier, removeCommonPrefix, didYouMean } from "https://deno.land/x/good@1.5.1.0/string.js"
-import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.js"
+import { FileSystem } from "https://deno.land/x/quickr@0.6.57/main/file_system.js"
 import * as yaml from "https://deno.land/std@0.168.0/encoding/yaml.ts"
 
 import { version } from "./tools/version.js"
 import { selectOne } from "./tools/input_tools.js"
 import { search, determinateSystems } from "./tools/search_tools.js"
-import { versionSort, versionToList } from "./tools/misc.js"
+import { versionSort, versionToList, executeConversation } from "./tools/misc.js"
 
 import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install } from "./tools/nix_tools.js"
 
@@ -21,6 +19,13 @@ const posixShellEscape = (string)=>"'"+string.replace(/'/g, `'"'"'`)+"'"
 const clearScreen = ()=>console.log('\x1B[2J')
 
 const cacheFolder = `${FileSystem.home}/.cache/nvs/`
+const explainPath = `${cacheFolder}/prev_explain.json`
+const saveExplain = (explainationConversation)=>{
+    FileSystem.write({
+        path: explainPath,
+        data: JSON.stringify(explainationConversation)
+    }).catch(console.error)
+}
 
 // TODO:
     // add a --uninstall
@@ -30,7 +35,7 @@ const cacheFolder = `${FileSystem.home}/.cache/nvs/`
 const command =new Command()
     .name("Nix Version Search")
     .version(version)
-    .description(`Find/install exact versions of nix packages\n\nExamples:\n    nvs --install python@3\n    nvs python@3\n    nvs --repl python@3\n    nvs --shell python@3\n    nvs --json python@3`)
+    .description(`Find/install exact versions of nix packages\n\nExamples:\n    nvs --install python@3\n    nvs python@3\n    nvs --repl python@3\n    nvs --shell python@3\n    nvs --json python@3\nMisc:\n    The cache folder for nvs is: ${JSON.stringify(cacheFolder)}`)
     .globalOption("--install", "Find then install a package")
     .globalOption("--explain", "Include beginner-friendly explanations with the output")
     .globalOption("--repl", "Show how to get the package in `nix repl`")
@@ -38,12 +43,48 @@ const command =new Command()
     .globalOption("--force", "Uninstall any packages that conflict with an install")
     .globalOption("--dry-install", "Show the nix command for installing into the system")
     .globalOption("--json", "Return json output of all search results (non-interactive)")
+    .globalOption("--nvs-info", "have settings echo-ed back in yaml form")
     .arguments("[...args:string]")
     .action(async function (options, ...args) {
         args = args.concat(this.getLiteralArgs())
         if (args.length == 0) {
-            return command.parse(["--help"].concat(Deno.args))
+            if (options.explain) {
+                const text = await FileSystem.read(`${cacheFolder}/prev_explain.json`)
+                if (!text) {
+                    console.error(`Sorry I don't see anything to explain :/`)
+                } else {
+                    executeConversation(JSON.parse(text))
+                }
+                return
+            } else if (options.nvsInfo) {
+                console.log(yaml.stringify({
+                    info: {
+                        version,
+                        cacheFolder,
+                        hasFlakesEnabled: await checkIfFlakesEnabled({cacheFolder}),
+                    }
+                }))
+                return
+            } else {
+                return command.parse(["--help"].concat(Deno.args))
+            }
         }
+        const terminalSpinner = new TerminalSpinner({
+            text: "fetching",
+            color: "green",
+            spinner: SpinnerTypes.dots, // check the file - see import
+            indent: 0, // The level of indentation of the spinner in spaces
+            cursor: false, // Whether or not to display a cursor when the spinner is active
+            writer: Deno.stderr
+        })
+        terminalSpinner.start()
+        // clear out the previous explain
+        FileSystem.write({
+            path: explainPath,
+            data: ""
+        }).catch(_=>0)
+
+        // const commandWithExplainFlag = green`nvs `+yellow`--explain `+dim`${Deno.args.map(posixShellEscape).join(" ")}`
         const commandWithExplainFlag = green`nvs `+yellow`--explain `+dim`${Deno.args.map(posixShellEscape).join(" ")}`
         
         const hasFlakesEnabled = await checkIfFlakesEnabled({cacheFolder})
@@ -250,7 +291,60 @@ const command =new Command()
             // repl output
             // 
             const asInlineNixValue = ({isRepl, explain, showTip=true})=>{
+                const explainationConversation = [
+                    {
+                        text: [
+                            `If you have a ${yellow`shell.nix`} or ${yellow`default.nix`} file it might look like:\n`,
+                            dim`     { pkgs ? import <nixpkgs> {} }:`,
+                            dim`     let`,
+                            dim`       python = pkgs.python;`,
+                            dim`     in`,
+                            dim`       pkgs.mkShell {`,
+                            dim`         buildInputs = [`,
+                            dim`           python`,
+                            dim`         ];`,
+                            dim`         nativeBuildInputs = [`,
+                            dim`         ];`,
+                            dim`         shellHook = ''`,
+                            dim`             # blah blah blah`,
+                            dim`         '';`,
+                            dim`       }`,
+                            dim``,
+                        ]
+                    },
+                    {
+                        prompt: cyan`[press enter to continue]`,
+                    },
+                    {
+                        text: [
+                            ``,
+                            `To make it work with version ${yellow(versionInfo.version)} of ${yellow(packageInfo.attrPath)}`,
+                            `You would change it to be:\n`,
+                            dim`     { pkgs ? import <nixpkgs> {} }:`,
+                            dim`     let`,
+                            dim`       python = pkgs.python;`,
+                            green`        ${toCamelCase(packageName)} = (`,
+                            green`         (import (builtins.fetchTarball {`,
+                            green`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`,
+                            green`         }) {}).${versionInfo.attrPath}`,
+                            green`       );`,
+                            dim`     in`,
+                            dim`       pkgs.mkShell {`,
+                            dim`         buildInputs = [`,
+                            dim`           python`,
+                            green`           ${toCamelCase(packageName)}`,
+                            dim`         ];`,
+                            dim`         nativeBuildInputs = [`,
+                            dim`         ];`,
+                            dim`         shellHook = ''`,
+                            dim`             # blah blah blah`,
+                            dim`         '';`,
+                            dim`       }`,
+                        ]
+                    }
+                ]
                 if (!explain) {
+                    saveExplain(explainationConversation)
                     console.log(`Here's what to include in your nix code:`)
                     console.log(``)
                     console.log(cyan`    ${toCamelCase(packageName)} = (`)
@@ -260,49 +354,10 @@ const command =new Command()
                     console.log(cyan`    )${isRepl?"":";"}`)
                     console.log(``)
                     if (showTip) {
-                        console.log(dim`If you are not sure how to use this^\nRun: ${commandWithExplainFlag}`)
+                        console.log(dim`If you are not sure how to use this^\nRun the following: ${green`nvs `+yellow`--explain`}`)
                     }
                 } else {
-                    console.log(`If you have a ${yellow`shell.nix`} or ${yellow`default.nix`} file it might look like:\n`)
-                    console.log(dim`     { pkgs ? import <nixpkgs> {} }:`)
-                    console.log(dim`     let`)
-                    console.log(dim`       python = pkgs.python;`)
-                    console.log(dim`     in`)
-                    console.log(dim`       pkgs.mkShell {`)
-                    console.log(dim`         buildInputs = [`)
-                    console.log(dim`           python`)
-                    console.log(dim`         ];`)
-                    console.log(dim`         nativeBuildInputs = [`)
-                    console.log(dim`         ];`)
-                    console.log(dim`         shellHook = ''`)
-                    console.log(dim`             # blah blah blah`)
-                    console.log(dim`         '';`)
-                    console.log(dim`       }`)
-                    console.log(dim``)
-                    prompt(cyan`[press enter to continue]`)
-                    console.log(``)
-                    console.log(`To make it work with version ${yellow(versionInfo.version)} of ${yellow(packageInfo.attrPath)}`)
-                    console.log(`You would change it to be:\n`)
-                    console.log(dim`     { pkgs ? import <nixpkgs> {} }:`)
-                    console.log(dim`     let`)
-                    console.log(dim`       python = pkgs.python;`)
-                    console.log(green`        ${toCamelCase(packageName)} = (`)
-                    console.log(green`         (import (builtins.fetchTarball {`)
-                    console.log(green`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`)
-                    console.log(green`         }) {}).${versionInfo.attrPath}`)
-                    console.log(green`       );`)
-                    console.log(dim`     in`)
-                    console.log(dim`       pkgs.mkShell {`)
-                    console.log(dim`         buildInputs = [`)
-                    console.log(dim`           python`)
-                    console.log(green`           ${toCamelCase(packageName)}`)
-                    console.log(dim`         ];`)
-                    console.log(dim`         nativeBuildInputs = [`)
-                    console.log(dim`         ];`)
-                    console.log(dim`         shellHook = ''`)
-                    console.log(dim`             # blah blah blah`)
-                    console.log(dim`         '';`)
-                    console.log(dim`       }`)
+                    executeConversation(explainationConversation)
                 }
             }
             if (options.repl) {
@@ -318,7 +373,7 @@ const command =new Command()
             // 
             if (!didSomething) {
                 if (hasFlakesEnabled) {
-                    const name = toCamelCase("nixpkgsWith"+packageName)
+                    const name = toCamelCase("nixpkgsWith_"+packageName)
                     const nonDefaultPackages = (versionInfo?.packageOutputs||[]).filter(each=>each!="default")
                     let [basePath, trailingName] = url.split("#")
                     const originalTrailingName = trailingName
@@ -330,12 +385,117 @@ const command =new Command()
                             trailingName = jsStringToNixString(trailingName)
                         }
                     }
+                    const explainationConversation = [
+                        { clearScreen: true, },
+                        {
+                            text: [
+                                `There's 3 main ways to use a nix package`,
+                                `1. install it (e.g. ${green`nvs --install ...`})`,
+                                `2. use it as a value/variable inside nix code (e.g. ${green`nvs --repl ...`}) `,
+                                `3. add the package as an input to a ${cyan`flake.nix`}`,
+                                ``,
+                                `I'm only showing #3 right now`,
+                            ],
+                        },
+                        {
+                            prompt: cyan`[press enter to continue]`
+                        },
+                        {
+                            clearScreen: true,
+                        },
+                        {
+                            text: [
+                                `If you have a ${yellow`flake.nix`} file it might look like:\n`,
+                                dim`   {`,
+                                dim`     description = "something";`,
+                                dim`     inputs = {`,
+                                dim`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`,
+                                dim`     };`,
+                                dim`     outputs = { self, nixpkgs, }:`,
+                                dim`       let`,
+                                dim`          somethingSomething = 10;`,
+                                dim`       in`,
+                                dim`         {`,
+                                dim`         }`,
+                                dim`   }`,
+                                dim``,
+                            ]
+                        },
+                        {
+                            prompt: cyan`[press enter to continue]`,
+                        },
+                        {
+                            text: [
+                                ``,
+                                `To make it work with ${humanPackageSummary}`,
+                                `You would change it to be:\n`,
+                                dim`   {`,
+                                dim`     description = "something";`,
+                                dim`     inputs = {`,
+                                dim`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`,
+                                green`       ${name}.url = ${jsStringToNixString(basePath)};`,
+                                dim`     };`,
+                                dim`     outputs = { self, nixpkgs, `+green(name)+` }:`,
+                                dim`       let`,
+                                (
+                                    trailingName
+                                        ?
+                                            green`          ${toCamelCase(originalTrailingName)} = ${name}.${trailingName};\n`
+                                        :
+                                            ""
+                                ) + dim`          somethingSomething = 10;`,
+                                ((nonDefaultPackages.length > 0)
+                                    ?
+                                        dim.cyan`          # Note: you may need to use one of the following to get what you want:\n` + 
+                                        nonDefaultPackages.map(each=>dim.cyan`          #    ${name}.${each}`).join("\n")
+                                    :
+                                        ""
+                                )+dim`       in`,
+                                dim`         {`,
+                                dim`         }`,
+                                dim`   }`,
+                                ``,
+                                `Oh and one more thing!!!`,
+                                ``,
+                            ]
+                        },
+                        {
+                            prompt: cyan`[press enter to continue]`,
+                        },
+                        { clearScreen: true },
+                        {
+                            text: [
+                                `Some packages simply DO NOT WORK as flakes`,
+                                dim`(some package versions existed before flakes did)`,
+                                dim``,
+                                dim`At the moment I can't tell which do and which don't`,
+                                dim``,
+                                `If a flake input doesnt work`,
+                                `Run ${green`nvs --repl [your args]`} to get non-flake output`,
+                                ``,
+                                `Okay?`,
+                            ]
+                        },
+                        {
+                            prompt: cyan`[press enter to finish]`,
+                        },
+                        {
+                            text: [
+                                `Happy Nixing 👍`,
+                                dim`start a conversation here if you're still confused:`,
+                                dim`https://github.com/jeff-hykin/nix_version_search_cli/issues/new`,
+                            ]
+                        }
+                    ]
+
                     if (!options.explain) {
+                        saveExplain(explainationConversation)
+                        console.log()
                         console.log(`Okay use the following to get ${humanPackageSummary}`)
                         console.log(``)
                         console.log(cyan`    ${name}.url = ${jsStringToNixString(basePath)}`)
                         if (trailingName) {
-                            console.log(cyan`    # access^ using: ${name}.${trailingName}`)
+                            console.log(dim`    # access^ using: ${cyan.dim`${name}.${trailingName}`}`)
                         } 
                         if (nonDefaultPackages.length > 0) {
                             console.log(``)
@@ -343,72 +503,9 @@ const command =new Command()
                             console.log(nonDefaultPackages.map(each=>dim.lightRed`    ${name}.${each}`).join("\n"))
                         }
                         console.log(``)
-                        console.log(dim`If you are not sure how to use this^\nRun: ${commandWithExplainFlag}`)
-                        console.log(dim`Note: run with the --repl flag to get code for non-flakes`)
+                        console.log(dim`If you are not sure how to use this^ run:\n    ${green`nvs `+yellow.dim`--explain`}`)
                     } else {
-                        clearScreen()
-                        console.log(`There's 3 main ways to use a nix package`)
-                        console.log(`1. install it (e.g. ${green`nvs --install ...`})`)
-                        console.log(`2. use it as a value/variable inside nix code (e.g. ${green`nvs --repl ...`}) `)
-                        console.log(`3. add the package as an input to a ${cyan`flake.nix`}`)
-                        console.log(``)
-                        console.log(`I'm only showing #3 right now`)
-                        prompt(cyan`[press enter to continue]`)
-                        clearScreen()
-                        console.log(`If you have a ${yellow`flake.nix`} file it might look like:\n`)
-                        console.log(dim`   {`)
-                        console.log(dim`     description = "something";`)
-                        console.log(dim`     inputs = {`)
-                        console.log(dim`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`)
-                        console.log(dim`     };`)
-                        console.log(dim`     outputs = { self, nixpkgs, }:`)
-                        console.log(dim`       let`)
-                        console.log(dim`          somethingSomething = 10;`)
-                        console.log(dim`       in`)
-                        console.log(dim`         {`)
-                        console.log(dim`         }`)
-                        console.log(dim`   }`)
-                        console.log(dim``)
-                        prompt(cyan`[press enter to continue]`)
-                        console.log(``)
-                        console.log(`To make it work with ${humanPackageSummary}`)
-                        console.log(`You would change it to be:\n`)
-                        console.log(dim`   {`)
-                        console.log(dim`     description = "something";`)
-                        console.log(dim`     inputs = {`)
-                        console.log(dim`       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";`)
-                        console.log(green`       ${name}.url = ${jsStringToNixString(basePath)};`)
-                        console.log(dim`     };`)
-                        console.log(`     outputs = { self, nixpkgs, ${green(name)} }:`)
-                        console.log(dim`       let`)
-                        if (trailingName) {
-                            console.log(green`          ${toCamelCase(originalTrailingName)} = ${name}.${trailingName};`)
-                        }
-                        console.log(dim`          somethingSomething = 10;`)
-                        if (nonDefaultPackages.length > 0) {
-                            console.log(dim.cyan`          # Note: you may need to use one of the following to get what you want:`)
-                            console.log(nonDefaultPackages.map(each=>dim.cyan`          #    ${name}.${each}`).join("\n"))
-                        }
-                        console.log(dim`       in`)
-                        console.log(dim`         {`)
-                        console.log(dim`         }`)
-                        console.log(dim`   }`)
-                        console.log(``)
-                        console.log(`Oh and one more thing!!!`)
-                        console.log(``)
-                        prompt(cyan`[press enter to continue]`)
-                        clearScreen()
-                        console.log(`Some packages simply DO NOT WORK as flakes`)
-                        console.log(`(some package versions existed before flakes did)`)
-                        console.log(``)
-                        console.log(`I can't tell which do and which dont`)
-                        console.log(``)
-                        console.log(`If a flake input doesnt work`)
-                        console.log(`Run \`nvs --repl [your args]\` to get non-flake output`)
-                        console.log(``)
-                        console.log(`Okay?`)
-                        prompt(cyan`[press enter to finish]`)
-                        console.log(`Happy nixing`)
+                        executeConversation(explainationConversation)
                     }
                 } else {
                     asInlineNixValue({
