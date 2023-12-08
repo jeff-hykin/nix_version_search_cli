@@ -479,6 +479,7 @@ const command =new Command()
                         {
                             prompt: cyan`[press enter to finish]`,
                         },
+                        { clearScreen: true },
                         {
                             text: [
                                 `Happy Nixing 👍`,
