@@ -2,7 +2,7 @@
     # local install command:
     #     nix-env -i -f ./  
     # or
-    #     nix profile install ./flake.nix
+    #     nix profile install ./
     _core ? builtins,
     _pkgs ? (_core.import 
         (_core.fetchTarball
