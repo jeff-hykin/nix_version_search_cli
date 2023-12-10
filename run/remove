@@ -36,13 +36,13 @@ async function remove(name) {
     while (true) {
         const text = await run`nix profile list --json ${Stdout(returnAsString)}`
         var packageInfo = JSON.parse(text)
-        const indices = nameToIndicies("nvs",packageInfo)
+        const indices = nameToIndicies(name, packageInfo)
         if (indices.length ==  0){
             break
         }
-        for (const each of nameToIndicies("nvs",packageInfo)) {
+        for (const each of nameToIndicies(name, packageInfo)) {
             console.log(`running: nix profile remove ${each}`)
-            await run`nix profile remove ${`${each}`}`
+            await run`nix profile remove ${`${each-0}`}`
             deletedSomething = true
         }
     }
@@ -69,7 +69,7 @@ async function remove(name) {
                         if (FileSystem.basename(eachBinPath) == name) { 
                             console.log(`This package ${yellow(packageName)} contains ${green(name)} as an executable`)
                             if (await Console.askFor.yesNo(`Do you want to remove the package?`)) {
-                                await run`nix profile remove ${index}`
+                                await run`nix profile remove ${index-0}`
                             }
                             continue next_package
                         }
