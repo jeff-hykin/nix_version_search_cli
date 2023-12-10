@@ -12,15 +12,16 @@ import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.j
 import * as yaml from "https://deno.land/std@0.168.0/encoding/yaml.ts"
 
 function nameToIndicies(name, packageInfo) {
+    name = name.toLowerCase() // remove case sensitivity
     const packages = packageInfo.elements.map((each,index)=>[each,index])
-    let attrNameIndicies = packages.filter(([each, index])=>each?.attrPath&&each.attrPath.endsWith(`.${name}`)).map(([each,index])=>index)
+    let attrNameIndicies = packages.filter(([each, index])=>each?.attrPath&&each.attrPath.toLowerCase().endsWith(`.${name}`)).map(([each,index])=>index)
     if (attrNameIndicies.length == 0) {
         const indices = []
         packages.reverse()
         for (const [each,index] of packages) {
             if (each?.storePaths) {
-                const commonName = each.storePaths.map(each=>each.slice(storePathBaseLength,)).sort((a,b)=>a.length-b.length)[0]
-                if (commonName == name) {
+                const commonName = each.storePaths.map(each=>each.toLowerCase().slice(storePathBaseLength,)).sort((a,b)=>a.length-b.length)[0]
+                if (commonName == name || commonName.startsWith(`${name}-`)) {
                     attrNameIndicies.push(index)
                 }
             }
@@ -37,10 +38,10 @@ async function remove(name) {
         const text = await run`nix profile list --json ${Stdout(returnAsString)}`
         var packageInfo = JSON.parse(text)
         const indices = nameToIndicies(name, packageInfo)
-        if (indices.length ==  0){
+        if (indices.length == 0){
             break
         }
-        for (const each of nameToIndicies(name, packageInfo)) {
+        for (const each of indices) {
             console.log(`running: nix profile remove ${each}`)
             await run`nix profile remove ${`${each-0}`}`
             deletedSomething = true
@@ -70,6 +71,7 @@ async function remove(name) {
                             console.log(`This package ${yellow(packageName)} contains ${green(name)} as an executable`)
                             if (await Console.askFor.yesNo(`Do you want to remove the package?`)) {
                                 await run`nix profile remove ${index-0}`
+                                deletedSomething = true
                             }
                             continue next_package
                         }
@@ -77,6 +79,9 @@ async function remove(name) {
                 }
             }
         }
+    }
+    if (!deletedSomething) {
+        console.log(`I didn't see anything with ${JSON.stringify(name)} as an attribute name, pname, or with an executable with that name`)
     }
 }
 
