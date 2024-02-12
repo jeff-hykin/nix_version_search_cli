@@ -143,7 +143,7 @@ const command =new Command()
         // once a package-versions resolves, remove self from list if no versions match the version prefix
         for (const [key, value] of Object.entries(choiceOptions)) {
             value.versionsPromise.then(versions=>{
-                if (versions.filter(each=>each.version.startsWith(versionPrefix)).length == 0) {
+                if (versions instanceof Array && versions.filter(each=>each?.version&&each.version.startsWith(versionPrefix)).length == 0) {
                     delete choiceOptions[key]
                 }
             })

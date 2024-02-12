@@ -24,13 +24,44 @@ export const rikudoeSage = {
                 FileSystem.info(mostRecentCheckPath),
             ])
             
+            const fetchData = ()=>{
+                // dont await because it doesn't matter
+                return fetch("https://api.history.nix-packages.com/packages", {
+                    "credentials": "omit",
+                    "headers": {
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0",
+                        "Accept": "application/json, text/plain, */*",
+                        "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
+                        "Sec-Fetch-Dest": "empty",
+                        "Sec-Fetch-Mode": "cors",
+                        "Sec-Fetch-Site": "same-site"
+                    },
+                    "referrer": "https://history.nix-packages.com/",
+                    "method": "GET",
+                    "mode": "cors"
+                }).catch(_=>0).then(result=>result.json().catch(_=>0)).then(listOfPackageNames=>listOfPackageNames)
+            }
+
             let output = []
             if (!nameCacheInfo.isFile) {
                 if (names.has(query)) {
                     output = [ { attrPath: query } ]
                 }
             } else {
-                const names = (await import(`data:text/javascript;base64,${btoa(await Deno.readTextFile(nameCachePath))}`)).default
+                let names
+                try {
+                    names = (await import(`data:text/javascript;base64,${btoa(await Deno.readTextFile(nameCachePath))}`)).default
+                } catch (error) {
+                }
+                if (!names) {
+                    names = await fetchData().then(listOfPackageNames=>{
+                        FileSystem.write({
+                            path: nameCachePath,
+                            data: "export default new Set("+JSON.stringify(listOfPackageNames)+")",
+                        }).catch(_=>0)
+                        return new Set(listOfPackageNames)
+                    })
+                }
                 if (names.has(query)) {
                     output = [ { attrPath: query } ]
                 }
@@ -58,20 +89,7 @@ export const rikudoeSage = {
                 path: recentCheckInfo.path,
             }).catch(_=>0)
             // dont await because it doesn't matter
-            fetch("https://api.history.nix-packages.com/packages", {
-                "credentials": "omit",
-                "headers": {
-                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0",
-                    "Accept": "application/json, text/plain, */*",
-                    "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
-                    "Sec-Fetch-Dest": "empty",
-                    "Sec-Fetch-Mode": "cors",
-                    "Sec-Fetch-Site": "same-site"
-                },
-                "referrer": "https://history.nix-packages.com/",
-                "method": "GET",
-                "mode": "cors"
-            }).catch(_=>0).then(result=>result.json().catch(_=>0)).then(listOfPackageNames=>{
+            fetchData().then(listOfPackageNames=>{
                 FileSystem.write({
                     path: nameCachePath,
                     data: "export default new Set("+JSON.stringify(listOfPackageNames)+")",
@@ -144,29 +162,26 @@ export const devbox = {
             htmlResult,
             "text/html",
         )
-        const list = document.querySelector("main ul")
+        const list = document.querySelector("main ol")
         if (!list) {
-            throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding list $("main ul"))` )
+            throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding list $("main ol"))` )
         }
         const versionElements = [...list.querySelectorAll("li")]
         const versionResults = []
-        const prefixForVersionString = "Version "
+        const prefixForVersionString = /^version/
         for (const eachVersion of versionElements) {
             const divs = [...eachVersion.querySelectorAll("div")]
-            const versionStringDiv = divs.filter(each=>each.innerText.startsWith(prefixForVersionString))
-            if (!versionStringDiv) {
+            const h3s = [...eachVersion.querySelectorAll("h3")]
+            const versionStringDiv = h3s.filter(each=>each.innerText.toLowerCase().match(prefixForVersionString))
+            if (versionStringDiv.length == 0) {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding version string div)` )
             }
-            const version = versionStringDiv[0].innerText.slice(prefixForVersionString.length,)
+            const version = versionStringDiv[0]?.innerText.replace(prefixForVersionString, "")
             const referenceInfoOuterDiv = divs.filter(each=>[...each.children].some(subChild=>subChild.innerText.match(/Nixpkgs Reference/)))[0]
             if (!referenceInfoOuterDiv) {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding version info within list element)` )
             }
-            const referenceInfoInnerDiv = [...referenceInfoOuterDiv.querySelectorAll("div")].filter(each=>each.innerText.match("#"))[0]
-            if (!referenceInfoInnerDiv) {
-                throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue extracting inner referece hash div)` )
-            }
-            const hashAndAttrName = referenceInfoInnerDiv.innerText.replace(/^\s*Nixpkgs Reference\s*/,"").split(/ *# */) 
+            const hashAndAttrName = referenceInfoOuterDiv.innerText.replace(/^\s*Nixpkgs Reference\s*/,"").split(/ *# */).map(each=>each.trim())
             if (!(hashAndAttrName.length == 2)) {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue extracting referece hash from referece hash div)` )
             }
@@ -235,6 +250,7 @@ export async function search(query, { cacheFolder }) {
         }
     }
     basePackages = basePackages.filter(each=>each)
+    let warned = false
     for (const value of basePackages) {
         value.versionsPromise = new Promise(async (resolve, reject)=>{
             let versions = []
@@ -242,7 +258,11 @@ export async function search(query, { cacheFolder }) {
                 try {
                     versions = versions.concat(await sourceTools.getVersionsFor(value.attrPath))
                 } catch (error) {
-                    console.warn(`Failed getting version info from one of the sources (${name}):\n    ${error}\n`)
+                    if (!warned) {
+                        warned = true
+                        console.warn(`Failed getting version info from one of the sources (${name}):\n    ${error}\n`)
+                        console.debug(`error.stack is:`,error.stack)
+                    }
                     resolve(null)
                 }
             }
