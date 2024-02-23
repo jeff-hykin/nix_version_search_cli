@@ -29,11 +29,11 @@ nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archiv
 
 ## How to use
 
-There's one command with three usages:
-- use `nvs <nameOfSomething>` for package-as-an-input (e.g. `shell.nix`, `default.nix`, or `flake.nix`)
-- use `nvs --repl <nameOfSomething>` for package-as-a-nix-value (e.g. inside a `nix repl`)
-- use `nvs --install <nameOfSomething>` to system-install whatever package you select (e.g. `apt-get install` or `brew install`)
-- use `nvs --shell <nameOfSomething>` for a command that starts a `nix-shell` or `nix develop` with the package
+There's one command with four usages:
+- You can use it like `apt-get install`/`brew install` by doing `nvs --install <nameOfSomething>`. It will system-install whatever package you select
+- If you want to use a package inside a `shell.nix`, `default.nix`, or `flake.nix` then run `nvs <nameOfSomething>`. And it'll spit out copy-pasteable code.
+- If you want to use the package in a random nix file or nix repl, `nvs --repl <nameOfSomething>`
+- Finally, if you want a nix shell with that package, use `nvs --shell <nameOfSomething>`
 
 ## Example
 
