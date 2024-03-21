@@ -231,6 +231,10 @@ const command =new Command()
                     humanPackageSummary = `${green(packageInfo.attrPath)}${cyan`@${versionInfo.version}`}${dim` from `}${yellow("nixpkgs")}`
                     url = `https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz#${versionInfo.attrPath}`
                 }
+            } else {
+                packageName = packageInfo.attrPath
+                humanPackageSummary = ""
+                url = `https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`
             }
 
             // 
