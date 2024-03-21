@@ -110,7 +110,7 @@ export const rikudoeSage = {
         } catch (error) {
             return []
         }
-        return results.map(({name,revision,version})=>({version, hash:revision, attrPath: name}))
+        return results.map(({name,revision,version})=>({version: version, hash:revision, attrPath: name}))
     },
 }
 
@@ -123,28 +123,19 @@ export const devbox = {
                 htmlResult,
                 "text/html",
             )
-            const list = document.querySelector("ul")
+            const list = document.querySelector("ul") || document.querySelector("ol")
             if (!list) {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))` )
             }
             const searchResults = [...list.querySelectorAll("li")]
+            searchResults.map(each=>each.querySelector("h3").innerText)
             return searchResults.map(each=>{
-                const dataDiv = each.querySelector("div")
-                const output = {
-                    attrPath: each.querySelector("h3").innerText,
+                const hexAndNameString = each.querySelector(".inline-flex").innerText
+                return {
+                    attrPath: hexAndNameString.split(/#/)[1],
+                    hash: hexAndNameString.split(/#/)[0],
+                    version: each.querySelector("h3").innerText.replace(/^Version/i,""),
                 }
-                if (dataDiv) {
-                    let key
-                    for (const each of [...dataDiv.children]) {
-                        if (each.tagName == "DT") {
-                            key = each.innerText.trim()
-                        }
-                        if (key && each.tagName == "DD") {
-                            output[key] = each.innerText
-                        }
-                    }
-                }
-                return output
             })
         } catch (error) {
             throw Error(`Unable to connect to nixhub.io, ${error}`)
@@ -186,7 +177,7 @@ export const devbox = {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue extracting referece hash from referece hash div)` )
             }
             versionResults.push({
-                version,
+                version: version.replace(/^Version/i, ""),
                 hash: hashAndAttrName[0],
                 attrPath: hashAndAttrName[1],
             })

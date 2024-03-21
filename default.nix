@@ -24,6 +24,8 @@
     system ? _core.currentSystem,
     deno ? _pkgs.deno,
     bash ? _pkgs.bash,
+    coreutils ? _pkgs.coreutils,
+    unzip ? _pkgs.unzip,
 }:
     _core.derivation {
         system = system;
@@ -34,10 +36,11 @@
         args = [
             "-c"
             ''
-                export PATH="$PATH:${deno}/bin/:${_pkgs.coreutils}/bin"
+                export PATH="$PATH:${deno}/bin/:${unzip}/bin:${coreutils}/bin"
                 # 
                 # commands
                 # 
+                
                 export HOME="$out/bin/home"
                 mkdir -p "$out/bin"
                 "${deno}/bin/deno" compile --allow-all --quiet --output "$out/bin/nvs" "$src/build_helper/main.bundle.js"
