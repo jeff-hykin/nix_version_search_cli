@@ -117,24 +117,27 @@ export const rikudoeSage = {
 export const devbox = {
     async searchBasePackage(query) {
         try {
-            const url = `https://www.nixhub.io/search?q=${encodeURIComponent(query)}`
-            const htmlResult = await fetch(url).then(result=>result.text())
-            var document = new DOMParser().parseFromString(
-                htmlResult,
-                "text/html",
-            )
-            const list = document.querySelector("ul") || document.querySelector("ol")
-            if (!list) {
-                throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))` )
-            }
-            const searchResults = [...list.querySelectorAll("li")]
-            searchResults.map(each=>each.querySelector("h3").innerText)
-            return searchResults.map(each=>{
-                const hexAndNameString = each.querySelector(".inline-flex").innerText
+            var url = `https://www.nixhub.io/search?q=${encodeURIComponent(query)}&_data=routes%2F_nixhub.search` // `https://www.nixhub.io/search?q=${encodeURIComponent(query)}`
+            var response = await fetch(url).then(result=>result.json())
+            var packages = response?.results||[]
+            
+            // var document = new DOMParser().parseFromString(
+            //     htmlResult,
+            //     "text/html",
+            // )
+            // var list = document.querySelector("ul") || document.querySelector("ol")
+            // if (!list) {
+            //     throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))` )
+            // }
+            // var searchResults = [...list.querySelectorAll("li")]
+            // searchResults.map(each=>each.querySelector("h3").innerText)
+            return packages.map(each=>{
+                // const hexAndNameString = each.querySelector(".inline-flex").innerText
                 return {
-                    attrPath: hexAndNameString.split(/#/)[1],
-                    hash: hexAndNameString.split(/#/)[0],
-                    version: each.querySelector("h3").innerText.replace(/^Version/i,""),
+                    attrPath: each?.name,
+                    description: each?.summary,
+                    // hash: hexAndNameString.split(/#/)[0],
+                    // version: each.querySelector("h3").innerText.replace(/^Version/i,""),
                 }
             })
         } catch (error) {
