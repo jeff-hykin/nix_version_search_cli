@@ -29,8 +29,9 @@ nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archiv
 
 ## How to use
 
-There's one command with four usages:
+There's one command with a few usages:
 - You can use it like `apt-get install`/`brew install` by doing `nvs --install <nameOfSomething>`. It will system-install whatever package you select
+- You can view what nix install command to run doing `--dry-install` instead of `--install`
 - If you want to use a package inside a `shell.nix`, `default.nix`, or `flake.nix` then run `nvs <nameOfSomething>`. And it'll spit out copy-pasteable code.
 - If you want to use the package in a random nix file or nix repl, `nvs --repl <nameOfSomething>`
 - Finally, if you want a nix shell with that package, use `nvs --shell <nameOfSomething>`

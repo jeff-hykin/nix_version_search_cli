@@ -110,7 +110,11 @@ export const rikudoeSage = {
         } catch (error) {
             return []
         }
-        return results.map(({name,revision,version})=>({version: version, hash:revision, attrPath: name}))
+        return results.map(({name,revision,version})=>{
+            // console.debug(`revision is:`,revision)
+            // console.debug(`name is:`,name)
+            return ({version: version, hash:revision, attrPath: name})
+        })
     },
 }
 
@@ -175,14 +179,16 @@ export const devbox = {
             if (!referenceInfoOuterDiv) {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding version info within list element)` )
             }
-            const hashAndAttrName = referenceInfoOuterDiv.innerText.replace(/^\s*Nixpkgs Reference\s*/,"").split(/ *# */).map(each=>each.trim())
+            const hashAndAttrName = referenceInfoOuterDiv.querySelector("p").innerText.replace(/^\s*Nixpkgs Reference\s*/,"").split(/ *# */).map(each=>each.trim())
             if (!(hashAndAttrName.length == 2)) {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue extracting referece hash from referece hash div)` )
             }
+            // console.debug(`hashAndAttrName[0] is:`,hashAndAttrName[0])
+            // console.debug(`hashAndAttrName[1] is:`,hashAndAttrName[1])
             versionResults.push({
                 version: version.replace(/^Version/i, ""),
                 hash: hashAndAttrName[0],
-                attrPath: hashAndAttrName[1],
+                attrPath: hashAndAttrName[1].replace(/, .*$/,""),
             })
         }
         return versionResults
@@ -216,6 +222,8 @@ export const lazamar = {
             const attrPath = params.get("keyName")
             if (attrPath) {
                 dataPerAttributePath[attrPath] = dataPerAttributePath[attrPath]||{ attrPath, versions:[] }
+                // console.debug(`params.get("revision") is:`,params.get("revision"))
+                // console.debug(`attrPath is:`,attrPath)
                 dataPerAttributePath[attrPath].versions.push({
                     version: params.get("version"),
                     hash: params.get("revision"),
@@ -255,7 +263,7 @@ export async function search(query, { cacheFolder }) {
                     if (!warned) {
                         warned = true
                         console.warn(`Failed getting version info from one of the sources (${name}):\n    ${error}\n`)
-                        console.debug(`error.stack is:`,error.stack)
+                        // console.debug(`error.stack is:`,error.stack)
                     }
                     resolve(null)
                 }

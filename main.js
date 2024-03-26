@@ -396,12 +396,13 @@ const command =new Command()
                         { clearScreen: true, },
                         {
                             text: [
-                                `There's 3 main ways to use a nix package`,
+                                `There's 4 main ways to use a nix package`,
                                 `1. install it (e.g. ${green`nvs --install ...`})`,
-                                `2. use it as a value/variable inside nix code (e.g. ${green`nvs --repl ...`}) `,
-                                `3. add the package as an input to a ${cyan`flake.nix`}`,
+                                `2. show how install it (e.g. ${green`nvs --dry-install ...`})`,
+                                `3. use it as a value/variable inside nix code (e.g. ${green`nvs --repl ...`}) `,
+                                `4. add the package as an input to a ${cyan`flake.nix`}`,
                                 ``,
-                                `I'm only showing #3 right now`,
+                                `I'm only showing #4 right now`,
                             ],
                         },
                         {
