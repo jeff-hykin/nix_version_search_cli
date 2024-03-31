@@ -13,12 +13,6 @@
                 nvs = (pkgs.callPackage
                     (builtins.import ./default.nix)
                     {
-                        _core = builtins;
-                        _pkgs = pkgs;
-                        _src = self;
-                        system = system;
-                        deno = pkgs.deno;
-                        bash = pkgs.bash;
                     }
                 );
             in
