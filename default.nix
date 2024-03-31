@@ -30,7 +30,7 @@
     _core.derivation {
         system = system;
         name = "nvs";
-        version = "1.4.0";
+        version = "1.4.1";
         builder = "${bash}/bin/bash";
         src = _src;
         args = [
@@ -44,7 +44,7 @@
                 export HOME="$out/bin/home"
                 mkdir -p "$out/bin"
                 "${deno}/bin/deno" compile --allow-all --quiet --output "$out/bin/nvs" "$src/build_helper/main.bundle.js"
-                "$out/bin/nvs" --help > "$out/bin/help.txt"
+                rm -rf "$HOME"
             ''
         ];
     }

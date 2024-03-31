@@ -37,7 +37,7 @@
                 export HOME="$out/bin/home"
                 mkdir -p "$out/bin"
                 "${deno}/bin/deno" compile --allow-all --quiet --output "$out/bin/nvs" "$src/build_helper/main.bundle.js"
-                "$out/bin/nvs" --help > "$out/bin/help.txt"
+                rm -rf "$HOME"
             ''
         ];
     }
