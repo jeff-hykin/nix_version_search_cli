@@ -5,9 +5,10 @@ echo "1.38.3"; : --% ' |out-null <#'; }; version="$(dv)"; deno="$HOME/.deno/$ver
 
 // import { version } from "../tools/version.js";
 import $ from "https://deno.land/x/dax@0.39.2/mod.ts"
+import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.6.58/main/console.js"
 
 await $`run/build_for_nix && git add -A && git commit -m "build_for_nix" && run/build_and_install`
-let version = (await $`nvs --version`.text()).replace(/Nix Version Search /,"")
+let version = clearAnsiStylesFrom(await $`nvs --version`.text()).replace(/Nix Version Search /,"")
 if (version.length<5) {
     throw Error(`I couldn't get the version from the output of nvs --version: ${version}`)
 }
