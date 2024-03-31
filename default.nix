@@ -30,7 +30,7 @@
     _core.derivation {
         system = system;
         name = "nvs";
-        version = "1.4.2";
+        version = "1.4.3";
         builder = "${bash}/bin/bash";
         src = _src;
         args = [

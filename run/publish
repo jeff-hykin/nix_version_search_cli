@@ -13,7 +13,7 @@ const existingVersion = version.split(/\./g)
 existingVersion[2] = (Number(existingVersion[2])+1).toString()
 const newVersion = existingVersion.join(".")
 await FileSystem.write({
-    path: "../tools/version.js",
+    path: `${FileSystem.thisFolder}/../tools/version.js`,
     data: `export const version = ${JSON.stringify(newVersion)}`,
 })
 console.debug(`newVersion is:`,newVersion)
