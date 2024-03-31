@@ -159,7 +159,7 @@ const command =new Command()
                             "Sec-Fetch-Mode": "cors",
                             "Sec-Fetch-Site": "same-origin"
                         },
-                        "referrer": "https://search.nixos.org/packages?channel=23.11&from=0&size=50&sort=relevance&type=packages&query=libvpx",
+                        "referrer": `https://search.nixos.org/packages?channel=23.11&from=0&size=50&sort=relevance&type=packages&query=${name}`,
                         "body": JSON.stringify({
                             "from": 0,
                             "size": 50,
@@ -271,11 +271,11 @@ const command =new Command()
                                                     {
                                                         "multi_match": {
                                                             "type": "cross_fields",
-                                                            "query": "libvpx",
+                                                            "query": name,
                                                             "analyzer": "whitespace",
                                                             "auto_generate_synonyms_phrase_query": false,
                                                             "operator": "and",
-                                                            "_name": "multi_match_libvpx",
+                                                            "_name": "multi_match_"+name,
                                                             "fields": [
                                                                 "package_attr_name^9",
                                                                 "package_attr_name.*^5.3999999999999995",
