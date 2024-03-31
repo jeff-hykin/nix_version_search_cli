@@ -23,6 +23,6 @@ let versionString = clearAnsiStylesFrom(await $`nvs --version`.text()).replace(/
 if (versionString.length<5) {
     throw Error(`I couldn't get the version from the output of nvs --version: ${versionString}`)
 }
-await $`git tag v${versionString} && git push origin v${versionString}`
+await $`git tag v${versionString} && git push origin v${versionString} && git push`
 
 // (this comment is part of deno-guillotine, dont remove) #>
