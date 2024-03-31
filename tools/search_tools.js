@@ -122,7 +122,18 @@ export const devbox = {
     async searchBasePackage(query) {
         try {
             var url = `https://www.nixhub.io/search?q=${encodeURIComponent(query)}&_data=routes%2F_nixhub.search` // `https://www.nixhub.io/search?q=${encodeURIComponent(query)}`
-            var response = await fetch(url).then(result=>result.json())
+            try {
+                var response = await fetch(url).then(result=>result.json())
+            } catch (error) {
+                // try one more time, sometimes nixhub.io just has issues
+                if (`${error}`.match(/^fetchingSyntaxError: Unexpected end of JSON input/)) {
+                    var response = await fetch(url).then(result=>result.text())
+                    if (globalThis.debugMode) {
+                        console.debug(`response is:`,response)
+                    }
+                    var response = JSON.parse(response)
+                }
+            }
             var packages = response?.results||[]
             
             // var document = new DOMParser().parseFromString(
@@ -145,7 +156,10 @@ export const devbox = {
                 }
             })
         } catch (error) {
-            throw Error(`Unable to connect to nixhub.io, ${error}`)
+            if (globalThis.debugMode) {
+                console.error(error)
+            }
+            throw Error(`Unable to connect to nixhub.io, ${error}`, error)
         }
     },
     async getVersionsFor(attrPath) {
@@ -248,7 +262,10 @@ export async function search(query, { cacheFolder }) {
             const newResults = await sourceTools.searchBasePackage(query, {cacheFolder})
             basePackages = basePackages.concat(newResults)
         } catch (error) {
-            console.warn(`Failed getting packages from one of the sources (${name}):\n    ${error}\n`)
+            console.warn(`\nFailed getting packages from one of the sources (${name}):\n    ${error}\n`)
+            if (globalThis.debugMode) {
+                console.error(error.stack)
+            }
         }
     }
     basePackages = basePackages.filter(each=>each)
