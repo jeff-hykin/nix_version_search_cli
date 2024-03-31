@@ -3,7 +3,8 @@ import { Command, EnumType } from "https://deno.land/x/cliffy@v1.0.0-rc.3/comman
 import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
 // import { FileSystem } from "https://deno.land/x/quickr@0.6.51/main/file_system.js"
 import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.6.58/main/console.js"
-import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.57/main/run.js"
+import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.66/main/run.js"
+// import $ from "https://deno.land/x/dax@0.39.2/mod.ts"
 import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString, regex, findAll, iterativelyFindAll, escapeRegexMatch, escapeRegexReplace, extractFirst, isValidIdentifier, removeCommonPrefix, didYouMean } from "https://deno.land/x/good@1.5.1.0/string.js"
 import { FileSystem } from "https://deno.land/x/quickr@0.6.57/main/file_system.js"
 import * as yaml from "https://deno.land/std@0.168.0/encoding/yaml.ts"
@@ -13,7 +14,7 @@ import { selectOne } from "./tools/input_tools.js"
 import { search, determinateSystems } from "./tools/search_tools.js"
 import { versionSort, versionToList, executeConversation } from "./tools/misc.js"
 
-import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install } from "./tools/nix_tools.js"
+import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install, remove } from "./tools/nix_tools.js"
 
 const posixShellEscape = (string)=>"'"+string.replace(/'/g, `'"'"'`)+"'"
 const clearScreen = ()=>console.log('\x1B[2J')
@@ -45,9 +46,10 @@ const command =new Command()
     .globalOption("--json", "Return json output of all search results (non-interactive)")
     .globalOption("--nvs-info", "have settings echo-ed back in yaml form")
     .globalOption("--debug", "enable debugging output")
+    .globalOption("--update", "update nvs to the latest version") 
     .arguments("[...args:string]")
     .action(async function (options, ...args) {
-        args = args.concat(this.getLiteralArgs())
+        args = args.concat(this.getLiteralArgs(),Object.keys(options))
         if (args.length == 0) {
             if (options.explain) {
                 const text = await FileSystem.read(`${cacheFolder}/prev_explain.json`)
@@ -70,6 +72,25 @@ const command =new Command()
                 return command.parse(["--help"].concat(Deno.args))
             }
         }
+        const hasFlakesEnabled = await checkIfFlakesEnabled({cacheFolder})
+
+        if (options.update) {
+            // uninstall old version
+            await remove({name: "nvs", hasFlakesEnabled}) 
+            // install latest version
+            if (hasFlakesEnabled) {
+                var { success } = await run`nix profile install https://github.com/jeff-hykin/nix_version_search_cli/archive/master.tar.gz#nvs`
+            } else {
+                var { success } = await run`nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/master.tar.gz`
+            }
+            if (success) {
+                console.log(`\n - ✅ nvs updated to the latest version`)
+                Deno.exit(0)
+            } else {
+                console.log(`\n - ❌ there was an issue updating nvs :/\n(info above)\n`)
+                Deno.exit(1)
+            }
+        }
         globalThis.debugMode = options.debug
         const terminalSpinner = new TerminalSpinner({
             text: "fetching",
@@ -89,8 +110,6 @@ const command =new Command()
         // const commandWithExplainFlag = green`nvs `+yellow`--explain `+dim`${Deno.args.map(posixShellEscape).join(" ")}`
         const commandWithExplainFlag = green`nvs `+yellow`--explain `+dim`${Deno.args.map(posixShellEscape).join(" ")}`
         
-        const hasFlakesEnabled = await checkIfFlakesEnabled({cacheFolder})
-
         // quick install http
         if ((args[0].startsWith("https://") || args[0].startsWith("./")) && options.install) {
             try {
