@@ -620,6 +620,7 @@ const command =new Command()
                         humanPackageSummary,
                         urlOrPath: url,
                         force: options.force,
+                        versionInfo,
                     })
                 } catch (error) {
                     if (error.message = `Sorry, it looks like I was unable to install the package`) {

@@ -176,7 +176,7 @@ export const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
     }
 }
 
-export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force}) {
+export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath, force, versionInfo}) {
     if (hasFlakesEnabled) {
         console.log(`Okay installing ${humanPackageSummary}`)
         let noProgressLoopDetection
@@ -257,13 +257,17 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
             break
         }
     } else {
-        const installCommand = `nix-env -iA ${jsStringToNixString(versionInfo.attrPath)} -f ${jsStringToNixString(`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`)}`
-        console.log(dim`- running: ${installCommand}`)
-        var {success} = await run`nix-env -iA ${versionInfo.attrPath} -f ${`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`}`
-        if (success) {
-            console.log(`\n - ✅ ${versionInfo.attrPath}@${versionInfo.version} should now be installed`)
-        } else {
-            console.error(`\n - ❌ there was an issue installing ${versionInfo.attrPath}@${versionInfo.version}`)
+        try {
+            const installCommand = `nix-env -iA ${jsStringToNixString(versionInfo.attrPath)} -f ${jsStringToNixString(`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`)}`
+            console.log(dim`- running: ${installCommand}`)
+            var {success} = await run`nix-env -iA ${versionInfo.attrPath} -f ${`https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz`}`
+            if (success) {
+                console.log(`\n - ✅ ${versionInfo.attrPath}@${versionInfo.version} should now be installed`)
+            } else {
+                console.error(`\n - ❌ there was an issue installing ${versionInfo.attrPath}@${versionInfo.version}`)
+            }
+        } catch (error) {
+            console.log(`error is:`,error)
         }
     }
 }
