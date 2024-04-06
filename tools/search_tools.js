@@ -110,35 +110,56 @@ export const rikudoeSage = {
         } catch (error) {
             return []
         }
-        return results.map(({name,revision,version})=>({version: version, hash:revision, attrPath: name}))
+        return results.map(({name,revision,version})=>{
+            // console.debug(`revision is:`,revision)
+            // console.debug(`name is:`,name)
+            return ({version: version, hash:revision, attrPath: name})
+        })
     },
 }
 
 export const devbox = {
     async searchBasePackage(query) {
         try {
-            const url = `https://www.nixhub.io/search?q=${encodeURIComponent(query)}`
-            const htmlResult = await fetch(url).then(result=>result.text())
-            var document = new DOMParser().parseFromString(
-                htmlResult,
-                "text/html",
-            )
-            const list = document.querySelector("ul") || document.querySelector("ol")
-            if (!list) {
-                throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))` )
+            var url = `https://www.nixhub.io/search?q=${encodeURIComponent(query)}&_data=routes%2F_nixhub.search` // `https://www.nixhub.io/search?q=${encodeURIComponent(query)}`
+            try {
+                var response = await fetch(url).then(result=>result.json())
+            } catch (error) {
+                // try one more time, sometimes nixhub.io just has issues
+                if (`${error}`.match(/^fetchingSyntaxError: Unexpected end of JSON input/)) {
+                    var response = await fetch(url).then(result=>result.text())
+                    if (globalThis.debugMode) {
+                        console.debug(`response is:`,response)
+                    }
+                    var response = JSON.parse(response)
+                }
             }
-            const searchResults = [...list.querySelectorAll("li")]
-            searchResults.map(each=>each.querySelector("h3").innerText)
-            return searchResults.map(each=>{
-                const hexAndNameString = each.querySelector(".inline-flex").innerText
+            var packages = response?.results||[]
+            
+            // var document = new DOMParser().parseFromString(
+            //     htmlResult,
+            //     "text/html",
+            // )
+            // var list = document.querySelector("ul") || document.querySelector("ol")
+            // if (!list) {
+            //     throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding base names $("ul"))` )
+            // }
+            // var searchResults = [...list.querySelectorAll("li")]
+            // searchResults.map(each=>each.querySelector("h3").innerText)
+            return packages.map(each=>{
+                // const hexAndNameString = each.querySelector(".inline-flex").innerText
                 return {
-                    attrPath: hexAndNameString.split(/#/)[1],
-                    hash: hexAndNameString.split(/#/)[0],
-                    version: each.querySelector("h3").innerText.replace(/^Version/i,""),
+                    attrPath: each?.name,
+                    description: each?.summary,
+                    // hash: hexAndNameString.split(/#/)[0],
+                    // version: each.querySelector("h3").innerText.replace(/^Version/i,""),
                 }
             })
         } catch (error) {
-            throw Error(`Unable to connect to nixhub.io, ${error}`)
+            if (globalThis.debugMode) {
+                console.error(error)
+            }
+            throw Error(`Unable to connect to nixhub.io, ${error}`, error)
         }
     },
     async getVersionsFor(attrPath) {
@@ -172,14 +193,16 @@ export const devbox = {
             if (!referenceInfoOuterDiv) {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding version info within list element)` )
             }
-            const hashAndAttrName = referenceInfoOuterDiv.innerText.replace(/^\s*Nixpkgs Reference\s*/,"").split(/ *# */).map(each=>each.trim())
+            const hashAndAttrName = referenceInfoOuterDiv.querySelector("p").innerText.replace(/^\s*Nixpkgs Reference\s*/,"").split(/ *# */).map(each=>each.trim())
             if (!(hashAndAttrName.length == 2)) {
                 throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue extracting referece hash from referece hash div)` )
             }
+            // console.debug(`hashAndAttrName[0] is:`,hashAndAttrName[0])
+            // console.debug(`hashAndAttrName[1] is:`,hashAndAttrName[1])
             versionResults.push({
                 version: version.replace(/^Version/i, ""),
                 hash: hashAndAttrName[0],
-                attrPath: hashAndAttrName[1],
+                attrPath: hashAndAttrName[1].replace(/, .*$/,""),
             })
         }
         return versionResults
@@ -213,6 +236,8 @@ export const lazamar = {
             const attrPath = params.get("keyName")
             if (attrPath) {
                 dataPerAttributePath[attrPath] = dataPerAttributePath[attrPath]||{ attrPath, versions:[] }
+                // console.debug(`params.get("revision") is:`,params.get("revision"))
+                // console.debug(`attrPath is:`,attrPath)
                 dataPerAttributePath[attrPath].versions.push({
                     version: params.get("version"),
                     hash: params.get("revision"),
@@ -237,7 +262,10 @@ export async function search(query, { cacheFolder }) {
             const newResults = await sourceTools.searchBasePackage(query, {cacheFolder})
             basePackages = basePackages.concat(newResults)
         } catch (error) {
-            console.warn(`Failed getting packages from one of the sources (${name}):\n    ${error}\n`)
+            console.warn(`\nFailed getting packages from one of the sources (${name}):\n    ${error}\n`)
+            if (globalThis.debugMode) {
+                console.error(error.stack)
+            }
         }
     }
     basePackages = basePackages.filter(each=>each)
@@ -252,7 +280,7 @@ export async function search(query, { cacheFolder }) {
                     if (!warned) {
                         warned = true
                         console.warn(`Failed getting version info from one of the sources (${name}):\n    ${error}\n`)
-                        console.debug(`error.stack is:`,error.stack)
+                        // console.debug(`error.stack is:`,error.stack)
                     }
                     resolve(null)
                 }

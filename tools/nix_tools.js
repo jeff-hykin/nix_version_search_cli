@@ -267,3 +267,81 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
         }
     }
 }
+
+
+// 
+// wip needs more testing
+// 
+function nameToIndicies(name, packageInfo) {
+    name = name.toLowerCase() // remove case sensitivity
+    const packages = packageInfo.elements.map((each,index)=>[each,index])
+    let attrNameIndicies = packages.filter(([each, index])=>each?.attrPath&&each.attrPath.toLowerCase().endsWith(`.${name}`)).map(([each,index])=>index)
+    if (attrNameIndicies.length == 0) {
+        const indices = []
+        packages.reverse()
+        for (const [each,index] of packages) {
+            if (each?.storePaths) {
+                const commonName = each.storePaths.map(each=>each.toLowerCase().slice(storePathBaseLength,)).sort((a,b)=>a.length-b.length)[0]
+                if (commonName == name || commonName.startsWith(`${name}-`)) {
+                    attrNameIndicies.push(index)
+                }
+            }
+        }
+    }
+    return attrNameIndicies
+}
+
+const storePathBaseLength = ("/nix/store/9i7rbbhxi1nnqibla22s785svlngcnvw-").length
+
+export async function agressiveRemove(name) {
+    let deletedSomething = false 
+    while (true) {
+        const text = await run`nix profile list --json ${Stdout(returnAsString)}`
+        var packageInfo = JSON.parse(text)
+        const indices = nameToIndicies(name, packageInfo)
+        if (indices.length == 0){
+            break
+        }
+        for (const each of indices) {
+            console.log(`running: nix profile remove ${each}`)
+            await run`nix profile remove ${`${each-0}`}`
+            deletedSomething = true
+        }
+    }
+    if (!deletedSomething) {
+        const packages = packageInfo.elements.map((each,index)=>[each,index])
+        packages.reverse()
+        next_package: for (const [each,index] of packages) {
+            if (each?.storePaths) {
+                const commonName = each.storePaths.map(each=>each.slice(storePathBaseLength,)).sort((a,b)=>a.length-b.length)[0]
+                let attrName = `${each?.attrName}`.split(".").slice(2,).join(".")
+                if (attrName == "default") {
+                    attrName = null
+                } else if (attrName.startsWith("default.")) {
+                    attrName = attrName.slice(("default.").length,)
+                }
+                let packageName = ""
+                if (attrName && commonName) {
+                    packageName = `${attrName} (aka ${commonName})`
+                } else {
+                    packageName = attrName || commonName
+                }
+                for (const eachPath of each?.storePaths) {
+                    for (const eachBinPath of await FileSystem.listFilePathsIn(`${eachPath}/bin`)) {
+                        if (FileSystem.basename(eachBinPath) == name) { 
+                            console.log(`This package ${yellow(packageName)} contains ${green(name)} as an executable`)
+                            if (await Console.askFor.yesNo(`Do you want to remove the package?`)) {
+                                await run`nix profile remove ${index-0}`
+                                deletedSomething = true
+                            }
+                            continue next_package
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (!deletedSomething) {
+        console.log(`I didn't see anything with ${JSON.stringify(name)} as an attribute name, pname, or with an executable with that name`)
+    }
+}

@@ -22,18 +22,19 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/f214d699e4a74ccef4304d1e5353a02a6c27b454.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/d7bb2d9a7cfc23fff370a87f40d0ec7d2bb167d7.tar.gz
 # or, if you have flakes:
-nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/f214d699e4a74ccef4304d1e5353a02a6c27b454.tar.gz#nvs'
+nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/d7bb2d9a7cfc23fff370a87f40d0ec7d2bb167d7.tar.gz#nvs'
 ```
 
 ## How to use
 
-There's one command with four usages:
-- You can use it like `apt-get install`/`brew install` by doing `nvs --install <nameOfSomething>`. It will system-install whatever package you select
-- If you want to use a package inside a `shell.nix`, `default.nix`, or `flake.nix` then run `nvs <nameOfSomething>`. And it'll spit out copy-pasteable code.
-- If you want to use the package in a random nix file or nix repl, `nvs --repl <nameOfSomething>`
-- Finally, if you want a nix shell with that package, use `nvs --shell <nameOfSomething>`
+There's one command with a few usages:
+- `nvs --install <nameOfSomething>` works like `apt-get install`/`brew install`. After you select a version, it will get system installed.
+- `nvs --dry-install <nameOfSomething>` show the nix command (if you want to run it yourself)
+- `nvs <nameOfSomething>` will give copy-pastable code for a `shell.nix`, `default.nix`, or `flake.nix` file.
+- `nvs --repl <nameOfSomething>` give copy-pastable code for accessing the package anywhere in nix (e.g. after running `nix repl`)
+- `nvs --shell <nameOfSomething>` if you want want the command for an interactive nix shell that has the package 
 
 ## Example
 
