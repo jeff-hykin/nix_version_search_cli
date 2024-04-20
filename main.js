@@ -21,10 +21,10 @@ const clearScreen = ()=>console.log('\x1B[2J')
 
 const cacheFolder = `${FileSystem.home}/.cache/nvs/`
 const explainPath = `${cacheFolder}/prev_explain.json`
-const saveExplain = (explainationConversation)=>{
+const saveExplain = (explanationConversation)=>{
     FileSystem.write({
         path: explainPath,
-        data: JSON.stringify(explainationConversation)
+        data: JSON.stringify(explanationConversation)
     }).catch(console.error)
 }
 
@@ -670,7 +670,7 @@ const command =new Command()
             // repl output
             // 
             const asInlineNixValue = ({isRepl, explain, showTip=true})=>{
-                const explainationConversation = [
+                const explanationConversation = [
                     {
                         text: [
                             `If you have a ${yellow`shell.nix`} or ${yellow`default.nix`} file it might look like:\n`,
@@ -722,9 +722,10 @@ const command =new Command()
                         ]
                     }
                 ]
+
                 console.log(``)
                 if (!explain) {
-                    saveExplain(explainationConversation)
+                    saveExplain(explanationConversation)
                     console.log(`Here's what to include in your nix code:`)
                     console.log(``)
                     console.log(cyan`    ${toCamelCase(packageName)} = (`)
@@ -737,7 +738,7 @@ const command =new Command()
                         console.log(dim`If you are not sure how to use this^ run:\n    ${green`nvs `+yellow.dim`--explain`}`)
                     }
                 } else {
-                    executeConversation(explainationConversation)
+                    executeConversation(explanationConversation)
                 }
             }
             if (options.repl) {
@@ -765,7 +766,7 @@ const command =new Command()
                             trailingName = jsStringToNixString(trailingName)
                         }
                     }
-                    const explainationConversation = [
+                    const explanationConversation = [
                         { clearScreen: true, },
                         {
                             text: [
@@ -871,7 +872,7 @@ const command =new Command()
                     ]
 
                     if (!options.explain) {
-                        saveExplain(explainationConversation)
+                        saveExplain(explanationConversation)
                         console.log()
                         console.log(`Okay use the following to get ${humanPackageSummary}`)
                         console.log(``)
@@ -887,7 +888,7 @@ const command =new Command()
                         console.log(``)
                         console.log(dim`If you are not sure how to use this^ run:\n    ${green`nvs `+yellow.dim`--explain`}`)
                     } else {
-                        executeConversation(explainationConversation)
+                        executeConversation(explanationConversation)
                     }
                 } else {
                     asInlineNixValue({
