@@ -704,7 +704,7 @@ const command =new Command()
                             dim`       python = pkgs.python;`,
                             green`        ${toCamelCase(packageName)} = (`,
                             green`         (import (builtins.fetchTarball {`,
-                            green`            url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`,
+                            green`            url = "${url}";`,
                             green`         }) {}).${versionInfo.attrPath}`,
                             green`       );`,
                             dim`     in`,
@@ -730,8 +730,8 @@ const command =new Command()
                     console.log(``)
                     console.log(cyan`    ${toCamelCase(packageName)} = (`)
                     console.log(cyan`      (import (builtins.fetchTarball {`)
-                    console.log(cyan`          url = "https://github.com/NixOS/nixpkgs/archive/${versionInfo.hash}.tar.gz";`)
-                    console.log(cyan`      }) {}).${versionInfo.attrPath}`)
+                    console.log(cyan`          url = "${url}";`)
+                    console.log(cyan`      }) {})${versionInfo.attrPath?`.${versionInfo.attrPath}`:""}`)
                     console.log(cyan`    )${isRepl?"":";"}`)
                     console.log(``)
                     if (showTip) {
