@@ -13,6 +13,8 @@
                 nvs = (pkgs.callPackage
                     (builtins.import ./default.nix)
                     {
+                        inherit system;
+                        _pkgs = pkgs;
                     }
                 );
             in
