@@ -23,7 +23,11 @@ await $`run/build_for_nix && git add -A && git commit -m build_for_nix`
 console.log(`removing old nvs`)
 await run(`run/remove`,`nvs`)
 console.log(`installing new nvs`)
-await run(`nix profile install`).success && await run(`git add -A`).success && await run(`git commit -m "build_for_nix"`).success
+await run(`nix profile install ${'.#nvs'}`) 
+console.log(`adding files`)
+await run(`git add -A`) 
+console.log(`building for nix`)
+await run(`git commit -m "build_for_nix"`)
 let versionString = clearAnsiStylesFrom(await $`nvs --version`.text()).replace(/Nix Version Search /,"")
 if (versionString.length<5) {
     throw Error(`I couldn't get the version from the output of nvs --version: ${versionString}`)
