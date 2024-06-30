@@ -18,7 +18,7 @@ await FileSystem.write({
 })
 console.debug(`newVersion is:`,newVersion)
 
-await $`run/build_for_nix && git add -A && git commit -m "build_for_nix" && nix profile install ./ && git add -A && git commit -m "build_for_nix"`
+await $`run/build_for_nix && git add -A && git commit -m "build_for_nix" && run/remove nvs; nix profile install && git add -A && git commit -m "build_for_nix"`
 let versionString = clearAnsiStylesFrom(await $`nvs --version`.text()).replace(/Nix Version Search /,"")
 if (versionString.length<5) {
     throw Error(`I couldn't get the version from the output of nvs --version: ${versionString}`)
