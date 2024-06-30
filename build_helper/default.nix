@@ -46,7 +46,6 @@
                 export HOME="$src/home"
                 export DENO_NO_UPDATE_CHECK="true"
                 "${deno}/bin/deno" compile --no-lock --allow-all --quiet --output "$out/bin/nvs" "$src/main.bundle.js" &> "$out/err.log"
-                rm -rf "$HOME"
                 rm -rf "$TMP"
                 rm -f "$out/readme.md"
                 rm -f "$out/cp.log"
