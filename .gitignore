@@ -4,3 +4,6 @@ node_modules
 *.ignore.*
 **/*.ignore
 **/*.ignore.*
+*.zip
+build_helper/readme.md
+build_helper/temp
