@@ -79,7 +79,7 @@ const command =new Command()
             await remove({name: "nvs", hasFlakesEnabled}) 
             // install latest version
             if (hasFlakesEnabled) {
-                var { success } = await run`nix profile install https://github.com/jeff-hykin/nix_version_search_cli/archive/master.tar.gz#nvs`
+                var { success } = await run`nix --extra-experimental-features nix-command --extra-experimental-features flakes profile install https://github.com/jeff-hykin/nix_version_search_cli/archive/master.tar.gz#nvs`
             } else {
                 var { success } = await run`nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/master.tar.gz`
             }
