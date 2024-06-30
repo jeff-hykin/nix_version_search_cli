@@ -4,7 +4,6 @@ node_modules
 *.ignore.*
 **/*.ignore
 **/*.ignore.*
-*.zip
 build_helper/temp
 build_helper/dummy*
-result/
+result
