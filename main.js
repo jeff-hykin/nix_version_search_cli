@@ -51,27 +51,25 @@ const command =new Command()
     .action(async function (options, ...args) {
         const numberedArgs = this.getLiteralArgs()
         args = args.concat(numberedArgs,Object.keys(options))
-        if (numberedArgs.length == 0) {
-            if (options.explain) {
-                const text = await FileSystem.read(`${cacheFolder}/prev_explain.json`)
-                if (!text) {
-                    console.error(`Sorry I don't see anything to explain :/`)
-                } else {
-                    executeConversation(JSON.parse(text))
-                }
-                return
-            } else if (options.nvsInfo) {
-                console.log(yaml.stringify({
-                    info: {
-                        version,
-                        cacheFolder,
-                        hasFlakesEnabled: await checkIfFlakesEnabled({cacheFolder}),
-                    }
-                }))
-                return
+        if (JSON.stringify(Deno.args) == `["--explain"]`) {
+            const text = await FileSystem.read(`${cacheFolder}/prev_explain.json`)
+            if (!text) {
+                console.error(`Sorry I don't see anything to explain :/`)
             } else {
-                return command.parse(["--help"].concat(Deno.args))
+                executeConversation(JSON.parse(text))
             }
+            return
+        } else if (JSON.stringify(Deno.args) == `["--nvs-info"]`) {
+            console.log(yaml.stringify({
+                info: {
+                    version,
+                    cacheFolder,
+                    hasFlakesEnabled: await checkIfFlakesEnabled({cacheFolder}),
+                }
+            }))
+        }
+        if (numberedArgs.length == 0) {
+            return command.parse(["--help"].concat(Deno.args))
         }
         const hasFlakesEnabled = await checkIfFlakesEnabled({cacheFolder})
 
