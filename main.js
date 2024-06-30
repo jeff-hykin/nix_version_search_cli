@@ -68,7 +68,7 @@ const command =new Command()
                 }
             }))
         }
-        if (numberedArgs.length == 0) {
+        if (args.length == 0) {
             return command.parse(["--help"].concat(Deno.args))
         }
         const hasFlakesEnabled = await checkIfFlakesEnabled({cacheFolder})
