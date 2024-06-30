@@ -1,4 +1,1 @@
-#!/usr/bin/env bash
-run/build_for_nix
-run/remove nvs
-nix profile install ./
+./build_and_install.ps1

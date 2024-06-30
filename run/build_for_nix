@@ -1,1 +1,1 @@
-build_for_nix.ps1
+./build_for_nix.ps1
