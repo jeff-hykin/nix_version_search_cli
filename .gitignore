@@ -5,9 +5,6 @@ node_modules
 **/*.ignore
 **/*.ignore.*
 *.zip
-build_helper/readme.md
 build_helper/temp
-build_helper/home
 build_helper/dummy*
-build_helper/readme.md
 result/

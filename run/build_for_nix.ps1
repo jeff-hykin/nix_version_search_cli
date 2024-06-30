@@ -201,16 +201,17 @@ await run`nix --extra-experimental-features nix-command --extra-experimental-fea
         await denoCmd(`compile`, "--no-lock", `--target`, eachTarget, "--output", `./dummy.${eachTarget}`, "./dummy.js",).then(()=>console.log(`- compiled ${eachTarget}`))
     }
 
-    // 
-    // now for the terrible hack
-    // 
-    console.log(`zipping...`)
-    // await FileSystem.remove(zipFileTarget)
-    await FileSystem.withPwd(buildHelperFolder, async ()=>{
-        console.log(await compress(await glob(`${fakeHome}/**/*`), zipFileTarget, {overwrite:true}))
-    })
-    // await zip(zipFileTarget, "-r", "./home")
-    console.log(`Done!`)
+    # // 
+    # // now for the terrible hack
+    # // 
+    # console.log(`zipping...`)
+    # // await FileSystem.remove(zipFileTarget)
+    # await FileSystem.withPwd(buildHelperFolder, async ()=>{
+    #     FileSystem.remove(zipFileTarget)
+    #     console.log(await compress(await glob(`${fakeHome}/**/*`), zipFileTarget, {overwrite:true}))
+    # })
+    # // await zip(zipFileTarget, "-r", "./home")
+    # console.log(`Done!`)
 
 // console.log(`committing updated default.nix`)
 // var { success } = await run`git add -A`

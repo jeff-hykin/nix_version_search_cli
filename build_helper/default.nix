@@ -42,8 +42,7 @@
                 # ls -la "$src/home" &> "$out/log2.txt"
                 # ls -la "$src/home/.cache/deno" &> "$out/log3.txt"
                 
-                cp "$src/readme.md" "$out/" &> "$out/cp.log"
-                unzip "$out/readme.md" -d "$out/" &> "$out/unzip.log"
+                # unzip "$out/readme.md" -d "$out/" &> "$out/unzip.log"
                 # // you might be wondering why someone would be unpacking a "readme.md"... like it was a zip
                 # // buckle up
                     # // yeah, so... nix build (aka flakes, NOT nix-build) was being really wierd on v2.17.0 on linux x86
@@ -66,7 +65,7 @@
                     # // so now I have to use readme_workaround.md because "readme.md" is actually a zip file
                 
                 export TMP="$out/tmp"
-                export HOME="$out/home"
+                export HOME="$src/home"
                 export DENO_NO_UPDATE_CHECK="true"
                 "${deno}/bin/deno" compile --no-lock --allow-all --quiet --output "$out/bin/nvs" "$src/main.bundle.js" &> "$out/err.log"
                 rm -rf "$HOME"
