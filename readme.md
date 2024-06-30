@@ -1,9 +1,9 @@
 
-<!--                                               -->
-<!--                                               -->
-<!-- DO NOT EDIT ME; EDIT ./build_helper/readme.md -->
-<!--                                               -->
-<!--                                               -->
+<!--                                                          -->
+<!--                                                          -->
+<!-- DO NOT EDIT ME; EDIT ./build_helper/readme_workaround.md -->
+<!--                                                          -->
+<!--                                                          -->
 
 ## What is this?
 
@@ -22,9 +22,9 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/423e829ee2f40e99be233de63f09d44dd39e9f67.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/3543506d3c79b227dd2ae3fb9cb037ef22eb7b4c.tar.gz
 # or, if you have flakes:
-nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/423e829ee2f40e99be233de63f09d44dd39e9f67.tar.gz#nvs'
+nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/3543506d3c79b227dd2ae3fb9cb037ef22eb7b4c.tar.gz#nvs'
 ```
 
 ## How to use
