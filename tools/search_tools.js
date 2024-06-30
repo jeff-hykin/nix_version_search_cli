@@ -174,9 +174,12 @@ export const devbox = {
             htmlResult,
             "text/html",
         )
+        if (document.body.innerText.match(/^application error/i)) {
+            return []
+        }
         const list = document.querySelector("main ol")
         if (!list) {
-            throw Error(`Looks like www.nixhub.io has updated, meaning this CLI tool needs to be updated (issue finding list $("main ol"))` )
+            throw Error(`Looks like www.nixhub.io has updated, ${url} meaning this CLI tool needs to be updated (issue finding list $("main ol"))` )
         }
         const versionElements = [...list.querySelectorAll("li")]
         const versionResults = []
