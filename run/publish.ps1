@@ -20,6 +20,7 @@ await FileSystem.write({
 console.debug(`newVersion is:`,newVersion)
 
 await $`run/build_for_nix && git add -A && git commit -m build_for_nix`
+await $`run/build_for_nix && git add -A && git commit -m build_for_nix`
 console.log(`[[removing old nvs]]`)
 await run(`run/remove`,`nvs`)
 console.log(`[[installing new nvs]]`)
