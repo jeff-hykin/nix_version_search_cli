@@ -27,28 +27,7 @@ const localTemp         = `${buildHelperFolder}/temp`
 const nixFileTemplate   = `${buildHelperFolder}/default.nix`
 const mainFileBundled   = `${buildHelperFolder}/main.bundle.js`
 const readmeFilePath    = `${FileSystem.thisFolder}/../readme.md`
-    // "readme_workaround.md" why not use the "build_helpers/readme.md"
-    // yeah... so... buckle up
-        // nix build (aka flakes, NOT nix-build) was being really wierd on v2.17.0 on linux x86
-        // in this script, doing `ls -la "$src/build_helpers" &>log.txt` wouldnt list any NEW files/folders 
-        // even when I added --no-eval-cache, even when I deleted the flake lock, even when I tried purging old derivations
-        // I tried a bunch of other things and nothing worked
-        // renaming a file "default.nix" -> "default2.nix" would cause it to dissapear from ls
-        // undoing the change would make it appear on the list again
-        // edits to files did show up. E.g.   `cat /build_helpers/readme.md` would always, correctly, show the latest contents 
-        // So maybe this weird behavior not even a caching issue. Idk
-        // I have no idea what the hell nix is doing, I've spent hours tring to find someone with this issue online and got nothing
-        //
-        // So... you might see where this is going
-        // this is definitely one of the worst hacks I've ever needed to implement,
-        // but I'm not about to start debugging the internals of nix
-        //
-        // I zip all the stuff I need for $src (the home folder cache for deno) into a zip
-        // and then name that zip "readme.md", so that, for some god forsaken reason, it will show up in this `nix build` script
-        // then I unpack it
-        // so now I have to use readme_workaround.md because "readme.md" is actually a zip file
-const readmeFileTemplate = `${buildHelperFolder}/readme_workaround.md`
-const zipFileTarget      = `${buildHelperFolder}/readme.md`
+const readmeFileTemplate = `${buildHelperFolder}/readme.md`
 
 import { build } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 // import { BuildOptions } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
@@ -200,17 +179,6 @@ await run`nix --extra-experimental-features nix-command --extra-experimental-fea
     for (const eachTarget of architectures) {
         await denoCmd(`compile`, "--no-lock", `--target`, eachTarget, "--output", `./dummy.${eachTarget}`, "./dummy.js",).then(()=>console.log(`- compiled ${eachTarget}`))
     }
-
-    // 
-    // now for the terrible hack
-    // 
-    console.log(`zipping...`)
-    // await FileSystem.remove(zipFileTarget)
-    await FileSystem.withPwd(buildHelperFolder, async ()=>{
-        console.log(await compress(await glob(`${fakeHome}/**/*`), zipFileTarget, {overwrite:true}))
-    })
-    // await zip(zipFileTarget, "-r", "./home")
-    console.log(`Done!`)
 
 // console.log(`committing updated default.nix`)
 // var { success } = await run`git add -A`
