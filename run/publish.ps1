@@ -4,9 +4,10 @@ echo "1.42.1"; : --% ' |out-null <#'; }; version="$(dv)"; deno="$HOME/.deno/$ver
 # */0}`;
 
 import $ from "https://deno.land/x/dax@0.39.2/mod.ts"
-import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.6.58/main/console.js"
+import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.6.67/main/console.js"
 import { version } from "../tools/version.js";
-import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.js"
+import { FileSystem } from "https://deno.land/x/quickr@0.6.67/main/file_system.js"
+import { run } from "https://deno.land/x/quickr@0.6.67/main/run.js"
 
 // increment version
 const existingVersion = version.split(/\./g)
@@ -20,7 +21,7 @@ console.debug(`newVersion is:`,newVersion)
 
 await $`run/build_for_nix && git add -A && git commit -m build_for_nix`
 console.log(`removing old nvs`)
-await $`run/remove nvs`
+await run(`run/remove`,`nvs`)
 console.log(`installing new nvs`)
 await $`nix profile install && git add -A && git commit -m "build_for_nix"` 
 let versionString = clearAnsiStylesFrom(await $`nvs --version`.text()).replace(/Nix Version Search /,"")
