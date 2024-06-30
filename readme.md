@@ -22,9 +22,9 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 Then install nvs:
 
 ```sh
-nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/df571d0ec9be2ce2da56dfe4deef4507b141a6cf.tar.gz
+nix-env -i -f https://github.com/jeff-hykin/nix_version_search_cli/archive/e7824aae364896db1847ce0ce033e6ce16296b7e.tar.gz
 # or, if you have flakes:
-nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/df571d0ec9be2ce2da56dfe4deef4507b141a6cf.tar.gz#nvs'
+nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archive/e7824aae364896db1847ce0ce033e6ce16296b7e.tar.gz#nvs'
 ```
 
 ## How to use
@@ -79,10 +79,3 @@ If you are not sure how to use this^
 Run: nvs --explain python@3
 ```
 
-## How to contribute
-
-- `main.js` contains most of the code/logic
-- Install deno `curl -fsSL https://deno.land/install.sh | sh`
-- Then run `deno run -A ./main.js python3` to debug the code
-- Once debugged, run `run/build_for_nix` and the `default.nix` and flake.lock will be generated
-- If you've forked this project, and connected your version to flakehub. Running `run/publish` will handle bumping the version number and publishing to flakehub.
