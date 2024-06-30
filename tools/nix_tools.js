@@ -16,7 +16,7 @@ export const jsStringToNixString = (string)=>{
     return `"${string.replace(/\$\{|[\\"]/g, '\\$&').replace(/\u0000/g, '\\0')}"`
 }
 export const listNixPackages =  async ()=>{
-    const packageList = await run`nix profile list --json ${Stdout(returnAsString)}`
+    const packageList = await run`nix --extra-experimental-features nix-command profile list --json ${Stdout(returnAsString)}`
     const elements = JSON.parse(packageList).elements
     for (const [index, each] of enumerate(elements)) {
         each.Index = index
@@ -36,7 +36,7 @@ export const checkIfFlakesEnabled = async ({cacheFolder})=>{
             console.warn(`\n${cyan`❄️`} Checking if you use flakes...`)
             console.warn(dim`- (this will only run once)`)
             try {
-                const result = await run`nix profile list ${Stdout(returnAsString)} ${Stderr(null)}`
+                const result = await run`nix --extra-experimental-features nix-command profile list ${Stdout(returnAsString)} ${Stderr(null)}`
                 hasFlakesEnabledString = !!result.match(/^Flake attribute: /m)
             } catch (error) {
                 hasFlakesEnabledString = false
@@ -137,7 +137,7 @@ export async function remove({name, hasFlakesEnabled}) {
             for (const each of uninstallList) {
                 if (each.Index!=null) {
                     try {
-                        await run`nix profile remove ${`${each.Index}`.trim()}`
+                        await run`nix --extra-experimental-features nix-command profile remove ${`${each.Index}`.trim()}`
                     } catch (error) {
                     }
                 }
@@ -166,7 +166,7 @@ export const removeExistingPackage = async ({urlOrPath, storePath, packages})=>{
         for (const each of uninstallList) {
             if (each.Index!=null) {
                 try {
-                    await run`nix profile remove ${`${each.Index}`.trim()}`
+                    await run`nix --extra-experimental-features nix-command profile remove ${`${each.Index}`.trim()}`
                 } catch (error) {
                 }
             }
@@ -188,10 +188,10 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
                 }
             }
             // try the install
-            const installCommand = `nix profile install ${jsStringToNixString(urlOrPath)}`
+            const installCommand = `nix --extra-experimental-features --extra-experimental-features flakes nix-command profile install ${jsStringToNixString(urlOrPath)}`
             const terminalSpinner = new TerminalSpinner()
             terminalSpinner.start(dim`- running: ${installCommand}`)
-            var { success } = await run`nix profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`
+            var { success } = await run`nix --extra-experimental-features nix-command --extra-experimental-features flakes profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`
             terminalSpinner.stop()
             if (noProgressLoopDetection == stderrOutput) {
                 console.error(red(stderrOutput))
@@ -208,7 +208,7 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
                 const packages = await listNixPackages()
                 
                 if (force) {
-                    const urlOrPath = (removeExisting.slice(("nix profile remove ").length).match(/(.+?)#/)||"")[1]
+                    const urlOrPath = (removeExisting.slice(("nix --extra-experimental-features nix-command profile remove ").length).match(/(.+?)#/)||"")[1]
                     if (removeExisting) {
                         await removeExistingPackage({urlOrPath, storePath: existing, packages})
                     }
@@ -216,7 +216,7 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
                 } else {
                     console.log(bold`Looks like there was a conflict:`)
                     console.log(`    The install adds: ${simpleName}`)
-                    console.log(`    Which already exists from:\n        ${yellow((removeExisting||"").trim().slice(("nix profile remove ").length)||existing)}`)
+                    console.log(`    Which already exists from:\n        ${yellow((removeExisting||"").trim().slice(("nix --extra-experimental-features nix-command profile remove ").length)||existing)}`)
                     console.log(``)
                     const uninstallOption = "uninstall: remove the old package, install the one you just picked"
                     const newHigherPriorityOption = "higher: install the one you just picked with a higher priority"
@@ -239,7 +239,7 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
                     } else if (choice == installAsLowerOption) {
                         await run(prioritiseExisting.trim().split(/\s/g))
                     } else if (choice == uninstallOption) {
-                        const urlOrPath = (removeExisting.slice(("nix profile remove ").length).match(/(.+?)#/)||"")[1]
+                        const urlOrPath = (removeExisting.slice(("nix --extra-experimental-features nix-command profile remove ").length).match(/(.+?)#/)||"")[1]
                         if (removeExisting) {
                             await removeExistingPackage({urlOrPath, storePath: existing, packages})
                         }
@@ -300,15 +300,15 @@ const storePathBaseLength = ("/nix/store/9i7rbbhxi1nnqibla22s785svlngcnvw-").len
 export async function agressiveRemove(name) {
     let deletedSomething = false 
     while (true) {
-        const text = await run`nix profile list --json ${Stdout(returnAsString)}`
+        const text = await run`nix --extra-experimental-features nix-command profile list --json ${Stdout(returnAsString)}`
         var packageInfo = JSON.parse(text)
         const indices = nameToIndicies(name, packageInfo)
         if (indices.length == 0){
             break
         }
         for (const each of indices) {
-            console.log(`running: nix profile remove ${each}`)
-            await run`nix profile remove ${`${each-0}`}`
+            console.log(`running: nix --extra-experimental-features nix-command profile remove ${each}`)
+            await run`nix --extra-experimental-features nix-command profile remove ${`${each-0}`}`
             deletedSomething = true
         }
     }
@@ -335,7 +335,7 @@ export async function agressiveRemove(name) {
                         if (FileSystem.basename(eachBinPath) == name) { 
                             console.log(`This package ${yellow(packageName)} contains ${green(name)} as an executable`)
                             if (await Console.askFor.yesNo(`Do you want to remove the package?`)) {
-                                await run`nix profile remove ${index-0}`
+                                await run`nix --extra-experimental-features nix-command profile remove ${index-0}`
                                 deletedSomething = true
                             }
                             continue next_package
