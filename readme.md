@@ -79,3 +79,10 @@ If you are not sure how to use this^
 Run: nvs --explain python@3
 ```
 
+## How to contribute
+
+- `main.js` contains most of the code/logic
+- Install deno `curl -fsSL https://deno.land/install.sh | sh`
+- Then run `deno run -A ./main.js python3` to debug the code
+- Once debugged, run `run/build_for_nix` and the `default.nix` and flake.lock will be generated
+- If you've forked this project, and connected your version to flakehub. Running `run/publish` will handle bumping the version number and publishing to flakehub.
