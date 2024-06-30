@@ -43,7 +43,7 @@
                 
                 export HOME="$out/bin/home"
                 mkdir -p "$out/bin"
-                "${deno}/bin/deno" compile --allow-all --quiet --output "$out/bin/nvs" "$src/build_helper/main.bundle.js"
+                DENO_DIR=.deno deno install --root "$out" --name nvs --allow-all "$src/build_helper/main.bundle.js"
                 rm -rf "$HOME"
             ''
         ];
