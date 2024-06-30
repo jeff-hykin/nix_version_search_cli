@@ -49,8 +49,9 @@ const command =new Command()
     .globalOption("--update", "update nvs to the latest version") 
     .arguments("[...args:string]")
     .action(async function (options, ...args) {
-        args = args.concat(this.getLiteralArgs(),Object.keys(options))
-        if (args.length == 0) {
+        const numberedArgs = this.getLiteralArgs()
+        args = args.concat(numberedArgs,Object.keys(options))
+        if (numberedArgs.length == 0) {
             if (options.explain) {
                 const text = await FileSystem.read(`${cacheFolder}/prev_explain.json`)
                 if (!text) {
