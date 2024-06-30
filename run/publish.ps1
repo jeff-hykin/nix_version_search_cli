@@ -8,18 +8,20 @@ import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStyles
 import { version } from "../tools/version.js";
 import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.js"
 
-// increment version
-const existingVersion = version.split(/\./g)
-existingVersion[2] = (Number(existingVersion[2])+1).toString()
-const newVersion = existingVersion.join(".")
-await FileSystem.write({
-    path: `${FileSystem.thisFolder}/../tools/version.js`,
-    data: `export const version = ${JSON.stringify(newVersion)}`,
-})
-console.debug(`newVersion is:`,newVersion)
+// // increment version
+// const existingVersion = version.split(/\./g)
+// existingVersion[2] = (Number(existingVersion[2])+1).toString()
+// const newVersion = existingVersion.join(".")
+// await FileSystem.write({
+//     path: `${FileSystem.thisFolder}/../tools/version.js`,
+//     data: `export const version = ${JSON.stringify(newVersion)}`,
+// })
+// console.debug(`newVersion is:`,newVersion)
 
-await $`run/build_for_nix && git add -A && git commit -m "build_for_nix"`
+// await $`run/build_for_nix && git add -A && git commit -m "build_for_nix"`
+console.log(`removing old nvs`)
 await $`run/remove nvs`
+console.log(`installing new nvs`)
 await $`nix profile install && git add -A && git commit -m "build_for_nix"` 
 let versionString = clearAnsiStylesFrom(await $`nvs --version`.text()).replace(/Nix Version Search /,"")
 if (versionString.length<5) {
