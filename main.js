@@ -100,7 +100,9 @@ const command =new Command()
             cursor: false, // Whether or not to display a cursor when the spinner is active
             writer: Deno.stderr
         })
-        terminalSpinner.start()
+        if (!options.json) {
+            terminalSpinner.start()
+        }
         // clear out the previous explain
         FileSystem.write({
             path: explainPath,
