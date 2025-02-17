@@ -25,37 +25,46 @@ export const listNixPackages =  async ()=>{
 }
 
 let hasFlakesEnabledString
-export const checkIfFlakesEnabled = async ({cacheFolder})=>{
-    if (!hasFlakesEnabledString) {
-        // 
-        // flakes check
-        // 
-        const flakesCheckPath = `${cacheFolder}/has_flakes_enabled.check.json`
-        hasFlakesEnabledString = FileSystem.sync.read(flakesCheckPath)
-        if (hasFlakesEnabledString == null) {
-            console.warn(`\n${cyan`❄️`} Checking if you use flakes...`)
-            console.warn(dim`- (this will only run once)`)
-            try {
-                const result = await run`nix --extra-experimental-features nix-command profile list ${Stdout(returnAsString)} ${Stderr(null)}`
-                hasFlakesEnabledString = !!result.match(/^Flake attribute: /m)
-            } catch (error) {
-                hasFlakesEnabledString = false
+export const checkIfFlakesEnabled = async ({cacheFolder, overrideWith=null})=>{
+    let newOne = await FileSystem.info(`${FileSystem.home}/.local/state/nix/profiles/profile/manifest.nix`)
+    let oldOne = await FileSystem.info(`${FileSystem.home}/.local/state/nix/profiles/profile/manifest.json`)
+    if (newOne.exists || oldOne.exists) {
+        return newOne.exists
+    // 
+    // fallback on the old technique if neither exists
+    // 
+    } else {
+        if (!hasFlakesEnabledString) {
+            // 
+            // flakes check
+            // 
+            const flakesCheckPath = `${cacheFolder}/has_flakes_enabled.check.json`
+            hasFlakesEnabledString = FileSystem.sync.read(flakesCheckPath)
+            if (hasFlakesEnabledString == null) {
+                console.warn(`\n${cyan`❄️`} Checking if you use flakes...`)
+                console.warn(dim`- (this will only run once)`)
+                try {
+                    const result = await run`nix --extra-experimental-features nix-command profile list ${Stdout(returnAsString)} ${Stderr(null)}`
+                    hasFlakesEnabledString = !!result.match(/^Flake attribute: /m)
+                } catch (error) {
+                    hasFlakesEnabledString = false
+                }
+                if (hasFlakesEnabledString) {
+                    console.warn(`${dim`- Okay looks like you do use flakes!`} ${cyan`❄️`}`)
+                } else {
+                    console.warn(`${dim`- Okay looks like you dont use flakes`} ${red`X`}`)
+                }
+                console.warn(`${dim`- Saving this preference to disk at:\n    `}${yellow(JSON.stringify(flakesCheckPath))}`)
+                hasFlakesEnabledString = JSON.stringify(hasFlakesEnabledString)
+                console.warn(`\n`)
+                FileSystem.sync.write({
+                    data: hasFlakesEnabledString,
+                    path: flakesCheckPath,
+                })
             }
-            if (hasFlakesEnabledString) {
-                console.warn(`${dim`- Okay looks like you do use flakes!`} ${cyan`❄️`}`)
-            } else {
-                console.warn(`${dim`- Okay looks like you dont use flakes`} ${red`X`}`)
-            }
-            console.warn(`${dim`- Saving this preference to disk at:\n    `}${yellow(JSON.stringify(flakesCheckPath))}`)
-            hasFlakesEnabledString = JSON.stringify(hasFlakesEnabledString)
-            console.warn(`\n`)
-            FileSystem.sync.write({
-                data: hasFlakesEnabledString,
-                path: flakesCheckPath,
-            })
         }
+        return JSON.parse(hasFlakesEnabledString)
     }
-    return JSON.parse(hasFlakesEnabledString)
 }
 
 function packageEntryToNames(packageEntry) {
