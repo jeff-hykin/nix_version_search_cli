@@ -190,7 +190,8 @@ export async function install({hasFlakesEnabled, humanPackageSummary, urlOrPath,
             // try the install
             const installCommand = `nix --extra-experimental-features --extra-experimental-features flakes nix-command profile install ${jsStringToNixString(urlOrPath)}`
             const terminalSpinner = new TerminalSpinner()
-            terminalSpinner.start(dim`- running: ${installCommand}`)
+            console.log(dim`- running: ${installCommand}`)
+            terminalSpinner.start()
             var { success } = await run`nix --extra-experimental-features nix-command --extra-experimental-features flakes profile install ${urlOrPath} ${Stderr(Deno.stderr, listener)}`
             terminalSpinner.stop()
             if (noProgressLoopDetection == stderrOutput) {
