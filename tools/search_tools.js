@@ -1,10 +1,10 @@
 #!/usr/bin/env -S deno run --allow-all
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
-import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
-import { deepCopy, deepCopySymbol, allKeyDescriptions, deepSortObject, shallowSortObject, isGeneratorType,isAsyncIterable, isSyncIterable, isTechnicallyIterable, isSyncIterableObjectOrContainer, allKeys } from "https://deno.land/x/good@1.5.1.0/value.js"
-import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.6.54/main/run.js"
-import { FileSystem } from "https://deno.land/x/quickr@0.6.56/main/file_system.js"
-import DateTime from "https://deno.land/x/good@1.5.1.2/date.js"
+import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.7.1.1/array.js"
+import { deepCopy, deepCopySymbol, allKeyDescriptions, deepSortObject, shallowSortObject, isGeneratorType,isAsyncIterable, isSyncIterable, isTechnicallyIterable, isSyncIterableObjectOrContainer, allKeys } from "https://deno.land/x/good@1.7.1.1/value.js"
+import { run, Out, Stdout, Stderr, returnAsString } from "https://deno.land/x/quickr@0.7.4/main/run.js"
+import { FileSystem } from "https://deno.land/x/quickr@0.7.4/main/file_system.js"
+import DateTime from "https://deno.land/x/good@1.7.1.1/date.js"
 
 // import { Parser, parserFromWasm } from "https://deno.land/x/deno_tree_sitter@0.1.3.0/main.js"
 // import html from "https://github.com/jeff-hykin/common_tree_sitter_languages/raw/4d8a6d34d7f6263ff570f333cdcf5ded6be89e3d/main/html.js"

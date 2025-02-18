@@ -4,6 +4,7 @@ node_modules
 *.ignore.*
 **/*.ignore
 **/*.ignore.*
+build_helper/home
 build_helper/temp
 build_helper/dummy*
 result

@@ -1,4 +1,4 @@
-import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
+import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.7.1.1/array.js"
 import { Input } from "../subrepos/cliffy/prompt/input.ts"
 import { stripColor } from "../subrepos/cliffy/prompt/deps.ts"
 import { distance } from "../subrepos/cliffy/_utils/distance.ts"

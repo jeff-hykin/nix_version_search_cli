@@ -1,4 +1,4 @@
-import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
+import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.7.1.1/array.js"
 
 export const versionToList = version=>`${version}`.split(".").map(each=>each.split(/(?<=\d)(?=\D)|(?<=\D)(?=\d)/)).flat(1).map(each=>each.match(/^\d+$/)?each-0:each)
 

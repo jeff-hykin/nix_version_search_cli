@@ -20,7 +20,7 @@ import {
 } from "./deps.ts";
 import { Figures, getFiguresByKeys } from "./_figures.ts";
 import { distance } from "../_utils/distance.ts";
-import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.5.1.0/array.js"
+import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@1.7.1.1/array.js"
 
 /** Generic input prompt options. */
 export interface GenericSuggestionsOptions<TValue, TRawValue>

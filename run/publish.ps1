@@ -4,10 +4,10 @@ echo "1.42.1"; : --% ' |out-null <#'; }; version="$(dv)"; deno="$HOME/.deno/$ver
 # */0}`;
 
 import $ from "https://deno.land/x/dax@0.39.2/mod.ts"
-import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.6.67/main/console.js"
+import { Console, red, lightRed, yellow, green, cyan, dim, bold, clearAnsiStylesFrom } from "https://deno.land/x/quickr@0.7.4/main/console.js"
 import { version } from "../tools/version.js";
-import { FileSystem } from "https://deno.land/x/quickr@0.6.67/main/file_system.js"
-import { run } from "https://deno.land/x/quickr@0.6.67/main/run.js"
+import { FileSystem } from "https://deno.land/x/quickr@0.7.4/main/file_system.js"
+import { run } from "https://deno.land/x/quickr@0.7.4/main/run.js"
 
 // increment version
 const existingVersion = version.split(/\./g)
