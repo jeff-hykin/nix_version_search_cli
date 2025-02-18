@@ -9,6 +9,8 @@ import { run, Timeout, Env, Cwd, Stdin, Stdout, Stderr, Out, Overwrite, AppendTo
 import { indent } from "https://deno.land/x/good@1.7.1.1/flattened/indent.js"
 import { compress, decompress } from "https://deno.land/x/zip@v1.2.5/mod.ts"
 
+import { nixUrlHash } from "https://esm.sh/gh/jeff-hykin/deno_nix_api@0961ac6/main.js"
+
 const escapeNixString = (string)=>{
     return `"${string.replace(/\$\{|[\\"]/g, '\\$&').replace(/\u0000/g, '\\0')}"`
 }
@@ -16,7 +18,9 @@ const shellEscape = (arg)=>`${arg.replace(/'/g,`'"'"'`)}`
 
 const argsWereGiven = Deno.args.length > 0
 
-const defaultNixpkgsHash = "6d9c572be2b199be0456845a61d7e4b3e3ac6280"
+// const defaultNixpkgsHash = "6d9c572be2b199be0456845a61d7e4b3e3ac6280"
+const defaultNixpkgsHash = "ab7b6889ae9d484eed2876868209e33eb262511d"
+const hashForDeno1 = "ab7b6889ae9d484eed2876868209e33eb262511d"
 
 const buildHelperFolder = `${FileSystem.thisFolder}/../build_helper`
 const mainFile          = `${FileSystem.thisFolder}/../main.js`
@@ -77,6 +81,7 @@ console.log(`injecting versions`)
 const latestCommitHash = (await run`git rev-parse HEAD ${Stdout(returnAsString)}`).trim()
 
 import {version} from "../tools/version.js"
+const defaultSha256 = await nixUrlHash(`https://github.com/NixOS/nixpkgs/archive/${defaultNixpkgsHash}.tar.gz`)
 await FileSystem.write({
     path: nixFilePath,
     data: `
@@ -96,6 +101,8 @@ await FileSystem.write({
         /REPLACEME_VERSION_9409841/g, escapeNixString(version)
     ).replace(
         /REPLACEME_NIXPKGS_HASH_9409841/g, defaultNixpkgsHash,
+    ).replace(
+        /REPLACEME_NIXPKGS_SHA256_9409841/g, defaultSha256,
     )
 })
 
@@ -119,7 +126,7 @@ await run`nix --extra-experimental-features nix-command --extra-experimental-fea
 // get all the files locally for building
 // 
 // 
-    console.log(`Downlaoding files`)
+    console.log(`Downloading files`)
     let hashFromLockfile
     try {
         const lockFile = await FileSystem.read(lockFilePath)
@@ -137,13 +144,15 @@ await run`nix --extra-experimental-features nix-command --extra-experimental-fea
     await FileSystem.ensureIsFolder(localTemp)
     const denoCmd = (...args)=>run(
         `nix-shell`,
-        `-I`,`nixpkgs=https://github.com/NixOS/nixpkgs/archive/${hashFromLockfile}.tar.gz`,
+        `-I`,`nixpkgs=https://github.com/NixOS/nixpkgs/archive/${hashForDeno1}.tar.gz`,
         `-p`, `deno`,
         `--run`, `${`deno ${args.map(shellEscape).join(" ")}`}`,
         Env({ HOME: fakeHome, NO_COLOR: "true", TMPDIR: localTemp, DENO_NO_UPDATE_CHECK: "true",}),
         Cwd(buildHelperFolder),
         Out(returnAsString),
     )
+    const denoVersion = await denoCmd("--version")
+    console.debug(`denoVersion is:`,denoVersion)
     const compileHelpString = await denoCmd("compile --no-lock --help")
     const architecturesString = compileHelpString.match(/--target <target>(?:\w|\W)+?\[possible values: (.+)\]/)
     if (!architecturesString) {

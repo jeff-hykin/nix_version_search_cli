@@ -14,7 +14,7 @@ import { selectOne } from "./tools/input_tools.js"
 import { search, determinateSystems } from "./tools/search_tools.js"
 import { versionSort, versionToList, executeConversation } from "./tools/misc.js"
 
-import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install, remove } from "./tools/nix_tools.js"
+import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install, remove } from "https://esm.sh/gh/jeff-hykin/deno_nix_api@0961ac6/main.js"
 
 const posixShellEscape = (string)=>"'"+string.replace(/'/g, `'"'"'`)+"'"
 const clearScreen = ()=>console.log('\x1B[2J')
@@ -46,9 +46,14 @@ const command =new Command()
     .globalOption("--json", "Return json output of all search results (non-interactive)")
     .globalOption("--nvs-info", "have settings echo-ed back in yaml form")
     .globalOption("--debug", "enable debugging output")
+    .globalOption("--deno-version", "output the current deno version")
     .globalOption("--update", "update nvs to the latest version") 
     .arguments("[...args:string]")
     .action(async function (options, ...args) {
+        if (options.denoVersion) {
+            console.log(Deno.version.deno)
+            return
+        }
         const numberedArgs = this.getLiteralArgs()
         args = args.concat(numberedArgs,Object.keys(options))
         if (JSON.stringify(Deno.args) == `["--explain"]`) {
