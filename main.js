@@ -14,7 +14,8 @@ import { selectOne } from "./tools/input_tools.js"
 import { search, determinateSystems } from "./tools/search_tools.js"
 import { versionSort, versionToList, executeConversation } from "./tools/misc.js"
 
-import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install, remove } from "https://esm.sh/gh/jeff-hykin/deno_nix_api@0.0.0.2/main.js"
+// import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install, remove } from "https://esm.sh/gh/jeff-hykin/deno_nix_api@0.0.0.3/main.js"
+import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install, remove } from "https://esm.sh/gh/jeff-hykin/deno_nix_api@272bb02/main.js"
 // import { checkIfFlakesEnabled, jsStringToNixString, listNixPackages, removeExistingPackage, install, remove } from "/Users/jeffhykin/repos/deno_nix_api/main.js"
 
 const posixShellEscape = (string)=>"'"+string.replace(/'/g, `'"'"'`)+"'"
