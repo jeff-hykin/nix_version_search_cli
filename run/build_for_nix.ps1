@@ -81,6 +81,7 @@ console.log(`injecting versions`)
 const latestCommitHash = (await run`git rev-parse HEAD ${Stdout(returnAsString)}`).trim()
 
 import {version} from "../tools/version.js"
+console.log(`getting sha hash for nixpkgs`)
 const defaultSha256 = await nixUrlHash(`https://github.com/NixOS/nixpkgs/archive/${defaultNixpkgsHash}.tar.gz`)
 await FileSystem.write({
     path: nixFilePath,
@@ -127,14 +128,14 @@ await run`nix --extra-experimental-features nix-command --extra-experimental-fea
 // 
 // 
     console.log(`Downloading files`)
-    let hashFromLockfile
-    try {
-        const lockFile = await FileSystem.read(lockFilePath)
-        hashFromLockfile = JSON.parse(lockFile).nodes.nixpkgs.locked.rev
-    } catch (error) {
-        console.log(`Couldn't get the lock file for some reason.\n    Tried getting .nodes.nixpkgs.locked.rev of: ${JSON.stringify(lockFilePath)}`)
-        Deno.exit(-1)
-    }
+        // let hashFromLockfile
+        // try {
+        //     const lockFile = await FileSystem.read(lockFilePath)
+        //     hashFromLockfile = JSON.parse(lockFile).nodes.nixpkgs.locked.rev
+        // } catch (error) {
+        //     console.log(`Couldn't get the lock file for some reason.\n    Tried getting .nodes.nixpkgs.locked.rev of: ${JSON.stringify(lockFilePath)}`)
+        //     Deno.exit(-1)
+        // }
 
 
     //
@@ -151,6 +152,7 @@ await run`nix --extra-experimental-features nix-command --extra-experimental-fea
         Cwd(buildHelperFolder),
         Out(returnAsString),
     )
+    console.log(`getting denoVersion inside nix-shell ${hashForDeno1}`)
     const denoVersion = await denoCmd("--version")
     console.debug(`denoVersion is:`,denoVersion)
     const compileHelpString = await denoCmd("compile --no-lock --help")

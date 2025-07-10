@@ -398,8 +398,195 @@ var TerminalSpinner = class {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/_utils/distance.ts
+// https://deno.land/x/good@1.7.1.1/flattened/async_function__class.js
+var AsyncFunction = class {
+};
+try {
+  AsyncFunction = eval("(async function(){}).constructor");
+} catch (err) {
+}
+
+// https://deno.land/x/good@1.7.1.1/flattened/empty_iterator.js
+var emptyIterator = /* @__PURE__ */ function* () {
+}();
+
+// https://deno.land/x/good@1.7.1.1/flattened/make_iterable.js
+var makeIterable = (object) => {
+  if (object == null) {
+    return emptyIterator;
+  }
+  if (object[Symbol.iterator] instanceof Function || object[Symbol.asyncIterator] instanceof Function) {
+    return object;
+  }
+  if (Object.getPrototypeOf(object).constructor == Object) {
+    return Object.entries(object);
+  }
+  return emptyIterator;
+};
+
+// https://deno.land/x/good@1.7.1.1/flattened/stop_symbol.js
+var stop = Symbol.for("iterationStop");
+
+// https://deno.land/x/good@1.7.1.1/flattened/iter.js
+var iter = (object) => {
+  const iterable = makeIterable(object);
+  if (iterable[Symbol.asyncIterator]) {
+    return iterable[Symbol.asyncIterator]();
+  } else {
+    return iterable[Symbol.iterator]();
+  }
+};
+
+// https://deno.land/x/good@1.7.1.1/flattened/async_iterator_to_list.js
+async function asyncIteratorToList(asyncIterator) {
+  const results = [];
+  for await (const each2 of asyncIterator) {
+    results.push(each2);
+  }
+  return results;
+}
+
+// https://deno.land/x/good@1.7.1.1/flattened/zip.js
+var zip = function* (...iterables) {
+  iterables = iterables.map((each2) => iter(each2));
+  while (true) {
+    const nexts = iterables.map((each2) => each2.next());
+    if (nexts.every((each2) => each2.done)) {
+      break;
+    }
+    yield nexts.map((each2) => each2.value);
+  }
+};
+
+// https://deno.land/x/good@1.7.1.1/flattened/concurrently_transform.js
+var ERROR_WHILE_MAPPING_MESSAGE = "Threw while mapping";
+function concurrentlyTransform({ iterator, transformFunction, poolLimit = null, awaitAll = false }) {
+  poolLimit = poolLimit || concurrentlyTransform.defaultPoolLimit;
+  const res = new TransformStream({
+    async transform(p6, controller) {
+      try {
+        const s16 = await p6;
+        controller.enqueue(s16);
+      } catch (e6) {
+        if (e6 instanceof AggregateError && e6.message == ERROR_WHILE_MAPPING_MESSAGE) {
+          controller.error(e6);
+        }
+      }
+    }
+  });
+  const mainPromise = (async () => {
+    const writer = res.writable.getWriter();
+    const executing = [];
+    try {
+      let index = 0;
+      for await (const item of iterator) {
+        const p6 = Promise.resolve().then(() => transformFunction(item, index));
+        index++;
+        writer.write(p6);
+        const e6 = p6.then(() => executing.splice(executing.indexOf(e6), 1));
+        executing.push(e6);
+        if (executing.length >= poolLimit) {
+          await Promise.race(executing);
+        }
+      }
+      await Promise.all(executing);
+      writer.close();
+    } catch {
+      const errors2 = [];
+      for (const result2 of await Promise.allSettled(executing)) {
+        if (result2.status == "rejected") {
+          errors2.push(result2.reason);
+        }
+      }
+      writer.write(Promise.reject(new AggregateError(errors2, ERROR_WHILE_MAPPING_MESSAGE))).catch(() => {
+      });
+    }
+  })();
+  const asyncIterator = res.readable[Symbol.asyncIterator]();
+  if (!awaitAll) {
+    return asyncIterator;
+  } else {
+    return mainPromise.then(() => asyncIteratorToList(asyncIterator));
+  }
+}
+concurrentlyTransform.defaultPoolLimit = 40;
+
+// https://deno.land/x/good@1.7.1.1/array.js
+var zip2 = function(...iterables) {
+  return [...zip(...iterables)];
+};
+var NamedArray = class extends Array {
+  toJSON() {
+    return { ...this };
+  }
+  toString() {
+    return { ...this };
+  }
+  [Symbol.for("customInspect")]() {
+    return { ...this };
+  }
+  [Symbol.for("Deno.customInspect")]() {
+    return { ...this };
+  }
+  [Symbol.for("nodejs.util.inspect.custom")]() {
+    return { ...this };
+  }
+};
+
+// tools/misc.js
+var versionToList = (version3) => `${version3}`.split(".").map((each2) => each2.split(/(?<=\d)(?=\D)|(?<=\D)(?=\d)/)).flat(1).map((each2) => each2.match(/^\d+$/) ? each2 - 0 : each2);
+var versionCompare = (a5, b2) => {
+  for (let [numberForA, numberForB] of zip2(versionToList(a5), versionToList(b2))) {
+    if (numberForA != numberForB) {
+      if (typeof numberForB == "number" && typeof numberForB == "number") {
+        return numberForB - numberForA;
+      } else if (typeof numberForB == "number") {
+        return numberForB;
+      } else if (typeof numberForA == "number") {
+        return -numberForA;
+      } else {
+        return `${numberForB}`.localeCompare(numberForA);
+      }
+    }
+  }
+  return 0;
+};
+var versionSort = ({ array, elementToVersion }) => {
+  return [...array].sort((a5, b2) => versionCompare(elementToVersion(a5), elementToVersion(b2)));
+};
+var clearScreen = () => console.log("\x1B[2J");
+var executeConversation = (conversationArray) => {
+  for (const each2 of conversationArray) {
+    if (each2.clearScreen) {
+      clearScreen();
+    }
+    if (each2.text) {
+      if (each2.text instanceof Array) {
+        console.log(each2.text.join("\n"));
+      } else {
+        console.log(each2.text);
+      }
+    }
+    if (each2.prompt) {
+      prompt(each2.prompt);
+    }
+  }
+};
+
+// subrepos/cliffy/_utils/distance.ts
+var versionPattern = /^\d+(\.\d+)*/;
 function distance(a5, b2) {
+  if (a5.match(versionPattern) && b2.match(versionPattern)) {
+    return versionCompare(a5, b2);
+  }
+  let aFlakeIndex = a5.indexOf("\u2744\uFE0F");
+  if (aFlakeIndex != -1) {
+    a5 = a5.slice(0, aFlakeIndex - 1);
+  }
+  let bFlakeIndex = b2.indexOf("\u2744\uFE0F");
+  if (bFlakeIndex != -1) {
+    b2 = b2.slice(0, bFlakeIndex - 1);
+  }
   if (a5.length == 0) {
     return b2.length;
   }
@@ -428,7 +615,7 @@ function distance(a5, b2) {
   return matrix[b2.length][a5.length];
 }
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/flags/_utils.ts
+// subrepos/cliffy/flags/_utils.ts
 function paramCaseToCamelCase(str2) {
   return str2.replace(
     /-([a-z])/g,
@@ -518,7 +705,7 @@ function getDefaultValue(option) {
   return typeof option.default === "function" ? option.default() : option.default;
 }
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/flags/_errors.ts
+// subrepos/cliffy/flags/_errors.ts
 var FlagsError = class _FlagsError extends Error {
   constructor(message) {
     super(message);
@@ -656,7 +843,7 @@ var InvalidTypeError = class extends ValidationError {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/flags/types/boolean.ts
+// subrepos/cliffy/flags/types/boolean.ts
 var boolean = (type) => {
   if (~["1", "true"].indexOf(type.value)) {
     return true;
@@ -667,7 +854,7 @@ var boolean = (type) => {
   throw new InvalidTypeError(type, ["true", "false", "1", "0"]);
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/flags/types/number.ts
+// subrepos/cliffy/flags/types/number.ts
 var number = (type) => {
   const value = Number(type.value);
   if (Number.isFinite(value)) {
@@ -676,12 +863,12 @@ var number = (type) => {
   throw new InvalidTypeError(type);
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/flags/types/string.ts
+// subrepos/cliffy/flags/types/string.ts
 var string = ({ value }) => {
   return value;
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/flags/_validate_flags.ts
+// subrepos/cliffy/flags/_validate_flags.ts
 function validateFlags(ctx, opts, options = /* @__PURE__ */ new Map()) {
   if (!opts.flags) {
     return;
@@ -815,7 +1002,7 @@ function isset(flagName, flags) {
   return typeof flags[name] !== "undefined";
 }
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/flags/types/integer.ts
+// subrepos/cliffy/flags/types/integer.ts
 var integer = (type) => {
   const value = Number(type.value);
   if (Number.isInteger(value)) {
@@ -824,7 +1011,7 @@ var integer = (type) => {
   throw new InvalidTypeError(type);
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/flags/flags.ts
+// subrepos/cliffy/flags/flags.ts
 var DefaultTypes = {
   string,
   number,
@@ -1148,7 +1335,7 @@ function parseDefaultType(option, arg, value) {
   });
 }
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/_utils.ts
+// subrepos/cliffy/command/_utils.ts
 function didYouMeanCommand(command2, commands, excludes = []) {
   const commandNames = commands.map((command3) => command3.getName()).filter((command3) => !excludes.includes(command3));
   return didYouMean2(" Did you mean command", command2, commandNames);
@@ -1297,7 +1484,7 @@ function stripColor2(string2) {
   return string2.replace(ANSI_PATTERN2, "");
 }
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/_errors.ts
+// subrepos/cliffy/command/_errors.ts
 var CommandError = class _CommandError extends Error {
   constructor(message) {
     super(message);
@@ -1450,11 +1637,11 @@ var TooManyArgumentsError = class _TooManyArgumentsError extends ValidationError
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/type.ts
+// subrepos/cliffy/command/type.ts
 var Type = class {
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/types/boolean.ts
+// subrepos/cliffy/command/types/boolean.ts
 var BooleanType = class extends Type {
   /** Parse boolean type. */
   parse(type) {
@@ -1466,7 +1653,7 @@ var BooleanType = class extends Type {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/types/string.ts
+// subrepos/cliffy/command/types/string.ts
 var StringType = class extends Type {
   /** Complete string type. */
   parse(type) {
@@ -1474,7 +1661,7 @@ var StringType = class extends Type {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/types/file.ts
+// subrepos/cliffy/command/types/file.ts
 var FileType = class extends StringType {
   constructor() {
     super();
@@ -1484,7 +1671,7 @@ var FileType = class extends StringType {
   // }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/types/integer.ts
+// subrepos/cliffy/command/types/integer.ts
 var IntegerType = class extends Type {
   /** Parse integer type. */
   parse(type) {
@@ -1492,7 +1679,7 @@ var IntegerType = class extends Type {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/types/number.ts
+// subrepos/cliffy/command/types/number.ts
 var NumberType = class extends Type {
   /** Parse number type. */
   parse(type) {
@@ -1500,7 +1687,7 @@ var NumberType = class extends Type {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/table/border.ts
+// subrepos/cliffy/table/border.ts
 var border = {
   top: "\u2500",
   topMid: "\u252C",
@@ -1519,7 +1706,7 @@ var border = {
   middle: "\u2502"
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/table/cell.ts
+// subrepos/cliffy/table/cell.ts
 var Cell = class _Cell {
   /**
    * Cell constructor.
@@ -1533,6 +1720,16 @@ var Cell = class _Cell {
   /** Get cell length. */
   get length() {
     return this.toString().length;
+  }
+  /**
+   * Any unterminated ANSI formatting overflowed from previous lines of a
+   * multi-line cell.
+   */
+  get unclosedAnsiRuns() {
+    return this.options.unclosedAnsiRuns ?? "";
+  }
+  set unclosedAnsiRuns(val) {
+    this.options.unclosedAnsiRuns = val;
   }
   /**
    * Create a new cell. If value is a cell, the value and all options of the cell
@@ -1679,7 +1876,7 @@ var Cell = class _Cell {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/table/column.ts
+// subrepos/cliffy/table/column.ts
 var Column = class _Column {
   /**
    * Create a new cell from column options or an existing column.
@@ -1742,56 +1939,39 @@ var Column = class _Column {
   }
 };
 
-// https://deno.land/std@0.196.0/console/_data.json
-var data_default = {
-  UNICODE_VERSION: "15.0.0",
-  tables: [
-    {
-      d: "AAECAwQFBgcICQoLDA0OAw8DDwkQCRESERIA",
-      r: "AQEBAgEBAQEBAQEBAQEBBwEHAVABBwcBBwF4"
-    },
-    {
-      d: "AAECAwQFBgcGCAYJCgsMDQ4PEAYREhMUBhUWFxgZGhscHR4fICEiIyIkJSYnKCkqJSssLS4vMDEyMzQ1Njc4OToGOzwKBj0GPj9AQUIGQwZEBkVGR0hJSktMTQZOBgoGT1BRUlNUVVZXWFkGWgZbBlxdXl1fYGFiY2RlZmdoBmlqBmsGAQZsBm1uO29wcXI7czt0dXZ3OwY7eHkGent8Bn0Gfn+AgYKDhIWGBoc7iAZdO4kGiosGAXGMBo0GjgaPBpAGkQaSBpMGlJUGlpcGmJmam5ydnp+gLgahLKIGo6SlpganqKmqqwasBq0Grq8GsLGyswa0BrUGtre4Brm6uwZHvAa9vga/wME7wjvDxAbFO8bHO8gGyQbKywbMzQbOBs/Q0QbSBr8GvgbT1AbUBtUG1gbXBtjZ2tsG3N0G3t/g4eLjO+Tl5ufoO+k76gbrBuztOwbu7/AGO+XxCgYKCwZd8g==",
-      r: "AQEBAQEBAQEBAQEBAQEBAQEBAQMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECBQEOAQEBAQEBAQEBAwEBAQEBAQEBAQIBAwEIAQEBAQEBAQEBAQEBAQIBAQEBAQEBAQEBAQEBAQEBDQEBBQEBAQEBAgEBAwEBAQEBAQEBAQEBbQHaAQEFAQEBBAECAQEBAQEBAQEBAwGuASFkCAELAQEBAQEBAQEHAQMBAQEaAQIBCAEFAQEBAQEBAQEBAQEBAQEBAQEBAQECAQEBAQIBAQEBAQEBAwEDAQEBAQEBAQUBAQEBAQEBBAEBAVIBAdkBARABAQFfARMBAYoBBAEBBQEmAUkBAQcBAQIBHgEBARUBAQEBAQUBAQcBDwEBARoBAgEBAQEBAQECAQEBAQEBAQEBAQEBAQEBAQMBBAEBAgEBAQEUfwEBAQIDAXj/AQ=="
-    },
-    {
-      d: "AFUVAF3Xd3X/93//VXVVV9VX9V91f1/31X93XVXdVdVV9dVV/VVX1X9X/131VfXVVXV3V1VdVV1V1/1dV1X/3VUAVf3/3/9fVf3/3/9fVV1V/11VFQBQVQEAEEEQVQBQVQBAVFUVAFVUVQUAEAAUBFBVFVFVAEBVBQBUVRUAVVFVBRAAAVBVAVVQVQBVBQBAVUVUAQBUUQEAVQVVUVVUAVRVUVUFVUVBVVRBFRRQUVVQUVUBEFRRVQVVBQBRVRQBVFVRVUFVBVVFVVRVUVVUVQRUBQRQVUFVBVVFVVBVBVVQVRVUAVRVUVUFVVFVRVUFRFVRAEBVFQBAVVEAVFUAQFVQVRFRVQEAQAAEVQEAAQBUVUVVAQQAQVVQBVRVAVRVRUFVUVVRVaoAVQFVBVRVBVUFVQVVEABQVUUBAFVRVRUAVUFVUVVAFVRVRVUBVRUUVUUAQEQBAFQVABRVAEBVAFUEQFRFVRUAVVBVBVAQUFVFUBFQVQAFVUAABABUUVVUUFUVANd/X3//BUD3XdV1VQAEAFVXVdX9V1VXVQBUVdVdVdV1VX111VXVV9V//1X/X1VdVf9fVV9VdVdV1VX31dfVXXX9193/d1X/VV9VV3VVX//1VfVVXVVdVdVVdVWlVWlVqVaWVf/f/1X/Vf/1X1Xf/19V9VVf9df1X1X1X1XVVWlVfV31VVpVd1V3VapV33/fVZVVlVX1WVWlVelV+v/v//7/31Xv/6/77/tVWaVVVlVdVWaVmlX1/1WpVVZVlVWVVlVW+V9VFVBVAKqaqlWqWlWqVaoKoKpqqapqgapVqaqpqmqqVapqqv+qVqpqVRVAAFBVBVVQVUUVVUFVVFVQVQBQVRVVBQBQVRUAUFWqVkBVFQVQVVFVAUBBVRVVVFVUVQQUVAVRVVBVRVVRVFFVqlVFVQCqWlUAqmqqaqpVqlZVqmpVAV1VUVVUVQVAVQFBVQBVQBVVQVUAVRVUVQFVBQBUVQVQVVFVAEBVFFRVFVBVFUBBUUVVUVVAVRUAAQBUVRVVUFUFAEBVARRVFVAEVUVVFQBAVVRVBQBUAFRVAAVEVUVVFQBEFQRVBVBVEFRVUFUVAEARVFUVUQAQVQEFEABVFQBBVRVEFVUABVVUVQEAQFUVABRAVRVVAUABVQUAQFBVAEAAEFUFAAUABEFVAUBFEAAQVVARVRVUVVBVBUBVRFVUFQBQVQBUVQBAVRVVFUBVqlRVWlWqVapaVapWVaqpqmmqalVlVWpZVapVqlVBAFUAUABAVRVQVRUAQAEAVQVQVQVUVQBAFQBUVVFVVFUVAAEAVQBAABQAEARAVUVVAFUAQFUAQFVWVZVV/39V/1//X1X/76uq6v9XVWpVqlWqVlVaVapaVapWVamqmqqmqlWqapWqVapWqmqmqpaqWlWVaqpVZVVpVVZVlapVqlpVVmqpVapVlVZVqlZVqlVWVapqqpqqVapWqlZVqpqqWlWlqlWqVlWqVlVRVQD/Xw==",
-      r: "CBcBCAEBAQEBAQEBAQECAQEBAQEBAQEBAQEBAQMBAQECAQEBAQEBAQEBAQEBBAEBGAEDAQwBAwEIAQEBAQEBAQgcCAEDAQEBAQEDAQEBDQEDEAELAQEBEQEKAQEBDgEBAgIBAQoBBQQBCAEBAQEBAQEHAQEHBgEWAQIBDQECAgEFAQECAgEKAQ0BAQIKAQ0BDQEBAQEBAQEBAgEHAQ4BAQEBAQQBBgEBDgEBAQEBAQcBAQIBAQEBBAEFAQEBDgEBAQEBAQECAQcBDwECAQwCDQEBAQEBAQECAQgBAQEEAQcBDQEBAQEBAQQBBwERAQEBARYBAQECAQEBGAECAQIBARIBBgEBDQECAQEBAQECAQgBAQEZAQEBAgYBAQEDAQECAQEBAQMBCBgIBwEMAQEGAQcBBwEQAQEBAQEBAgIBCgEBDQEIAQ0BAQEBAQEBBgEBDgEBAQEBAQEBAgEMBwEMAQwBAQEBCQECAwEHAQEBAQ0BAQEBDgIBBgEDAQEBAQEBAQMBAQEBAgEBAQEBAQEBCAEBAgEBAQEBAQkBCAgBAwECAQEBAgEBAQkBAQEBAwECAQMBAQIBBwEFAQEDAQYBAQEBAgEBAQEBAQEBAQECAgEDAQECBAIDAgIBBQEEAQEBAwEPAQEBCyIBCAEJAwQBAQIBAQEBAgECAQEBAQMBAQEBAwEBAQEBAQEBAQgBAQMDAgEBAwEEAQIBAQEBBAEBAQEBAQECAQEBAQEBAQEBAQEHAQQBAwEBAQcBAgUBBgECAQYBAQwBAQEUAQELCAYBFgMFAQYDAQoBAQMBARQBAQkBAQoBBgEVAwsBCgIPAQ0BGQEBAgEHARQBAwIBBgEBAQUBBgQBAgEJAQEBBQECAQMHAQELAQECCQEQAQECAgECAQsBDAEBAQEBCgEBAQsBAQEECQ4BCAQCAQEECAEEAQEFCAEPAQEEAQEPAQgBFAEBAQEBAQEKAQEJAQ8BEAEBEwEBAQIBCwEBDgENAwEKAQEBAQELAQEBAQECAQwBCAEBAQEBDgEDAQwBAQECAQEXAQEBAQEHAgEBBQEIAQEBAQEQAgEBBQEUAQEBAQEbAQEBAQEGARQBAQEBARkBAQEBCQEBAQEQAQIBDwEBARQBAQEBBwEBAQkBAQEBAQECAQEBCwECAQEVAQEBAQQBBQEBAQEOAQEBAQEBEgEBFgEBAgEMAQEBAQ8BAQMBFgEBDgEBBQEPAQETAQECAQMOAgUBCgIBGQEBAQEIAQMBBwEBAwECEwgBAQcLAQUBFwEBAQEDAQEBBwEBBAEBDg0BAQwBAQEDAQQBAQEDBAEBBAEBAQEBEAEPAQgBAQsBAQ4BEQEMAgEBBwEOAQEHAQEBAQQBBAEDCwECAQEBAwEBBggBAgEBAREBBQMKAQEBAwQCEQEBHgEPAQIBAQYEAQYBAwEUAQUMAQEBAQEBAQECAQEBAgEIAwEBBgsBAgEODAMBAgEBCwEBAQEBAwECAQECAQEBBwgPAQ=="
-    }
-  ]
-};
-
-// https://deno.land/std@0.196.0/assert/assertion_error.ts
-var AssertionError = class extends Error {
-  name = "AssertionError";
-  constructor(message) {
-    super(message);
-  }
-};
-
-// https://deno.land/std@0.196.0/assert/assert.ts
-function assert(expr, msg = "") {
-  if (!expr) {
-    throw new AssertionError(msg);
-  }
-}
-
-// https://deno.land/std@0.196.0/console/_rle.ts
+// subrepos/cliffy/table/_rle.js
 function runLengthDecode({ d: d5, r: r9 }) {
-  const data = atob(d5);
+  const data2 = atob(d5);
   const runLengths = atob(r9);
   let out = "";
   for (const [i9, ch] of [...runLengths].entries()) {
-    out += data[i9].repeat(ch.codePointAt(0));
+    out += data2[i9].repeat(ch.codePointAt(0));
   }
   return Uint8Array.from([...out].map((x6) => x6.codePointAt(0)));
 }
 
-// https://deno.land/std@0.196.0/console/unicode_width.ts
+// subrepos/cliffy/table/unicode_width.ts
+var data = {
+  "UNICODE_VERSION": "15.0.0",
+  "tables": [
+    {
+      "d": "AAECAwQFBgcICQoLDA0OAw8DDwkQCRESERIA",
+      "r": "AQEBAgEBAQEBAQEBAQEBBwEHAVABBwcBBwF4"
+    },
+    {
+      "d": "AAECAwQFBgcGCAYJCgsMDQ4PEAYREhMUBhUWFxgZGhscHR4fICEiIyIkJSYnKCkqJSssLS4vMDEyMzQ1Njc4OToGOzwKBj0GPj9AQUIGQwZEBkVGR0hJSktMTQZOBgoGT1BRUlNUVVZXWFkGWgZbBlxdXl1fYGFiY2RlZmdoBmlqBmsGAQZsBm1uO29wcXI7czt0dXZ3OwY7eHkGent8Bn0Gfn+AgYKDhIWGBoc7iAZdO4kGiosGAXGMBo0GjgaPBpAGkQaSBpMGlJUGlpcGmJmam5ydnp+gLgahLKIGo6SlpganqKmqqwasBq0Grq8GsLGyswa0BrUGtre4Brm6uwZHvAa9vga/wME7wjvDxAbFO8bHO8gGyQbKywbMzQbOBs/Q0QbSBr8GvgbT1AbUBtUG1gbXBtjZ2tsG3N0G3t/g4eLjO+Tl5ufoO+k76gbrBuztOwbu7/AGO+XxCgYKCwZd8g==",
+      "r": "AQEBAQEBAQEBAQEBAQEBAQEBAQMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECBQEOAQEBAQEBAQEBAwEBAQEBAQEBAQIBAwEIAQEBAQEBAQEBAQEBAQIBAQEBAQEBAQEBAQEBAQEBDQEBBQEBAQEBAgEBAwEBAQEBAQEBAQEBbQHaAQEFAQEBBAECAQEBAQEBAQEBAwGuASFkCAELAQEBAQEBAQEHAQMBAQEaAQIBCAEFAQEBAQEBAQEBAQEBAQEBAQEBAQECAQEBAQIBAQEBAQEBAwEDAQEBAQEBAQUBAQEBAQEBBAEBAVIBAdkBARABAQFfARMBAYoBBAEBBQEmAUkBAQcBAQIBHgEBARUBAQEBAQUBAQcBDwEBARoBAgEBAQEBAQECAQEBAQEBAQEBAQEBAQEBAQMBBAEBAgEBAQEUfwEBAQIDAXj/AQ=="
+    },
+    {
+      "d": "AFUVAF3Xd3X/93//VXVVV9VX9V91f1/31X93XVXdVdVV9dVV/VVX1X9X/131VfXVVXV3V1VdVV1V1/1dV1X/3VUAVf3/3/9fVf3/3/9fVV1V/11VFQBQVQEAEEEQVQBQVQBAVFUVAFVUVQUAEAAUBFBVFVFVAEBVBQBUVRUAVVFVBRAAAVBVAVVQVQBVBQBAVUVUAQBUUQEAVQVVUVVUAVRVUVUFVUVBVVRBFRRQUVVQUVUBEFRRVQVVBQBRVRQBVFVRVUFVBVVFVVRVUVVUVQRUBQRQVUFVBVVFVVBVBVVQVRVUAVRVUVUFVVFVRVUFRFVRAEBVFQBAVVEAVFUAQFVQVRFRVQEAQAAEVQEAAQBUVUVVAQQAQVVQBVRVAVRVRUFVUVVRVaoAVQFVBVRVBVUFVQVVEABQVUUBAFVRVRUAVUFVUVVAFVRVRVUBVRUUVUUAQEQBAFQVABRVAEBVAFUEQFRFVRUAVVBVBVAQUFVFUBFQVQAFVUAABABUUVVUUFUVANd/X3//BUD3XdV1VQAEAFVXVdX9V1VXVQBUVdVdVdV1VX111VXVV9V//1X/X1VdVf9fVV9VdVdV1VX31dfVXXX9193/d1X/VV9VV3VVX//1VfVVXVVdVdVVdVWlVWlVqVaWVf/f/1X/Vf/1X1Xf/19V9VVf9df1X1X1X1XVVWlVfV31VVpVd1V3VapV33/fVZVVlVX1WVWlVelV+v/v//7/31Xv/6/77/tVWaVVVlVdVWaVmlX1/1WpVVZVlVWVVlVW+V9VFVBVAKqaqlWqWlWqVaoKoKpqqapqgapVqaqpqmqqVapqqv+qVqpqVRVAAFBVBVVQVUUVVUFVVFVQVQBQVRVVBQBQVRUAUFWqVkBVFQVQVVFVAUBBVRVVVFVUVQQUVAVRVVBVRVVRVFFVqlVFVQCqWlUAqmqqaqpVqlZVqmpVAV1VUVVUVQVAVQFBVQBVQBVVQVUAVRVUVQFVBQBUVQVQVVFVAEBVFFRVFVBVFUBBUUVVUVVAVRUAAQBUVRVVUFUFAEBVARRVFVAEVUVVFQBAVVRVBQBUAFRVAAVEVUVVFQBEFQRVBVBVEFRVUFUVAEARVFUVUQAQVQEFEABVFQBBVRVEFVUABVVUVQEAQFUVABRAVRVVAUABVQUAQFBVAEAAEFUFAAUABEFVAUBFEAAQVVARVRVUVVBVBUBVRFVUFQBQVQBUVQBAVRVVFUBVqlRVWlWqVapaVapWVaqpqmmqalVlVWpZVapVqlVBAFUAUABAVRVQVRUAQAEAVQVQVQVUVQBAFQBUVVFVVFUVAAEAVQBAABQAEARAVUVVAFUAQFUAQFVWVZVV/39V/1//X1X/76uq6v9XVWpVqlWqVlVaVapaVapWVamqmqqmqlWqapWqVapWqmqmqpaqWlWVaqpVZVVpVVZVlapVqlpVVmqpVapVlVZVqlZVqlVWVapqqpqqVapWqlZVqpqqWlWlqlWqVlWqVlVRVQD/Xw==",
+      "r": "CBcBCAEBAQEBAQEBAQECAQEBAQEBAQEBAQEBAQMBAQECAQEBAQEBAQEBAQEBBAEBGAEDAQwBAwEIAQEBAQEBAQgcCAEDAQEBAQEDAQEBDQEDEAELAQEBEQEKAQEBDgEBAgIBAQoBBQQBCAEBAQEBAQEHAQEHBgEWAQIBDQECAgEFAQECAgEKAQ0BAQIKAQ0BDQEBAQEBAQEBAgEHAQ4BAQEBAQQBBgEBDgEBAQEBAQcBAQIBAQEBBAEFAQEBDgEBAQEBAQECAQcBDwECAQwCDQEBAQEBAQECAQgBAQEEAQcBDQEBAQEBAQQBBwERAQEBARYBAQECAQEBGAECAQIBARIBBgEBDQECAQEBAQECAQgBAQEZAQEBAgYBAQEDAQECAQEBAQMBCBgIBwEMAQEGAQcBBwEQAQEBAQEBAgIBCgEBDQEIAQ0BAQEBAQEBBgEBDgEBAQEBAQEBAgEMBwEMAQwBAQEBCQECAwEHAQEBAQ0BAQEBDgIBBgEDAQEBAQEBAQMBAQEBAgEBAQEBAQEBCAEBAgEBAQEBAQkBCAgBAwECAQEBAgEBAQkBAQEBAwECAQMBAQIBBwEFAQEDAQYBAQEBAgEBAQEBAQEBAQECAgEDAQECBAIDAgIBBQEEAQEBAwEPAQEBCyIBCAEJAwQBAQIBAQEBAgECAQEBAQMBAQEBAwEBAQEBAQEBAQgBAQMDAgEBAwEEAQIBAQEBBAEBAQEBAQECAQEBAQEBAQEBAQEHAQQBAwEBAQcBAgUBBgECAQYBAQwBAQEUAQELCAYBFgMFAQYDAQoBAQMBARQBAQkBAQoBBgEVAwsBCgIPAQ0BGQEBAgEHARQBAwIBBgEBAQUBBgQBAgEJAQEBBQECAQMHAQELAQECCQEQAQECAgECAQsBDAEBAQEBCgEBAQsBAQEECQ4BCAQCAQEECAEEAQEFCAEPAQEEAQEPAQgBFAEBAQEBAQEKAQEJAQ8BEAEBEwEBAQIBCwEBDgENAwEKAQEBAQELAQEBAQECAQwBCAEBAQEBDgEDAQwBAQECAQEXAQEBAQEHAgEBBQEIAQEBAQEQAgEBBQEUAQEBAQEbAQEBAQEGARQBAQEBARkBAQEBCQEBAQEQAQIBDwEBARQBAQEBBwEBAQkBAQEBAQECAQEBCwECAQEVAQEBAQQBBQEBAQEOAQEBAQEBEgEBFgEBAgEMAQEBAQ8BAQMBFgEBDgEBBQEPAQETAQECAQMOAgUBCgIBGQEBAQEIAQMBBwEBAwECEwgBAQcLAQUBFwEBAQEDAQEBBwEBBAEBDg0BAQwBAQEDAQQBAQEDBAEBBAEBAQEBEAEPAQgBAQsBAQ4BEQEMAgEBBwEOAQEHAQEBAQQBBAEDCwECAQEBAwEBBggBAgEBAREBBQMKAQEBAwQCEQEBHgEPAQIBAQYEAQYBAwEUAQUMAQEBAQEBAQECAQEBAgEIAwEBBgsBAgEODAMBAgEBCwEBAQEBAwECAQECAQEBBwgPAQ=="
+    }
+  ]
+};
 var tables = null;
 function lookupWidth(cp) {
   if (!tables)
-    tables = data_default.tables.map(runLengthDecode);
+    tables = data.tables.map(runLengthDecode);
   const t1Offset = tables[0][cp >> 13 & 255];
   const t2Offset = tables[1][128 * t1Offset + (cp >> 6 & 127)];
   const packedWidths = tables[2][16 * t2Offset + (cp >> 2 & 15)];
@@ -1818,7 +1998,7 @@ function unicodeWidth(str2) {
   return [...str2].map((ch) => charWidth(ch) ?? 0).reduce((a5, b2) => a5 + b2, 0);
 }
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/table/_utils.ts
+// subrepos/cliffy/table/_utils.ts
 function longest(index, rows, maxWidth) {
   const cellLengths = rows.map((row) => {
     const cell = row[index];
@@ -1833,8 +2013,35 @@ function longest(index, rows, maxWidth) {
 var strLength = (str2) => {
   return unicodeWidth(stripColor2(str2));
 };
+var ansiRegexSource = (
+  // deno-lint-ignore no-control-regex
+  /\x1b\[(?:(?<_0>0)|(?<_22>1|2|22)|(?<_23>3|23)|(?<_24>4|24)|(?<_27>7|27)|(?<_28>8|28)|(?<_29>9|29)|(?<_39>30|31|32|33|34|35|36|37|38;2;\d+;\d+;\d+|38;5;\d+|39|90|91|92|93|94|95|96|97)|(?<_49>40|41|42|43|44|45|46|47|48;2;\d+;\d+;\d+|48;5;\d+|49|100|101|102|103|104|105|106|107))m/.source
+);
+function getUnclosedAnsiRuns(text) {
+  const tokens = [];
+  for (const { groups } of text.matchAll(new RegExp(ansiRegexSource, "g"))) {
+    const [_kind, content] = Object.entries(groups).find(([_3, val]) => val);
+    tokens.push({ kind: _kind.slice(1), content });
+  }
+  let unclosed = [];
+  for (const token of tokens) {
+    unclosed = [...unclosed.filter((y8) => y8.kind !== token.kind), token];
+  }
+  unclosed = unclosed.filter(({ content, kind }) => content !== kind);
+  const currentSuffix = unclosed.map(({ kind }) => `\x1B[${kind}m`).reverse().join("");
+  const nextPrefix = unclosed.map(({ content }) => `\x1B[${content}m`).join("");
+  return {
+    /** The suffix to be appended to the text to close all unclosed runs. */
+    currentSuffix,
+    /**
+     * The prefix to be appended to the next segment to continue unclosed
+     * runs if the input text forms the first segment of a multi-line string.
+     */
+    nextPrefix
+  };
+}
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/table/consume_words.ts
+// subrepos/cliffy/table/consume_words.ts
 function consumeWords(length, content) {
   let consumed = "";
   const words = content.split("\n")[0]?.split(/ /g);
@@ -1851,8 +2058,27 @@ function consumeWords(length, content) {
   }
   return consumed;
 }
+function consumeChars(length, content) {
+  let consumed = "";
+  const chars = [
+    ...content.split("\n")[0].matchAll(
+      new RegExp(`(?:${ansiRegexSource})+|.`, "gu")
+    )
+  ].map(([match]) => match);
+  for (const char of chars) {
+    if (consumed) {
+      const nextLength = strLength(char);
+      const consumedLength = strLength(consumed);
+      if (consumedLength + nextLength > length) {
+        break;
+      }
+    }
+    consumed += char;
+  }
+  return consumed;
+}
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/table/row.ts
+// subrepos/cliffy/table/row.ts
 var Row = class _Row extends Array {
   options = {};
   /**
@@ -1920,7 +2146,7 @@ var Row = class _Row extends Array {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/table/_layout.ts
+// subrepos/cliffy/table/_layout.ts
 var TableLayout = class {
   /**
    * Table layout constructor.
@@ -2194,7 +2420,7 @@ var TableLayout = class {
       }
     }
     const { current: current2, next: next3 } = this.renderCellValue(cell, maxLength2);
-    row[colIndex].setValue(next3.getValue());
+    row[colIndex].setValue(next3);
     if (opts.hasBorder) {
       result2 += " ".repeat(opts.padding[colIndex]);
     }
@@ -2218,9 +2444,13 @@ var TableLayout = class {
     let words = consumeWords(length, cell.toString());
     const breakWord = strLength(words) > length;
     if (breakWord) {
-      words = words.slice(0, length);
+      words = consumeChars(length, words);
     }
     const next3 = cell.toString().slice(words.length + (breakWord ? 0 : 1));
+    words = cell.unclosedAnsiRuns + words;
+    const { currentSuffix, nextPrefix } = getUnclosedAnsiRuns(words);
+    words += currentSuffix;
+    cell.unclosedAnsiRuns = nextPrefix;
     const fillLength = maxLength2 - strLength(words);
     const align = cell.getAlign();
     let current2;
@@ -2235,10 +2465,7 @@ var TableLayout = class {
     } else {
       throw new Error("Unknown direction: " + align);
     }
-    return {
-      current: current2,
-      next: cell.clone(next3)
-    };
+    return { current: current2, next: next3 };
   }
   /**
    * Render border row.
@@ -2411,7 +2638,7 @@ var TableLayout = class {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/table/table.ts
+// subrepos/cliffy/table/table.ts
 var Table = class _Table extends Array {
   static _chars = { ...border };
   options = {
@@ -2679,7 +2906,7 @@ var Table = class _Table extends Array {
   }
 };
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/help/_help_generator.ts
+// subrepos/cliffy/command/help/_help_generator.ts
 var HelpGenerator = class _HelpGenerator {
   constructor(cmd, options = {}) {
     this.cmd = cmd;
@@ -2940,7 +3167,7 @@ function highlightArgumentDetails(arg, types = true) {
   return str2;
 }
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/upgrade/_check_version.ts
+// subrepos/cliffy/command/upgrade/_check_version.ts
 async function checkVersion(cmd) {
   const mainCommand = cmd.getMainCommand();
   const upgradeCommand = mainCommand.getCommand("upgrade");
@@ -2959,7 +3186,7 @@ function isUpgradeCommand(command2) {
   return command2 instanceof Command && "getLatestVersion" in command2;
 }
 
-// https://deno.land/x/cliffy@v1.0.0-rc.3/command/command.ts
+// subrepos/cliffy/command/command.ts
 var Command = class _Command {
   types = /* @__PURE__ */ new Map();
   rawArgs = [];
@@ -3570,14 +3797,14 @@ var Command = class _Command {
         await Promise.all(
           ctx.actions.map((action) => action.call(this, options, ...args2))
         );
-      }
-      if (ctx.standalone) {
-        return {
-          options,
-          args: args2,
-          cmd: this,
-          literal: this.literalArgs
-        };
+        if (ctx.standalone) {
+          return {
+            options,
+            args: args2,
+            cmd: this,
+            literal: this.literalArgs
+          };
+        }
       }
       return await this.execute(options, args2);
     } catch (error) {
@@ -4529,141 +4756,6 @@ function findFlag(flags) {
   }
   return flags[0];
 }
-
-// https://deno.land/x/good@1.7.1.1/flattened/async_function__class.js
-var AsyncFunction = class {
-};
-try {
-  AsyncFunction = eval("(async function(){}).constructor");
-} catch (err) {
-}
-
-// https://deno.land/x/good@1.7.1.1/flattened/empty_iterator.js
-var emptyIterator = /* @__PURE__ */ function* () {
-}();
-
-// https://deno.land/x/good@1.7.1.1/flattened/make_iterable.js
-var makeIterable = (object) => {
-  if (object == null) {
-    return emptyIterator;
-  }
-  if (object[Symbol.iterator] instanceof Function || object[Symbol.asyncIterator] instanceof Function) {
-    return object;
-  }
-  if (Object.getPrototypeOf(object).constructor == Object) {
-    return Object.entries(object);
-  }
-  return emptyIterator;
-};
-
-// https://deno.land/x/good@1.7.1.1/flattened/stop_symbol.js
-var stop = Symbol.for("iterationStop");
-
-// https://deno.land/x/good@1.7.1.1/flattened/iter.js
-var iter = (object) => {
-  const iterable = makeIterable(object);
-  if (iterable[Symbol.asyncIterator]) {
-    return iterable[Symbol.asyncIterator]();
-  } else {
-    return iterable[Symbol.iterator]();
-  }
-};
-
-// https://deno.land/x/good@1.7.1.1/flattened/async_iterator_to_list.js
-async function asyncIteratorToList(asyncIterator) {
-  const results = [];
-  for await (const each2 of asyncIterator) {
-    results.push(each2);
-  }
-  return results;
-}
-
-// https://deno.land/x/good@1.7.1.1/flattened/zip.js
-var zip = function* (...iterables) {
-  iterables = iterables.map((each2) => iter(each2));
-  while (true) {
-    const nexts = iterables.map((each2) => each2.next());
-    if (nexts.every((each2) => each2.done)) {
-      break;
-    }
-    yield nexts.map((each2) => each2.value);
-  }
-};
-
-// https://deno.land/x/good@1.7.1.1/flattened/concurrently_transform.js
-var ERROR_WHILE_MAPPING_MESSAGE = "Threw while mapping";
-function concurrentlyTransform({ iterator, transformFunction, poolLimit = null, awaitAll = false }) {
-  poolLimit = poolLimit || concurrentlyTransform.defaultPoolLimit;
-  const res = new TransformStream({
-    async transform(p6, controller) {
-      try {
-        const s16 = await p6;
-        controller.enqueue(s16);
-      } catch (e6) {
-        if (e6 instanceof AggregateError && e6.message == ERROR_WHILE_MAPPING_MESSAGE) {
-          controller.error(e6);
-        }
-      }
-    }
-  });
-  const mainPromise = (async () => {
-    const writer = res.writable.getWriter();
-    const executing = [];
-    try {
-      let index = 0;
-      for await (const item of iterator) {
-        const p6 = Promise.resolve().then(() => transformFunction(item, index));
-        index++;
-        writer.write(p6);
-        const e6 = p6.then(() => executing.splice(executing.indexOf(e6), 1));
-        executing.push(e6);
-        if (executing.length >= poolLimit) {
-          await Promise.race(executing);
-        }
-      }
-      await Promise.all(executing);
-      writer.close();
-    } catch {
-      const errors2 = [];
-      for (const result2 of await Promise.allSettled(executing)) {
-        if (result2.status == "rejected") {
-          errors2.push(result2.reason);
-        }
-      }
-      writer.write(Promise.reject(new AggregateError(errors2, ERROR_WHILE_MAPPING_MESSAGE))).catch(() => {
-      });
-    }
-  })();
-  const asyncIterator = res.readable[Symbol.asyncIterator]();
-  if (!awaitAll) {
-    return asyncIterator;
-  } else {
-    return mainPromise.then(() => asyncIteratorToList(asyncIterator));
-  }
-}
-concurrentlyTransform.defaultPoolLimit = 40;
-
-// https://deno.land/x/good@1.7.1.1/array.js
-var zip2 = function(...iterables) {
-  return [...zip(...iterables)];
-};
-var NamedArray = class extends Array {
-  toJSON() {
-    return { ...this };
-  }
-  toString() {
-    return { ...this };
-  }
-  [Symbol.for("customInspect")]() {
-    return { ...this };
-  }
-  [Symbol.for("Deno.customInspect")]() {
-    return { ...this };
-  }
-  [Symbol.for("nodejs.util.inspect.custom")]() {
-    return { ...this };
-  }
-};
 
 // https://deno.land/x/quickr@0.7.4/main/operating_system.js
 var cache2 = {};
@@ -5706,7 +5798,7 @@ function asyncIteratorToList2(asyncIterator) {
 }
 
 // https://deno.land/x/good@1.14.3.0/flattened/enumerate.js
-var enumerate2 = function* (...iterables) {
+var enumerate3 = function* (...iterables) {
   let index = 0;
   for (const each2 of iterZipLongSync(...iterables)) {
     yield [index++, ...each2];
@@ -6434,7 +6526,7 @@ var DenoStdInternalError = class extends Error {
     this.name = "DenoStdInternalError";
   }
 };
-function assert2(expr, msg = "") {
+function assert(expr, msg = "") {
   if (!expr) {
     throw new DenoStdInternalError(msg);
   }
@@ -6678,7 +6770,7 @@ function join(...paths) {
     return ".";
   let needsReplace = true;
   let slashCount = 0;
-  assert2(firstPart != null);
+  assert(firstPart != null);
   if (isPathSeparator(firstPart.charCodeAt(0))) {
     ++slashCount;
     const firstLen = firstPart.length;
@@ -7693,7 +7785,7 @@ var DenoStdInternalError2 = class extends Error {
     this.name = "DenoStdInternalError";
   }
 };
-function assert3(expr, msg = "") {
+function assert2(expr, msg = "") {
   if (!expr) {
     throw new DenoStdInternalError2(msg);
   }
@@ -7937,7 +8029,7 @@ function join5(...paths) {
     return ".";
   let needsReplace = true;
   let slashCount = 0;
-  assert3(firstPart != null);
+  assert2(firstPart != null);
   if (isPathSeparator2(firstPart.charCodeAt(0))) {
     ++slashCount;
     const firstLen = firstPart.length;
@@ -8971,8 +9063,8 @@ async function copyFile(src, dest, options) {
   await Deno.copyFile(src, dest);
   if (options.preserveTimestamps) {
     const statInfo = await Deno.stat(src);
-    assert3(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
-    assert3(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    assert2(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert2(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
     await utime(dest, statInfo.atime, statInfo.mtime);
   }
 }
@@ -8981,8 +9073,8 @@ function copyFileSync(src, dest, options) {
   Deno.copyFileSync(src, dest);
   if (options.preserveTimestamps) {
     const statInfo = Deno.statSync(src);
-    assert3(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
-    assert3(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    assert2(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert2(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
     utimeSync(dest, statInfo.atime, statInfo.mtime);
   }
 }
@@ -8999,8 +9091,8 @@ async function copySymLink(src, dest, options) {
   }
   if (options.preserveTimestamps) {
     const statInfo = await Deno.lstat(src);
-    assert3(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
-    assert3(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    assert2(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert2(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
     await utime(dest, statInfo.atime, statInfo.mtime);
   }
 }
@@ -9017,8 +9109,8 @@ function copySymlinkSync(src, dest, options) {
   }
   if (options.preserveTimestamps) {
     const statInfo = Deno.lstatSync(src);
-    assert3(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
-    assert3(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    assert2(statInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert2(statInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
     utimeSync(dest, statInfo.atime, statInfo.mtime);
   }
 }
@@ -9032,8 +9124,8 @@ async function copyDir(src, dest, options) {
   }
   if (options.preserveTimestamps) {
     const srcStatInfo = await Deno.stat(src);
-    assert3(srcStatInfo.atime instanceof Date, `statInfo.atime is unavailable`);
-    assert3(srcStatInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    assert2(srcStatInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert2(srcStatInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
     await utime(dest, srcStatInfo.atime, srcStatInfo.mtime);
   }
   for await (const entry of Deno.readDir(src)) {
@@ -9058,12 +9150,12 @@ function copyDirSync(src, dest, options) {
   }
   if (options.preserveTimestamps) {
     const srcStatInfo = Deno.statSync(src);
-    assert3(srcStatInfo.atime instanceof Date, `statInfo.atime is unavailable`);
-    assert3(srcStatInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
+    assert2(srcStatInfo.atime instanceof Date, `statInfo.atime is unavailable`);
+    assert2(srcStatInfo.mtime instanceof Date, `statInfo.mtime is unavailable`);
     utimeSync(dest, srcStatInfo.atime, srcStatInfo.mtime);
   }
   for (const entry of Deno.readDirSync(src)) {
-    assert3(entry.name != null, "file.name must be set");
+    assert2(entry.name != null, "file.name must be set");
     const srcPath = join8(src, entry.name);
     const destPath = join8(dest, basename6(srcPath));
     if (entry.isSymlink) {
@@ -9387,7 +9479,7 @@ var DenoStdInternalError3 = class extends Error {
     this.name = "DenoStdInternalError";
   }
 };
-function assert5(expr, msg = "") {
+function assert4(expr, msg = "") {
   if (!expr) {
     throw new DenoStdInternalError3(msg);
   }
@@ -9468,7 +9560,7 @@ var BufReader = class _BufReader {
         this.#eof = true;
         return;
       }
-      assert5(rr >= 0, "negative read");
+      assert4(rr >= 0, "negative read");
       this.#w += rr;
       if (rr > 0) {
         return;
@@ -9503,7 +9595,7 @@ var BufReader = class _BufReader {
       if (p6.byteLength >= this.#buf.byteLength) {
         const rr2 = await this.#rd.read(p6);
         const nread = rr2 ?? 0;
-        assert5(nread >= 0, "negative read");
+        assert4(nread >= 0, "negative read");
         return rr2;
       }
       this.#r = 0;
@@ -9511,7 +9603,7 @@ var BufReader = class _BufReader {
       rr = await this.#rd.read(this.#buf);
       if (rr === 0 || rr === null)
         return rr;
-      assert5(rr >= 0, "negative read");
+      assert4(rr >= 0, "negative read");
       this.#w += rr;
     }
     const copied = copy2(this.#buf.subarray(this.#r, this.#w), p6, 0);
@@ -9613,7 +9705,7 @@ var BufReader = class _BufReader {
       let partial;
       if (err instanceof PartialReadError) {
         partial = err.partial;
-        assert5(
+        assert4(
           partial instanceof Uint8Array,
           "bufio: caught error from `readSlice()` without `partial` property"
         );
@@ -9623,7 +9715,7 @@ var BufReader = class _BufReader {
       }
       partial = err.partial;
       if (!this.#eof && partial && partial.byteLength > 0 && partial[partial.byteLength - 1] === CR) {
-        assert5(this.#r > 0, "bufio: tried to rewind past start of buffer");
+        assert4(this.#r > 0, "bufio: tried to rewind past start of buffer");
         this.#r--;
         partial = partial.subarray(0, partial.byteLength - 1);
       }
@@ -11715,7 +11807,7 @@ but existingItem didn't actually exist`);
   setPermissions(...args2) {
     return FileSystem.addPermissions(...args2);
   },
-  async write({ path: path9, data, force = true, overwrite = false, renameExtension = null }) {
+  async write({ path: path9, data: data2, force = true, overwrite = false, renameExtension = null }) {
     path9 = pathStandardize(path9);
     await grabPathLock(path9);
     if (force) {
@@ -11726,17 +11818,17 @@ but existingItem didn't actually exist`);
       }
     }
     let output;
-    if (typeof data == "string") {
-      output = await Deno.writeTextFile(path9, data);
-    } else if (typedArrayClasses.some((dataClass) => data instanceof dataClass)) {
-      output = await Deno.writeFile(path9, data);
-    } else if (isGeneratorObject(data) || data[Symbol.iterator] || data[Symbol.asyncIterator]) {
+    if (typeof data2 == "string") {
+      output = await Deno.writeTextFile(path9, data2);
+    } else if (typedArrayClasses.some((dataClass) => data2 instanceof dataClass)) {
+      output = await Deno.writeFile(path9, data2);
+    } else if (isGeneratorObject(data2) || data2[Symbol.iterator] || data2[Symbol.asyncIterator]) {
       const file = await Deno.open(path9, { read: true, write: true, create: true, truncate: true });
       const encoder3 = new TextEncoder();
       const encode2 = encoder3.encode.bind(encoder3);
       try {
         let index = 0;
-        for await (let packet of data) {
+        for await (let packet of data2) {
           if (typeof packet == "string") {
             packet = encode2(packet);
           }
@@ -11749,7 +11841,7 @@ but existingItem didn't actually exist`);
     delete locker[path9];
     return output;
   },
-  async append({ path: path9, data, force = true, overwrite = false, renameExtension = null }) {
+  async append({ path: path9, data: data2, force = true, overwrite = false, renameExtension = null }) {
     path9 = pathStandardize(path9);
     await grabPathLock(path9);
     if (force) {
@@ -11759,12 +11851,12 @@ but existingItem didn't actually exist`);
         FileSystem.sync.remove(path9);
       }
     }
-    if (typeof data == "string") {
-      data = new TextEncoder().encode(data);
+    if (typeof data2 == "string") {
+      data2 = new TextEncoder().encode(data2);
     }
     const file = Deno.openSync(path9, { read: true, write: true, create: true });
     file.seekSync(0, Deno.SeekMode.End);
-    file.writeSync(data);
+    file.writeSync(data2);
     file.close();
     delete locker[path9];
   },
@@ -12222,7 +12314,7 @@ but existingItem didn't actually exist`);
       Deno.mkdirSync(dirname3(originalPath), { recursive: true });
       return originalPath;
     },
-    append({ path: path9, data, force = true, overwrite = false, renameExtension = null }) {
+    append({ path: path9, data: data2, force = true, overwrite = false, renameExtension = null }) {
       path9 = pathStandardize(path9);
       if (force) {
         FileSystem.sync.ensureIsFolder(FileSystem.parentPath(path9), { overwrite, renameExtension });
@@ -12233,14 +12325,14 @@ but existingItem didn't actually exist`);
       }
       const file = Deno.openSync(path9, { read: true, write: true, create: true });
       file.seekSync(0, Deno.SeekMode.End);
-      if (typeof data == "string") {
-        file.writeSync(new TextEncoder().encode(data));
+      if (typeof data2 == "string") {
+        file.writeSync(new TextEncoder().encode(data2));
       } else {
-        file.writeSync(data);
+        file.writeSync(data2);
       }
       file.close();
     },
-    write({ path: path9, data, force = true, overwrite = false, renameExtension = null }) {
+    write({ path: path9, data: data2, force = true, overwrite = false, renameExtension = null }) {
       path9 = pathStandardize(path9);
       if (force) {
         FileSystem.sync.ensureIsFolder(FileSystem.parentPath(path9), { overwrite, renameExtension });
@@ -12250,17 +12342,17 @@ but existingItem didn't actually exist`);
         }
       }
       let output;
-      if (typeof data == "string") {
-        output = Deno.writeTextFileSync(path9, data);
-      } else if (typedArrayClasses.some((dataClass) => data instanceof dataClass)) {
-        output = Deno.writeFileSync(path9, data);
-      } else if (isGeneratorObject(data) || data[Symbol.iterator] || data[Symbol.asyncIterator]) {
+      if (typeof data2 == "string") {
+        output = Deno.writeTextFileSync(path9, data2);
+      } else if (typedArrayClasses.some((dataClass) => data2 instanceof dataClass)) {
+        output = Deno.writeFileSync(path9, data2);
+      } else if (isGeneratorObject(data2) || data2[Symbol.iterator] || data2[Symbol.asyncIterator]) {
         const file = Deno.openSync(path9, { read: true, write: true, create: true, truncate: true });
         const encoder3 = new TextEncoder();
         const encode2 = encoder3.encode.bind(encoder3);
         try {
           let index = 0;
-          for (let packet of data) {
+          for (let packet of data2) {
             if (typeof packet == "string") {
               packet = encode2(packet);
             }
@@ -12772,7 +12864,7 @@ var Buffer4 = class {
     return -1;
   }
   #reslice(len) {
-    assert2(len <= this.#buf.buffer.byteLength);
+    assert(len <= this.#buf.buffer.byteLength);
     this.#buf = new Uint8Array(this.#buf.buffer, 0, len);
   }
   /** Reads the next `p.length` bytes from the buffer or until the buffer is
@@ -13082,7 +13174,7 @@ var DenoStdInternalError4 = class extends Error {
     this.name = "DenoStdInternalError";
   }
 };
-function assert8(expr, msg = "") {
+function assert7(expr, msg = "") {
   if (!expr) {
     throw new DenoStdInternalError4(msg);
   }
@@ -13326,7 +13418,7 @@ function join11(...paths) {
     return ".";
   let needsReplace = true;
   let slashCount = 0;
-  assert8(firstPart != null);
+  assert7(firstPart != null);
   if (isPathSeparator4(firstPart.charCodeAt(0))) {
     ++slashCount;
     const firstLen = firstPart.length;
@@ -15181,7 +15273,7 @@ var Schema = class _Schema {
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type.ts
 var DEFAULT_RESOLVE = () => true;
-var DEFAULT_CONSTRUCT = (data) => data;
+var DEFAULT_CONSTRUCT = (data2) => data2;
 function checkTagFormat(tag) {
   return tag;
 }
@@ -15208,7 +15300,7 @@ var Type2 = class {
     }
   }
   resolve = () => true;
-  construct = (data) => data;
+  construct = (data2) => data2;
 };
 
 // https://deno.land/std@0.168.0/_util/asserts.ts
@@ -15218,7 +15310,7 @@ var DenoStdInternalError5 = class extends Error {
     this.name = "DenoStdInternalError";
   }
 };
-function assert9(expr, msg = "") {
+function assert8(expr, msg = "") {
   if (!expr) {
     throw new DenoStdInternalError5(msg);
   }
@@ -15303,7 +15395,7 @@ var Buffer5 = class {
     return -1;
   }
   #reslice(len) {
-    assert9(len <= this.#buf.buffer.byteLength);
+    assert8(len <= this.#buf.buffer.byteLength);
     this.#buf = new Uint8Array(this.#buf.buffer, 0, len);
   }
   /** Reads the next `p.length` bytes from the buffer or until the buffer is
@@ -15429,15 +15521,15 @@ var Buffer5 = class {
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/binary.ts
 var BASE64_MAP = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\n\r";
-function resolveYamlBinary(data) {
-  if (data === null)
+function resolveYamlBinary(data2) {
+  if (data2 === null)
     return false;
   let code3;
   let bitlen = 0;
-  const max = data.length;
+  const max = data2.length;
   const map2 = BASE64_MAP;
   for (let idx = 0; idx < max; idx++) {
-    code3 = map2.indexOf(data.charAt(idx));
+    code3 = map2.indexOf(data2.charAt(idx));
     if (code3 > 64)
       continue;
     if (code3 < 0)
@@ -15446,8 +15538,8 @@ function resolveYamlBinary(data) {
   }
   return bitlen % 8 === 0;
 }
-function constructYamlBinary(data) {
-  const input = data.replace(/[\r\n=]/g, "");
+function constructYamlBinary(data2) {
+  const input = data2.replace(/[\r\n=]/g, "");
   const max = input.length;
   const map2 = BASE64_MAP;
   const result2 = [];
@@ -15530,12 +15622,12 @@ var binary = new Type2("tag:yaml.org,2002:binary", {
 });
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/bool.ts
-function resolveYamlBoolean(data) {
-  const max = data.length;
-  return max === 4 && (data === "true" || data === "True" || data === "TRUE") || max === 5 && (data === "false" || data === "False" || data === "FALSE");
+function resolveYamlBoolean(data2) {
+  const max = data2.length;
+  return max === 4 && (data2 === "true" || data2 === "True" || data2 === "TRUE") || max === 5 && (data2 === "false" || data2 === "False" || data2 === "FALSE");
 }
-function constructYamlBoolean(data) {
-  return data === "true" || data === "True" || data === "TRUE";
+function constructYamlBoolean(data2) {
+  return data2 === "true" || data2 === "True" || data2 === "TRUE";
 }
 var bool = new Type2("tag:yaml.org,2002:bool", {
   construct: constructYamlBoolean,
@@ -15561,16 +15653,16 @@ var YAML_FLOAT_PATTERN = new RegExp(
   // 2.5e4, 2.5 and integers
   "^(?:[-+]?(?:0|[1-9][0-9_]*)(?:\\.[0-9_]*)?(?:[eE][-+]?[0-9]+)?|\\.[0-9_]+(?:[eE][-+]?[0-9]+)?|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*|[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$"
 );
-function resolveYamlFloat(data) {
-  if (!YAML_FLOAT_PATTERN.test(data) || // Quick hack to not allow integers end with `_`
+function resolveYamlFloat(data2) {
+  if (!YAML_FLOAT_PATTERN.test(data2) || // Quick hack to not allow integers end with `_`
   // Probably should update regexp & check speed
-  data[data.length - 1] === "_") {
+  data2[data2.length - 1] === "_") {
     return false;
   }
   return true;
 }
-function constructYamlFloat(data) {
-  let value = data.replace(/_/g, "").toLowerCase();
+function constructYamlFloat(data2) {
+  let value = data2.replace(/_/g, "").toLowerCase();
   const sign = value[0] === "-" ? -1 : 1;
   const digits = [];
   if ("+-".indexOf(value[0]) >= 0) {
@@ -15653,19 +15745,19 @@ function reconstructFunction(code3) {
 }
 var func = new Type2("tag:yaml.org,2002:js/function", {
   kind: "scalar",
-  resolve(data) {
-    if (data === null) {
+  resolve(data2) {
+    if (data2 === null) {
       return false;
     }
     try {
-      reconstructFunction(`${data}`);
+      reconstructFunction(`${data2}`);
       return true;
     } catch (_err) {
       return false;
     }
   },
-  construct(data) {
-    return reconstructFunction(data);
+  construct(data2) {
+    return reconstructFunction(data2);
   },
   predicate(object) {
     return object instanceof Function;
@@ -15690,24 +15782,24 @@ function isDecCode(c11) {
   return 48 <= /* 0 */
   c11 && c11 <= 57;
 }
-function resolveYamlInteger(data) {
-  const max = data.length;
+function resolveYamlInteger(data2) {
+  const max = data2.length;
   let index = 0;
   let hasDigits = false;
   if (!max)
     return false;
-  let ch = data[index];
+  let ch = data2[index];
   if (ch === "-" || ch === "+") {
-    ch = data[++index];
+    ch = data2[++index];
   }
   if (ch === "0") {
     if (index + 1 === max)
       return true;
-    ch = data[++index];
+    ch = data2[++index];
     if (ch === "b") {
       index++;
       for (; index < max; index++) {
-        ch = data[index];
+        ch = data2[index];
         if (ch === "_")
           continue;
         if (ch !== "0" && ch !== "1")
@@ -15719,20 +15811,20 @@ function resolveYamlInteger(data) {
     if (ch === "x") {
       index++;
       for (; index < max; index++) {
-        ch = data[index];
+        ch = data2[index];
         if (ch === "_")
           continue;
-        if (!isHexCode(data.charCodeAt(index)))
+        if (!isHexCode(data2.charCodeAt(index)))
           return false;
         hasDigits = true;
       }
       return hasDigits && ch !== "_";
     }
     for (; index < max; index++) {
-      ch = data[index];
+      ch = data2[index];
       if (ch === "_")
         continue;
-      if (!isOctCode(data.charCodeAt(index)))
+      if (!isOctCode(data2.charCodeAt(index)))
         return false;
       hasDigits = true;
     }
@@ -15741,12 +15833,12 @@ function resolveYamlInteger(data) {
   if (ch === "_")
     return false;
   for (; index < max; index++) {
-    ch = data[index];
+    ch = data2[index];
     if (ch === "_")
       continue;
     if (ch === ":")
       break;
-    if (!isDecCode(data.charCodeAt(index))) {
+    if (!isDecCode(data2.charCodeAt(index))) {
       return false;
     }
     hasDigits = true;
@@ -15755,10 +15847,10 @@ function resolveYamlInteger(data) {
     return false;
   if (ch !== ":")
     return true;
-  return /^(:[0-5]?[0-9])+$/.test(data.slice(index));
+  return /^(:[0-5]?[0-9])+$/.test(data2.slice(index));
 }
-function constructYamlInteger(data) {
-  let value = data;
+function constructYamlInteger(data2) {
+  let value = data2;
   const digits = [];
   if (value.indexOf("_") !== -1) {
     value = value.replace(/_/g, "");
@@ -15827,15 +15919,15 @@ var int = new Type2("tag:yaml.org,2002:int", {
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/map.ts
 var map = new Type2("tag:yaml.org,2002:map", {
-  construct(data) {
-    return data !== null ? data : {};
+  construct(data2) {
+    return data2 !== null ? data2 : {};
   },
   kind: "mapping"
 });
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/merge.ts
-function resolveYamlMerge(data) {
-  return data === "<<" || data === null;
+function resolveYamlMerge(data2) {
+  return data2 === "<<" || data2 === null;
 }
 var merge = new Type2("tag:yaml.org,2002:merge", {
   kind: "scalar",
@@ -15843,9 +15935,9 @@ var merge = new Type2("tag:yaml.org,2002:merge", {
 });
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/nil.ts
-function resolveYamlNull(data) {
-  const max = data.length;
-  return max === 1 && data === "~" || max === 4 && (data === "null" || data === "Null" || data === "NULL");
+function resolveYamlNull(data2) {
+  const max = data2.length;
+  return max === 1 && data2 === "~" || max === 4 && (data2 === "null" || data2 === "Null" || data2 === "NULL");
 }
 function constructYamlNull() {
   return null;
@@ -15878,11 +15970,11 @@ var nil = new Type2("tag:yaml.org,2002:null", {
 // https://deno.land/std@0.168.0/encoding/_yaml/type/omap.ts
 var { hasOwn } = Object;
 var _toString = Object.prototype.toString;
-function resolveYamlOmap(data) {
+function resolveYamlOmap(data2) {
   const objectKeys = [];
   let pairKey = "";
   let pairHasKey = false;
-  for (const pair of data) {
+  for (const pair of data2) {
     pairHasKey = false;
     if (_toString.call(pair) !== "[object Object]")
       return false;
@@ -15903,8 +15995,8 @@ function resolveYamlOmap(data) {
   }
   return true;
 }
-function constructYamlOmap(data) {
-  return data !== null ? data : [];
+function constructYamlOmap(data2) {
+  return data2 !== null ? data2 : [];
 }
 var omap = new Type2("tag:yaml.org,2002:omap", {
   construct: constructYamlOmap,
@@ -15914,10 +16006,10 @@ var omap = new Type2("tag:yaml.org,2002:omap", {
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/pairs.ts
 var _toString2 = Object.prototype.toString;
-function resolveYamlPairs(data) {
-  const result2 = Array.from({ length: data.length });
-  for (let index = 0; index < data.length; index++) {
-    const pair = data[index];
+function resolveYamlPairs(data2) {
+  const result2 = Array.from({ length: data2.length });
+  for (let index = 0; index < data2.length; index++) {
+    const pair = data2[index];
     if (_toString2.call(pair) !== "[object Object]")
       return false;
     const keys = Object.keys(pair);
@@ -15927,12 +16019,12 @@ function resolveYamlPairs(data) {
   }
   return true;
 }
-function constructYamlPairs(data) {
-  if (data === null)
+function constructYamlPairs(data2) {
+  if (data2 === null)
     return [];
-  const result2 = Array.from({ length: data.length });
-  for (let index = 0; index < data.length; index += 1) {
-    const pair = data[index];
+  const result2 = Array.from({ length: data2.length });
+  for (let index = 0; index < data2.length; index += 1) {
+    const pair = data2[index];
     const keys = Object.keys(pair);
     result2[index] = [keys[0], pair[keys[0]]];
   }
@@ -15948,13 +16040,13 @@ var pairs = new Type2("tag:yaml.org,2002:pairs", {
 var REGEXP = /^\/(?<regexp>[\s\S]+)\/(?<modifiers>[gismuy]*)$/;
 var regexp = new Type2("tag:yaml.org,2002:js/regexp", {
   kind: "scalar",
-  resolve(data) {
-    if (data === null || !data.length) {
+  resolve(data2) {
+    if (data2 === null || !data2.length) {
       return false;
     }
-    const regexp2 = `${data}`;
+    const regexp2 = `${data2}`;
     if (regexp2.charAt(0) === "/") {
-      if (!REGEXP.test(data)) {
+      if (!REGEXP.test(data2)) {
         return false;
       }
       const modifiers = [...regexp2.match(REGEXP)?.groups?.modifiers ?? ""];
@@ -15964,8 +16056,8 @@ var regexp = new Type2("tag:yaml.org,2002:js/regexp", {
     }
     return true;
   },
-  construct(data) {
-    const { regexp: regexp2 = `${data}`, modifiers = "" } = `${data}`.match(REGEXP)?.groups ?? {};
+  construct(data2) {
+    const { regexp: regexp2 = `${data2}`, modifiers = "" } = `${data2}`.match(REGEXP)?.groups ?? {};
     return new RegExp(regexp2, modifiers);
   },
   predicate(object) {
@@ -15978,27 +16070,27 @@ var regexp = new Type2("tag:yaml.org,2002:js/regexp", {
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/seq.ts
 var seq = new Type2("tag:yaml.org,2002:seq", {
-  construct(data) {
-    return data !== null ? data : [];
+  construct(data2) {
+    return data2 !== null ? data2 : [];
   },
   kind: "sequence"
 });
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/set.ts
 var { hasOwn: hasOwn2 } = Object;
-function resolveYamlSet(data) {
-  if (data === null)
+function resolveYamlSet(data2) {
+  if (data2 === null)
     return true;
-  for (const key in data) {
-    if (hasOwn2(data, key)) {
-      if (data[key] !== null)
+  for (const key in data2) {
+    if (hasOwn2(data2, key)) {
+      if (data2[key] !== null)
         return false;
     }
   }
   return true;
 }
-function constructYamlSet(data) {
-  return data !== null ? data : {};
+function constructYamlSet(data2) {
+  return data2 !== null ? data2 : {};
 }
 var set = new Type2("tag:yaml.org,2002:set", {
   construct: constructYamlSet,
@@ -16008,8 +16100,8 @@ var set = new Type2("tag:yaml.org,2002:set", {
 
 // https://deno.land/std@0.168.0/encoding/_yaml/type/str.ts
 var str = new Type2("tag:yaml.org,2002:str", {
-  construct(data) {
-    return data !== null ? data : "";
+  construct(data2) {
+    return data2 !== null ? data2 : "";
   },
   kind: "scalar"
 });
@@ -16023,19 +16115,19 @@ var YAML_TIMESTAMP_REGEXP = new RegExp(
   "^([0-9][0-9][0-9][0-9])-([0-9][0-9]?)-([0-9][0-9]?)(?:[Tt]|[ \\t]+)([0-9][0-9]?):([0-9][0-9]):([0-9][0-9])(?:\\.([0-9]*))?(?:[ \\t]*(Z|([-+])([0-9][0-9]?)(?::([0-9][0-9]))?))?$"
   // [11] tz_minute
 );
-function resolveYamlTimestamp(data) {
-  if (data === null)
+function resolveYamlTimestamp(data2) {
+  if (data2 === null)
     return false;
-  if (YAML_DATE_REGEXP.exec(data) !== null)
+  if (YAML_DATE_REGEXP.exec(data2) !== null)
     return true;
-  if (YAML_TIMESTAMP_REGEXP.exec(data) !== null)
+  if (YAML_TIMESTAMP_REGEXP.exec(data2) !== null)
     return true;
   return false;
 }
-function constructYamlTimestamp(data) {
-  let match = YAML_DATE_REGEXP.exec(data);
+function constructYamlTimestamp(data2) {
+  let match = YAML_DATE_REGEXP.exec(data2);
   if (match === null)
-    match = YAML_TIMESTAMP_REGEXP.exec(data);
+    match = YAML_TIMESTAMP_REGEXP.exec(data2);
   if (match === null)
     throw new Error("Date resolve error");
   const year = +match[1];
@@ -16759,7 +16851,7 @@ function stringify(obj, options) {
 }
 
 // tools/version.js
-var version2 = "1.4.31";
+var version2 = "1.4.32";
 
 // subrepos/cliffy/ansi/ansi_escapes.ts
 var ansi_escapes_exports = {};
@@ -16861,8 +16953,8 @@ var base64abc = [
   "+",
   "/"
 ];
-function encode(data) {
-  const uint8 = typeof data === "string" ? new TextEncoder().encode(data) : data instanceof Uint8Array ? data : new Uint8Array(data);
+function encode(data2) {
+  const uint8 = typeof data2 === "string" ? new TextEncoder().encode(data2) : data2 instanceof Uint8Array ? data2 : new Uint8Array(data2);
   let result2 = "", i9;
   const l9 = uint8.length;
   for (i9 = 2; i9 < l9; i9 += 3) {
@@ -16998,12 +17090,12 @@ function getCursorPosition({
   reader = Deno.stdin,
   writer = Deno.stdout
 } = {}) {
-  const data = new Uint8Array(8);
+  const data2 = new Uint8Array(8);
   reader.setRaw(true);
   writer.writeSync(encoder.encode(cursorPosition));
-  reader.readSync(data);
+  reader.readSync(data2);
   reader.setRaw(false);
-  const [y8, x6] = decoder2.decode(data).match(/\[(\d+);(\d+)R/)?.slice(1, 3).map(Number) ?? [0, 0];
+  const [y8, x6] = decoder2.decode(data2).match(/\[(\d+);(\d+)R/)?.slice(1, 3).map(Number) ?? [0, 0];
   return { x: x6, y: y8 };
 }
 
@@ -17164,10 +17256,10 @@ var SpecialKeyMap = {
 // subrepos/cliffy/keycode/key_code.ts
 var kUTF16SurrogateThreshold = 65536;
 var kEscape = "\x1B";
-function parse11(data) {
+function parse11(data2) {
   let index = -1;
   const keys = [];
-  const input = data instanceof Uint8Array ? new TextDecoder().decode(data) : data;
+  const input = data2 instanceof Uint8Array ? new TextDecoder().decode(data2) : data2;
   const hasNext = () => input.length - 1 >= index + 1;
   const next3 = () => input[++index];
   parseNext();
@@ -17481,6 +17573,21 @@ function stripSuffix(name, suffix) {
   return name.slice(0, -suffix.length);
 }
 
+// https://deno.land/std@0.196.0/assert/assertion_error.ts
+var AssertionError2 = class extends Error {
+  name = "AssertionError";
+  constructor(message) {
+    super(message);
+  }
+};
+
+// https://deno.land/std@0.196.0/assert/assert.ts
+function assert9(expr, msg = "") {
+  if (!expr) {
+    throw new AssertionError2(msg);
+  }
+}
+
 // https://deno.land/std@0.196.0/path/win32.ts
 var sep10 = "\\";
 var delimiter10 = ";";
@@ -17719,7 +17826,7 @@ function join15(...paths) {
     return ".";
   let needsReplace = true;
   let slashCount = 0;
-  assert(firstPart != null);
+  assert9(firstPart != null);
   if (isPathSeparator5(firstPart.charCodeAt(0))) {
     ++slashCount;
     const firstLen = firstPart.length;
@@ -18727,8 +18834,8 @@ var GenericPrompt = class _GenericPrompt {
   }
   /** Read user input from stdin and pars ansi codes. */
   #readKey = async () => {
-    const data = await this.#readChar();
-    return data.length ? parse11(data) : [];
+    const data2 = await this.#readChar();
+    return data2.length ? parse11(data2) : [];
   };
   /** Read user input from stdin. */
   #readChar = async () => {
@@ -18896,88 +19003,6 @@ var GenericInput = class extends GenericPrompt {
   }
 };
 
-// tools/misc.js
-var versionToList = (version3) => `${version3}`.split(".").map((each2) => each2.split(/(?<=\d)(?=\D)|(?<=\D)(?=\d)/)).flat(1).map((each2) => each2.match(/^\d+$/) ? each2 - 0 : each2);
-var versionCompare = (a5, b2) => {
-  for (let [numberForA, numberForB] of zip2(versionToList(a5), versionToList(b2))) {
-    if (numberForA != numberForB) {
-      if (typeof numberForB == "number" && typeof numberForB == "number") {
-        return numberForB - numberForA;
-      } else if (typeof numberForB == "number") {
-        return numberForB;
-      } else if (typeof numberForA == "number") {
-        return -numberForA;
-      } else {
-        return `${numberForB}`.localeCompare(numberForA);
-      }
-    }
-  }
-  return 0;
-};
-var versionSort = ({ array, elementToVersion }) => {
-  return [...array].sort((a5, b2) => versionCompare(elementToVersion(a5), elementToVersion(b2)));
-};
-var clearScreen3 = () => console.log("\x1B[2J");
-var executeConversation = (conversationArray) => {
-  for (const each2 of conversationArray) {
-    if (each2.clearScreen) {
-      clearScreen3();
-    }
-    if (each2.text) {
-      if (each2.text instanceof Array) {
-        console.log(each2.text.join("\n"));
-      } else {
-        console.log(each2.text);
-      }
-    }
-    if (each2.prompt) {
-      prompt(each2.prompt);
-    }
-  }
-};
-
-// subrepos/cliffy/_utils/distance.ts
-var versionPattern = /^\d+(\.\d+)*/;
-function distance2(a5, b2) {
-  if (a5.match(versionPattern) && b2.match(versionPattern)) {
-    return versionCompare(a5, b2);
-  }
-  let aFlakeIndex = a5.indexOf("\u2744\uFE0F");
-  if (aFlakeIndex != -1) {
-    a5 = a5.slice(0, aFlakeIndex - 1);
-  }
-  let bFlakeIndex = b2.indexOf("\u2744\uFE0F");
-  if (bFlakeIndex != -1) {
-    b2 = b2.slice(0, bFlakeIndex - 1);
-  }
-  if (a5.length == 0) {
-    return b2.length;
-  }
-  if (b2.length == 0) {
-    return a5.length;
-  }
-  const matrix = [];
-  for (let i9 = 0; i9 <= b2.length; i9++) {
-    matrix[i9] = [i9];
-  }
-  for (let j4 = 0; j4 <= a5.length; j4++) {
-    matrix[0][j4] = j4;
-  }
-  for (let i9 = 1; i9 <= b2.length; i9++) {
-    for (let j4 = 1; j4 <= a5.length; j4++) {
-      if (b2.charAt(i9 - 1) == a5.charAt(j4 - 1)) {
-        matrix[i9][j4] = matrix[i9 - 1][j4 - 1];
-      } else {
-        matrix[i9][j4] = Math.min(
-          matrix[i9 - 1][j4 - 1] + 1,
-          Math.min(matrix[i9][j4 - 1] + 1, matrix[i9 - 1][j4] + 1)
-        );
-      }
-    }
-  }
-  return matrix[b2.length][a5.length];
-}
-
 // subrepos/cliffy/prompt/_generic_suggestions.ts
 var sep12 = Deno.build.os === "windows" ? "\\" : "/";
 var selectedWithArrowKeys;
@@ -19092,7 +19117,7 @@ var GenericSuggestions = class extends GenericInput {
     return suggestions.filter(
       (value) => stripColor2(value.toString()).toLowerCase().startsWith(input.toLowerCase())
     ).sort(
-      (a5, b2) => distance2((a5 || a5).toString(), input) - distance2((b2 || b2).toString(), input)
+      (a5, b2) => distance((a5 || a5).toString(), input) - distance((b2 || b2).toString(), input)
     );
   }
   body() {
@@ -19458,7 +19483,7 @@ function selectOne({ message, showList, showInfo, options, optionDescriptions, a
       optionStrings = optionStrings.filter(
         (value) => stripColor2(value.toString()).toLowerCase().startsWith(answer)
       ).sort(
-        (a5, b2) => distance2((a5 || a5).toString(), answer) - distance2((b2 || b2).toString(), answer)
+        (a5, b2) => distance((a5 || a5).toString(), answer) - distance((b2 || b2).toString(), answer)
       );
       return options[optionStrings[0]];
     }
@@ -20433,14 +20458,14 @@ Node.prototype.DOCUMENT_FRAGMENT_NODE = 11 /* DOCUMENT_FRAGMENT_NODE */;
 Node.prototype.NOTATION_NODE = 12 /* NOTATION_NODE */;
 var CharacterData = class extends Node {
   #nodeValue = "";
-  constructor(data, nodeName, nodeType, parentNode, key) {
+  constructor(data2, nodeName, nodeType, parentNode, key) {
     super(
       nodeName,
       nodeType,
       parentNode,
       key
     );
-    this.#nodeValue = data;
+    this.#nodeValue = data2;
   }
   get nodeValue() {
     return this.#nodeValue;
@@ -24240,11 +24265,11 @@ var Document2 = class _Document extends Node {
       );
     }
   }
-  createTextNode(data) {
-    return new Text2(data);
+  createTextNode(data2) {
+    return new Text2(data2);
   }
-  createComment(data) {
-    return new Comment2(data);
+  createComment(data2) {
+    return new Comment2(data2);
   }
   createDocumentFragment() {
     const fragment = new DocumentFragment2();
@@ -24357,9 +24382,9 @@ function fragmentNodesFromString(html, contextLocalName) {
   const node = nodeFromArray(parsed, null);
   return node;
 }
-function nodeFromArray(data, parentNode) {
-  if (data[1] === "template") {
-    const content = nodeFromArray(data[3], null);
+function nodeFromArray(data2, parentNode) {
+  if (data2[1] === "template") {
+    const content = nodeFromArray(data2[3], null);
     const contentFrag = new DocumentFragment2();
     const fragMutator = contentFrag._getChildNodesMutator();
     for (const child of content.childNodes) {
@@ -24368,15 +24393,15 @@ function nodeFromArray(data, parentNode) {
     }
     return new HTMLTemplateElement(
       parentNode,
-      data[2],
+      data2[2],
       CTOR_KEY,
       contentFrag
     );
   }
-  const elm = new Element2(data[1], parentNode, data[2], CTOR_KEY);
+  const elm = new Element2(data2[1], parentNode, data2[2], CTOR_KEY);
   const childNodes = elm._getChildNodesMutator();
   let childNode;
-  for (const child of data.slice(3)) {
+  for (const child of data2.slice(3)) {
     switch (child[0]) {
       case 3 /* TEXT_NODE */:
         childNode = new Text2(child[1]);
@@ -205254,7 +205279,13 @@ var rikudoeSage = {
         } catch (error) {
         }
         if (!names) {
+          if (globalThis.debugMode) {
+            console.log("[source:rikudoeSage] Fetching package names...");
+          }
           names = await fetchData().then((listOfPackageNames) => {
+            if (globalThis.debugMode) {
+              console.log("[source:rikudoeSage] Fetching package names... resolved!");
+            }
             FileSystem.write({
               path: nameCachePath,
               data: "export default new Set(" + JSON.stringify(listOfPackageNames) + ")"
@@ -205302,8 +205333,17 @@ var rikudoeSage = {
     const url = `https://api.history.nix-packages.com/packages/${encodeURIComponent(attrPath)}`;
     let results;
     try {
+      if (globalThis.debugMode) {
+        console.log("[source:rikudoeSage] Fetching versions...");
+      }
       results = await fetch(url).then((result2) => result2.json());
+      if (globalThis.debugMode) {
+        console.log("[source:rikudoeSage] Fetching versions... resolved!");
+      }
     } catch (error) {
+      if (globalThis.debugMode) {
+        console.log("[source:rikudoeSage] Fetching versions... error ... " + String(error?.stack || error));
+      }
       return [];
     }
     return results.map(({ name, revision, version: version3 }) => {
@@ -205316,8 +205356,25 @@ var devbox = {
     try {
       var url = `https://www.nixhub.io/search?q=${encodeURIComponent(query)}&_data=routes%2F_nixhub.search`;
       try {
-        var response = await fetch(url).then((result2) => result2.json());
+        if (globalThis.debugMode) {
+          console.log("[source:devbox] Fetching package names...");
+        }
+        var response = await fetch(url).then((result2) => result2.text());
+        try {
+          response = JSON.parse(response);
+          if (globalThis.debugMode) {
+            console.log("[source:devbox] Fetching package names... resolved!");
+          }
+        } catch (error) {
+          if (globalThis.debugMode) {
+            console.debug(`[devbox] response is:`, response);
+          }
+          throw error;
+        }
       } catch (error) {
+        if (globalThis.debugMode) {
+          console.log("[source:devbox] Fetching package names...  error ... " + String(error?.stack || error));
+        }
         if (`${error}`.match(/^fetchingSyntaxError: Unexpected end of JSON input/)) {
           var response = await fetch(url).then((result2) => result2.text());
           if (globalThis.debugMode) {
@@ -205346,8 +205403,17 @@ var devbox = {
     const url = `https://www.nixhub.io/packages/${encodeURIComponent(attrPath)}`;
     let htmlResult;
     try {
+      if (globalThis.debugMode) {
+        console.log("[source:devbox] Fetching package versions...");
+      }
       htmlResult = await fetch(url).then((result2) => result2.text());
+      if (globalThis.debugMode) {
+        console.log("[source:devbox] Fetching package versions... resolved!");
+      }
     } catch (error) {
+      if (globalThis.debugMode) {
+        console.log("[source:devbox] Fetching package versions... error ... " + String(error?.stack || error));
+      }
       return [];
     }
     const document2 = new DOMParser().parseFromString(
@@ -205398,8 +205464,17 @@ var lazamar = {
     const url = `https://lazamar.co.uk/nix-versions/?channel=nixpkgs-unstable&package=${encodeURIComponent(query)}`;
     let htmlResult;
     try {
+      if (globalThis.debugMode) {
+        console.log("[source:lazamar] Fetching package names...");
+      }
       htmlResult = await fetch(url).then((result2) => result2.text());
+      if (globalThis.debugMode) {
+        console.log("[source:lazamar] Fetching package names... resolved!");
+      }
     } catch (error) {
+      if (globalThis.debugMode) {
+        console.log("[source:lazamar] Fetching package names... error ... " + String(error?.stack || error));
+      }
       return [];
     }
     const document2 = new DOMParser().parseFromString(
@@ -205569,7 +205644,7 @@ var determinateSystems = {
 
 // https://deno.land/x/good@1.14.3.0/array.js
 var enumerate5 = function(...iterables) {
-  return [...enumerate2(...iterables)];
+  return [...enumerate3(...iterables)];
 };
 var NamedArray2 = class extends Array {
   toJSON() {
@@ -211228,14 +211303,14 @@ var NamedArray3 = class extends Array {
   }
 };
 
-// https://esm.sh/gh/jeff-hykin/deno_nix_api@0961ac6/denonext/main.mjs
-var ut = Object.defineProperty;
-var ct = (t14, e6) => {
+// https://esm.sh/gh/jeff-hykin/deno_nix_api@272bb02/denonext/main.mjs
+var ct = Object.defineProperty;
+var gt = (t14, e6) => {
   for (var i9 in e6)
-    ut(t14, i9, { get: e6[i9], enumerable: true });
+    ct(t14, i9, { get: e6[i9], enumerable: true });
 };
 var ge = {};
-ct(ge, { bel: () => Q, clearScreen: () => vt, clearTerminal: () => Gt, cursorBackward: () => dt, cursorDown: () => ft, cursorForward: () => pt, cursorHide: () => yt, cursorLeft: () => Le, cursorMove: () => ht, cursorNextLine: () => mt, cursorPosition: () => ce, cursorPrevLine: () => xt, cursorRestore: () => Ot, cursorSave: () => Tt, cursorShow: () => bt, cursorTo: () => gt, cursorUp: () => Re, eraseDown: () => St, eraseLine: () => $e, eraseLineEnd: () => At, eraseLineStart: () => Vt, eraseLines: () => Pt, eraseScreen: () => ue, eraseUp: () => Ct, image: () => Rt, link: () => It, scrollDown: () => kt, scrollUp: () => wt });
+gt(ge, { bel: () => Q, clearScreen: () => Gt, clearTerminal: () => It, cursorBackward: () => mt, cursorDown: () => pt, cursorForward: () => dt, cursorHide: () => bt, cursorLeft: () => Le, cursorMove: () => ft, cursorNextLine: () => xt, cursorPosition: () => ce, cursorPrevLine: () => yt, cursorRestore: () => wt, cursorSave: () => Ot, cursorShow: () => Tt, cursorTo: () => ht, cursorUp: () => Re, eraseDown: () => At, eraseLine: () => $e, eraseLineEnd: () => Vt, eraseLineStart: () => Pt, eraseLines: () => vt, eraseScreen: () => ue, eraseUp: () => St, image: () => Lt, link: () => Rt, scrollDown: () => Ct, scrollUp: () => kt });
 var R6 = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"];
 function ae(t14) {
   let e6 = typeof t14 == "string" ? new TextEncoder().encode(t14) : t14 instanceof Uint8Array ? t14 : new Uint8Array(t14), i9 = "", s16, n9 = e6.length;
@@ -211249,73 +211324,73 @@ var le = `${X2}]`;
 var Y = ";";
 var Q = "\x07";
 var ce = `${m17}6n`;
-function gt(t14, e6) {
+function ht(t14, e6) {
   return typeof e6 != "number" ? `${m17}${t14}G` : `${m17}${e6};${t14}H`;
 }
-function ht(t14, e6) {
+function ft(t14, e6) {
   let i9 = "";
   return t14 < 0 ? i9 += `${m17}${-t14}D` : t14 > 0 && (i9 += `${m17}${t14}C`), e6 < 0 ? i9 += `${m17}${-e6}A` : e6 > 0 && (i9 += `${m17}${e6}B`), i9;
 }
 function Re(t14 = 1) {
   return `${m17}${t14}A`;
 }
-function ft(t14 = 1) {
+function pt(t14 = 1) {
   return `${m17}${t14}B`;
 }
-function pt(t14 = 1) {
+function dt(t14 = 1) {
   return `${m17}${t14}C`;
 }
-function dt(t14 = 1) {
+function mt(t14 = 1) {
   return `${m17}${t14}D`;
 }
-function mt(t14 = 1) {
+function xt(t14 = 1) {
   return `${m17}E`.repeat(t14);
 }
-function xt(t14 = 1) {
+function yt(t14 = 1) {
   return `${m17}F`.repeat(t14);
 }
 var Le = `${m17}G`;
-var yt = `${m17}?25l`;
-var bt = `${m17}?25h`;
-var Tt = `${X2}7`;
-var Ot = `${X2}8`;
-function wt(t14 = 1) {
+var bt = `${m17}?25l`;
+var Tt = `${m17}?25h`;
+var Ot = `${X2}7`;
+var wt = `${X2}8`;
+function kt(t14 = 1) {
   return `${m17}S`.repeat(t14);
 }
-function kt(t14 = 1) {
+function Ct(t14 = 1) {
   return `${m17}T`.repeat(t14);
 }
 var ue = `${m17}2J`;
-function Ct(t14 = 1) {
+function St(t14 = 1) {
   return `${m17}1J`.repeat(t14);
 }
-function St(t14 = 1) {
+function At(t14 = 1) {
   return `${m17}0J`.repeat(t14);
 }
 var $e = `${m17}2K`;
-var At = `${m17}0K`;
-var Vt = `${m17}1K`;
-function Pt(t14) {
+var Vt = `${m17}0K`;
+var Pt = `${m17}1K`;
+function vt(t14) {
   let e6 = "";
   for (let i9 = 0; i9 < t14; i9++)
     e6 += $e + (i9 < t14 - 1 ? Re() : "");
   return e6 += Le, e6;
 }
-var vt = "\x1Bc";
-var Gt = Deno.build.os === "windows" ? `${ue}${m17}0f` : `${ue}${m17}3J${m17}H`;
-function It(t14, e6) {
+var Gt = "\x1Bc";
+var It = Deno.build.os === "windows" ? `${ue}${m17}0f` : `${ue}${m17}3J${m17}H`;
+function Rt(t14, e6) {
   return [le, "8", Y, Y, e6, Q, t14, le, "8", Y, Y, Q].join("");
 }
-function Rt(t14, e6) {
+function Lt(t14, e6) {
   let i9 = `${le}1337;File=inline=1`;
   return e6?.width && (i9 += `;width=${e6.width}`), e6?.height && (i9 += `;height=${e6.height}`), e6?.preserveAspectRatio === false && (i9 += ";preserveAspectRatio=0"), i9 + ":" + ae(t14) + Q;
 }
-var Lt = new TextEncoder();
-var $t = new TextDecoder();
+var $t = new TextEncoder();
+var Et = new TextDecoder();
 function Ee({ reader: t14 = Deno.stdin, writer: e6 = Deno.stdout } = {}) {
   let i9 = new Uint8Array(8);
-  t14.setRaw(true), e6.writeSync(Lt.encode(ce)), t14.readSync(i9), t14.setRaw(false);
-  let [s16, n9] = $t.decode(i9).match(/\[(\d+);(\d+)R/)?.slice(1, 3).map(Number) ?? [0, 0];
+  t14.setRaw(true), e6.writeSync($t.encode(ce)), t14.readSync(i9), t14.setRaw(false);
+  let [s16, n9] = Et.decode(i9).match(/\[(\d+);(\d+)R/)?.slice(1, 3).map(Number) ?? [0, 0];
   return { x: n9, y: s16 };
 }
 var De = Be();
@@ -211341,7 +211416,7 @@ var he = { "[P": "f1", "[Q": "f2", "[R": "f3", "[S": "f4", OP: "f1", OQ: "f2", O
 var fe = { "[a": "up", "[b": "down", "[c": "right", "[d": "left", "[e": "clear", "[2$": "insert", "[3$": "delete", "[5$": "pageup", "[6$": "pagedown", "[7$": "home", "[8$": "end", "[Z": "tab" };
 var pe = { Oa: "up", Ob: "down", Oc: "right", Od: "left", Oe: "clear", "[2^": "insert", "[3^": "delete", "[5^": "pageup", "[6^": "pagedown", "[7^": "home", "[8^": "end" };
 var de = { "\r": "return", "\n": "enter", "	": "tab", "\b": "backspace", "\x7F": "backspace", "\x1B": "escape", " ": "space" };
-var Et = 65536;
+var Nt = 65536;
 var Ke = "\x1B";
 function ee(t14) {
   let e6 = -1, i9 = [], s16 = t14 instanceof Uint8Array ? new TextDecoder().decode(t14) : t14, n9 = () => s16.length - 1 >= e6 + 1, o8 = () => s16[++e6];
@@ -211362,25 +211437,25 @@ function ee(t14) {
       u7.ctrl = !!(h7 & 4), u7.meta = !!(h7 & 10), u7.shift = !!(h7 & 1), u7.code = g8, g8 in he ? u7.name = he[g8] : g8 in fe ? (u7.name = fe[g8], u7.shift = true) : g8 in pe ? (u7.name = pe[g8], u7.ctrl = true) : u7.name = "undefined";
     } else
       r9 in de ? (u7.name = de[r9], u7.meta = c11, u7.name === "space" && (u7.char = r9)) : !c11 && r9 <= "" ? (u7.name = String.fromCharCode(r9.charCodeAt(0) + 97 - 1), u7.ctrl = true, u7.char = u7.name) : /^[0-9A-Za-z]$/.test(r9) ? (u7.name = r9.toLowerCase(), u7.shift = /^[A-Z]$/.test(r9), u7.meta = c11, u7.char = r9) : c11 ? (u7.name = r9.length ? void 0 : "escape", u7.meta = true) : (u7.name = r9, u7.char = r9);
-    if (u7.sequence = l9, l9.length !== 0 && (u7.name !== void 0 || c11) || Nt(l9, 0) === l9.length)
+    if (u7.sequence = l9, l9.length !== 0 && (u7.name !== void 0 || c11) || Dt(l9, 0) === l9.length)
       i9.push(u7);
     else
       throw new Error("Unrecognized or broken escape sequence");
     n9() && a5();
   }
 }
-function Nt(t14, e6) {
+function Dt(t14, e6) {
   let i9 = t14.codePointAt(e6);
-  return typeof i9 > "u" ? 1 : i9 >= Et ? 2 : 1;
+  return typeof i9 > "u" ? 1 : i9 >= Nt ? 2 : 1;
 }
 var { Deno: Fe } = globalThis;
-var Dt = typeof Fe?.noColor == "boolean" ? Fe.noColor : false;
-var Bt = !Dt;
+var Bt = typeof Fe?.noColor == "boolean" ? Fe.noColor : false;
+var Kt = !Bt;
 function V(t14, e6) {
   return { open: `\x1B[${t14.join(";")}m`, close: `\x1B[${e6}m`, regexp: new RegExp(`\\x1b\\[${e6}m`, "g") };
 }
 function P4(t14, e6) {
-  return Bt ? `${e6.open}${t14.replace(e6.regexp, e6.open)}${e6.close}` : t14;
+  return Kt ? `${e6.open}${t14.replace(e6.regexp, e6.open)}${e6.close}` : t14;
 }
 function me(t14) {
   return P4(t14, V([0], 0));
@@ -211412,34 +211487,34 @@ function ye(t14) {
 function k7(t14) {
   return P4(t14, V([94], 39));
 }
-var Kt = new RegExp(["[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)", "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))"].join("|"), "g");
+var Ft = new RegExp(["[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)", "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))"].join("|"), "g");
 function C5(t14) {
-  return t14.replace(Kt, "");
+  return t14.replace(Ft, "");
 }
-var Ft = Object.defineProperty;
+var Wt = Object.defineProperty;
 var We = (t14, e6) => {
   for (var i9 in e6)
-    Ft(t14, i9, { get: e6[i9], enumerable: true });
+    Wt(t14, i9, { get: e6[i9], enumerable: true });
 };
-var Wt = (() => {
+var jt = (() => {
   let { Deno: t14 } = globalThis;
   if (typeof t14?.build?.os == "string")
     return t14.build.os;
   let { navigator: e6 } = globalThis;
   return e6?.appVersion?.includes?.("Win") ? "windows" : "linux";
 })();
-var je = Wt === "windows";
+var je = jt === "windows";
 var Te = {};
-We(Te, { basename: () => ii, delimiter: () => Yt, dirname: () => ti, extname: () => ni, format: () => si, fromFileUrl: () => oi, isAbsolute: () => qe, join: () => Qt, normalize: () => Je, parse: () => ri, relative: () => Xt, resolve: () => ne, sep: () => Zt, toFileUrl: () => ai, toNamespacedPath: () => ei });
-var jt = 65;
-var Mt = 97;
-var _t = 90;
-var Ut = 122;
+We(Te, { basename: () => ni, delimiter: () => Qt, dirname: () => ii, extname: () => si, format: () => ri, fromFileUrl: () => ai, isAbsolute: () => qe, join: () => Xt, normalize: () => Je, parse: () => oi, relative: () => ei, resolve: () => ne, sep: () => Yt, toFileUrl: () => li, toNamespacedPath: () => ti });
+var Mt = 65;
+var _t = 97;
+var Ut = 90;
+var Ht = 122;
 var $3 = 46;
 var Me = 47;
 var O2 = 92;
 var E5 = 58;
-var Ht = 63;
+var zt = 63;
 function y7(t14) {
   if (typeof t14 != "string")
     throw new TypeError(`Path must be a string. Received ${JSON.stringify(t14)}`);
@@ -211451,7 +211526,7 @@ function f8(t14) {
   return x5(t14) || t14 === O2;
 }
 function N3(t14) {
-  return t14 >= Mt && t14 <= Ut || t14 >= jt && t14 <= _t;
+  return t14 >= _t && t14 <= Ht || t14 >= Mt && t14 <= Ut;
 }
 function se(t14, e6, i9, s16) {
   let n9 = "", o8 = 0, a5 = -1, r9 = 0, l9;
@@ -211489,9 +211564,9 @@ function _e(t14, e6) {
   let i9 = e6.dir || e6.root, s16 = e6.base || (e6.name || "") + (e6.ext || "");
   return i9 ? s16 === t14 ? i9 : i9 === e6.root ? i9 + s16 : i9 + t14 + s16 : s16;
 }
-var zt = { "	": "%09", "\n": "%0A", "\v": "%0B", "\f": "%0C", "\r": "%0D", " ": "%20" };
+var Jt = { "	": "%09", "\n": "%0A", "\v": "%0B", "\f": "%0C", "\r": "%0D", " ": "%20" };
 function Ue(t14) {
-  return t14.replaceAll(/[\s]/g, (e6) => zt[e6] ?? e6);
+  return t14.replaceAll(/[\s]/g, (e6) => Jt[e6] ?? e6);
 }
 function He(t14, e6, i9 = 0) {
   let s16 = false, n9 = t14.length;
@@ -211522,18 +211597,18 @@ function ze(t14, e6) {
       return t14;
   return t14.slice(0, -e6.length);
 }
-var Jt = class extends Error {
+var qt = class extends Error {
   name = "AssertionError";
   constructor(t14) {
     super(t14);
   }
 };
-function qt(t14, e6 = "") {
+function Zt(t14, e6 = "") {
   if (!t14)
-    throw new Jt(e6);
+    throw new qt(e6);
 }
-var Zt = "\\";
-var Yt = ";";
+var Yt = "\\";
+var Qt = ";";
 function ne(...t14) {
   let e6 = "", i9 = "", s16 = false;
   for (let n9 = t14.length - 1; n9 >= -1; n9--) {
@@ -211622,7 +211697,7 @@ function qe(t14) {
   let i9 = t14.charCodeAt(0);
   return f8(i9) ? true : !!(N3(i9) && e6 > 2 && t14.charCodeAt(1) === E5 && f8(t14.charCodeAt(2)));
 }
-function Qt(...t14) {
+function Xt(...t14) {
   let e6 = t14.length;
   if (e6 === 0)
     return ".";
@@ -211634,7 +211709,7 @@ function Qt(...t14) {
   if (i9 === void 0)
     return ".";
   let n9 = true, o8 = 0;
-  if (qt(s16 != null), f8(s16.charCodeAt(0))) {
+  if (Zt(s16 != null), f8(s16.charCodeAt(0))) {
     ++o8;
     let a5 = s16.length;
     a5 > 1 && f8(s16.charCodeAt(1)) && (++o8, a5 > 2 && (f8(s16.charCodeAt(2)) ? ++o8 : n9 = false));
@@ -211646,7 +211721,7 @@ function Qt(...t14) {
   }
   return Je(i9);
 }
-function Xt(t14, e6) {
+function ei(t14, e6) {
   if (y7(t14), y7(e6), t14 === e6)
     return "";
   let i9 = ne(t14), s16 = ne(e6);
@@ -211686,7 +211761,7 @@ function Xt(t14, e6) {
     (h7 === o8 || t14.charCodeAt(h7) === O2) && (d5.length === 0 ? d5 += ".." : d5 += "\\..");
   return d5.length > 0 ? d5 + s16.slice(r9 + g8, l9) : (r9 += g8, s16.charCodeAt(r9) === O2 && ++r9, s16.slice(r9, l9));
 }
-function ei(t14) {
+function ti(t14) {
   if (typeof t14 != "string")
     return t14;
   if (t14.length === 0)
@@ -211696,7 +211771,7 @@ function ei(t14) {
     if (e6.charCodeAt(0) === O2) {
       if (e6.charCodeAt(1) === O2) {
         let i9 = e6.charCodeAt(2);
-        if (i9 !== Ht && i9 !== $3)
+        if (i9 !== zt && i9 !== $3)
           return `\\\\?\\UNC\\${e6.slice(2)}`;
       }
     } else if (N3(e6.charCodeAt(0)) && e6.charCodeAt(1) === E5 && e6.charCodeAt(2) === O2)
@@ -211704,7 +211779,7 @@ function ei(t14) {
   }
   return t14;
 }
-function ti(t14) {
+function ii(t14) {
   y7(t14);
   let e6 = t14.length;
   if (e6 === 0)
@@ -211747,7 +211822,7 @@ function ti(t14) {
   }
   return j3(t14.slice(0, s16), x5);
 }
-function ii(t14, e6 = "") {
+function ni(t14, e6 = "") {
   if (y7(t14), t14.length === 0)
     return t14;
   if (typeof e6 != "string")
@@ -211760,7 +211835,7 @@ function ii(t14, e6 = "") {
   let s16 = He(t14, f8, i9), n9 = j3(s16, f8);
   return e6 ? ze(n9, e6) : n9;
 }
-function ni(t14) {
+function si(t14) {
   y7(t14);
   let e6 = 0, i9 = -1, s16 = 0, n9 = -1, o8 = true, a5 = 0;
   t14.length >= 2 && t14.charCodeAt(1) === E5 && N3(t14.charCodeAt(0)) && (e6 = s16 = 2);
@@ -211777,12 +211852,12 @@ function ni(t14) {
   }
   return i9 === -1 || n9 === -1 || a5 === 0 || a5 === 1 && i9 === n9 - 1 && i9 === s16 + 1 ? "" : t14.slice(i9, n9);
 }
-function si(t14) {
+function ri(t14) {
   if (t14 === null || typeof t14 != "object")
     throw new TypeError(`The "pathObject" argument must be of type Object. Received type ${typeof t14}`);
   return _e("\\", t14);
 }
-function ri(t14) {
+function oi(t14) {
   y7(t14);
   let e6 = { root: "", dir: "", base: "", ext: "", name: "" }, i9 = t14.length;
   if (i9 === 0)
@@ -211829,13 +211904,13 @@ function ri(t14) {
   }
   return o8 === -1 || r9 === -1 || u7 === 0 || u7 === 1 && o8 === r9 - 1 && o8 === a5 + 1 ? r9 !== -1 && (e6.base = e6.name = t14.slice(a5, r9)) : (e6.name = t14.slice(a5, o8), e6.base = t14.slice(a5, r9), e6.ext = t14.slice(o8, r9)), e6.base = e6.base || "\\", a5 > 0 && a5 !== s16 ? e6.dir = t14.slice(0, a5 - 1) : e6.dir = e6.root, e6;
 }
-function oi(t14) {
+function ai(t14) {
   if (t14 = t14 instanceof URL ? t14 : new URL(t14), t14.protocol != "file:")
     throw new TypeError("Must be a file URL.");
   let e6 = decodeURIComponent(t14.pathname.replace(/\//g, "\\").replace(/%(?![0-9A-Fa-f]{2})/g, "%25")).replace(/^\\*([A-Za-z]:)(\\|$)/, "$1\\");
   return t14.hostname != "" && (e6 = `\\\\${t14.hostname}${e6}`), e6;
 }
-function ai(t14) {
+function li(t14) {
   if (!qe(t14))
     throw new TypeError("Must be an absolute path.");
   let [, e6, i9] = t14.match(/^(?:[/\\]{2}([^/\\]+)(?=[/\\](?:[^/\\]|$)))?(.*)/), s16 = new URL("file:///");
@@ -211844,9 +211919,9 @@ function ai(t14) {
   return s16;
 }
 var Oe = {};
-We(Oe, { basename: () => pi, delimiter: () => ui, dirname: () => fi, extname: () => di, format: () => mi, fromFileUrl: () => yi, isAbsolute: () => Ye, join: () => ci, normalize: () => Ze, parse: () => xi, relative: () => gi, resolve: () => be, sep: () => li, toFileUrl: () => bi, toNamespacedPath: () => hi });
-var li = "/";
-var ui = ":";
+We(Oe, { basename: () => di, delimiter: () => ci, dirname: () => pi, extname: () => mi, format: () => xi, fromFileUrl: () => bi, isAbsolute: () => Ye, join: () => gi, normalize: () => Ze, parse: () => yi, relative: () => hi, resolve: () => be, sep: () => ui, toFileUrl: () => Ti, toNamespacedPath: () => fi });
+var ui = "/";
+var ci = ":";
 function be(...t14) {
   let e6 = "", i9 = false;
   for (let s16 = t14.length - 1; s16 >= -1 && !i9; s16--) {
@@ -211872,7 +211947,7 @@ function Ze(t14) {
 function Ye(t14) {
   return y7(t14), t14.length > 0 && x5(t14.charCodeAt(0));
 }
-function ci(...t14) {
+function gi(...t14) {
   if (t14.length === 0)
     return ".";
   let e6;
@@ -211882,7 +211957,7 @@ function ci(...t14) {
   }
   return e6 ? Ze(e6) : ".";
 }
-function gi(t14, e6) {
+function hi(t14, e6) {
   if (y7(t14), y7(e6), t14 === e6 || (t14 = be(t14), e6 = be(e6), t14 === e6))
     return "";
   let i9 = 1, s16 = t14.length;
@@ -211913,10 +211988,10 @@ function gi(t14, e6) {
     (u7 === s16 || x5(t14.charCodeAt(u7))) && (g8.length === 0 ? g8 += ".." : g8 += "/..");
   return g8.length > 0 ? g8 + e6.slice(o8 + c11) : (o8 += c11, x5(e6.charCodeAt(o8)) && ++o8, e6.slice(o8));
 }
-function hi(t14) {
+function fi(t14) {
   return t14;
 }
-function fi(t14) {
+function pi(t14) {
   if (t14.length === 0)
     return ".";
   let e6 = -1, i9 = false;
@@ -211930,7 +212005,7 @@ function fi(t14) {
       i9 = true;
   return e6 === -1 ? x5(t14.charCodeAt(0)) ? "/" : "." : j3(t14.slice(0, e6), x5);
 }
-function pi(t14, e6 = "") {
+function di(t14, e6 = "") {
   if (y7(t14), t14.length === 0)
     return t14;
   if (typeof e6 != "string")
@@ -211938,7 +212013,7 @@ function pi(t14, e6 = "") {
   let i9 = He(t14, x5), s16 = j3(i9, x5);
   return e6 ? ze(s16, e6) : s16;
 }
-function di(t14) {
+function mi(t14) {
   y7(t14);
   let e6 = -1, i9 = 0, s16 = -1, n9 = true, o8 = 0;
   for (let a5 = t14.length - 1; a5 >= 0; --a5) {
@@ -211954,12 +212029,12 @@ function di(t14) {
   }
   return e6 === -1 || s16 === -1 || o8 === 0 || o8 === 1 && e6 === s16 - 1 && e6 === i9 + 1 ? "" : t14.slice(e6, s16);
 }
-function mi(t14) {
+function xi(t14) {
   if (t14 === null || typeof t14 != "object")
     throw new TypeError(`The "pathObject" argument must be of type Object. Received type ${typeof t14}`);
   return _e("/", t14);
 }
-function xi(t14) {
+function yi(t14) {
   y7(t14);
   let e6 = { root: "", dir: "", base: "", ext: "", name: "" };
   if (t14.length === 0)
@@ -211980,29 +212055,29 @@ function xi(t14) {
   }
   return n9 === -1 || a5 === -1 || c11 === 0 || c11 === 1 && n9 === a5 - 1 && n9 === o8 + 1 ? (a5 !== -1 && (o8 === 0 && i9 ? e6.base = e6.name = t14.slice(1, a5) : e6.base = e6.name = t14.slice(o8, a5)), e6.base = e6.base || "/") : (o8 === 0 && i9 ? (e6.name = t14.slice(1, n9), e6.base = t14.slice(1, a5)) : (e6.name = t14.slice(o8, n9), e6.base = t14.slice(o8, a5)), e6.ext = t14.slice(n9, a5)), o8 > 0 ? e6.dir = j3(t14.slice(0, o8 - 1), x5) : i9 && (e6.dir = "/"), e6;
 }
-function yi(t14) {
+function bi(t14) {
   if (t14 = t14 instanceof URL ? t14 : new URL(t14), t14.protocol != "file:")
     throw new TypeError("Must be a file URL.");
   return decodeURIComponent(t14.pathname.replace(/%(?![0-9A-Fa-f]{2})/g, "%25"));
 }
-function bi(t14) {
+function Ti(t14) {
   if (!Ye(t14))
     throw new TypeError("Must be an absolute path.");
   let e6 = new URL("file:///");
   return e6.pathname = Ue(t14.replace(/%/g, "%25").replace(/\\/g, "%5C")), e6;
 }
-var Ti = je ? Te : Oe;
-var { join: sn, normalize: rn } = Ti;
 var Oi = je ? Te : Oe;
-var { basename: on, delimiter: an, dirname: re, extname: ln, format: un, fromFileUrl: cn, isAbsolute: gn, join: we, normalize: M3, parse: hn, relative: fn, resolve: pn, toFileUrl: dn, toNamespacedPath: mn } = Oi;
+var { join: rn, normalize: on } = Oi;
+var wi = je ? Te : Oe;
+var { basename: an, delimiter: ln, dirname: re, extname: un, format: cn, fromFileUrl: gn, isAbsolute: hn, join: we, normalize: M3, parse: fn, relative: pn, resolve: dn, toFileUrl: mn, toNamespacedPath: xn } = wi;
 var Qe = { ARROW_UP: "\u2191", ARROW_DOWN: "\u2193", ARROW_LEFT: "\u2190", ARROW_RIGHT: "\u2192", ARROW_UP_LEFT: "\u2196", ARROW_UP_RIGHT: "\u2197", ARROW_DOWN_RIGHT: "\u2198", ARROW_DOWN_LEFT: "\u2199", RADIO_ON: "\u25C9", RADIO_OFF: "\u25EF", TICK: "\u2714", CROSS: "\u2718", ELLIPSIS: "\u2026", POINTER_SMALL: "\u203A", POINTER_SMALL_LEFT: "\u2039", LINE: "\u2500", POINTER: "\u276F", POINTER_LEFT: "\u276E", INFO: "\u2139", TAB_LEFT: "\u21E4", TAB_RIGHT: "\u21E5", ESCAPE: "\u238B", BACKSPACE: "\u232B", PAGE_UP: "\u21DE", PAGE_DOWN: "\u21DF", ENTER: "\u21B5", SEARCH: "\u{1F50E}", FOLDER: "\u{1F4C1}", FOLDER_OPEN: "\u{1F4C2}" };
-var wi = { ...Qe, RADIO_ON: "(*)", RADIO_OFF: "( )", TICK: "\u221A", CROSS: "\xD7", POINTER_SMALL: "\xBB" };
-var v4 = Deno.build.os === "windows" ? wi : Qe;
-var ki = { up: "ARROW_UP", down: "ARROW_DOWN", left: "ARROW_LEFT", right: "ARROW_RIGHT", pageup: "PAGE_UP", pagedown: "PAGE_DOWN", tab: "TAB_RIGHT", enter: "ENTER", return: "ENTER" };
+var ki = { ...Qe, RADIO_ON: "(*)", RADIO_OFF: "( )", TICK: "\u221A", CROSS: "\xD7", POINTER_SMALL: "\xBB" };
+var v4 = Deno.build.os === "windows" ? ki : Qe;
+var Ci = { up: "ARROW_UP", down: "ARROW_DOWN", left: "ARROW_LEFT", right: "ARROW_RIGHT", pageup: "PAGE_UP", pagedown: "PAGE_DOWN", tab: "TAB_RIGHT", enter: "ENTER", return: "ENTER" };
 function S4(t14) {
   let e6 = [];
   for (let i9 of t14) {
-    let s16 = v4[ki[i9]] ?? i9;
+    let s16 = v4[Ci[i9]] ?? i9;
     e6.includes(s16) || e6.push(s16);
   }
   return e6;
@@ -212045,7 +212120,7 @@ var D3 = class t13 {
   async render() {
     let i9 = (await Promise.all([this.message(), this.body?.(), this.footer()])).filter(Boolean).join(`
 `), s16 = i9.split(`
-`), n9 = Ci(), a5 = (n9 ? s16.reduce((r9, l9) => {
+`), n9 = Si(), a5 = (n9 ? s16.reduce((r9, l9) => {
       let c11 = C5(l9).length;
       return r9 + (c11 > n9 ? Math.ceil(c11 / n9) : 1);
     }, 0) : i9.split(`
@@ -212125,7 +212200,7 @@ var D3 = class t13 {
     return typeof n9 < "u" && (typeof s16.name < "u" && n9.indexOf(s16.name) !== -1 || typeof s16.sequence < "u" && n9.indexOf(s16.sequence) !== -1);
   }
 };
-function Ci() {
+function Si() {
   try {
     return Deno.consoleSize().columns ?? null;
   } catch {
@@ -212193,7 +212268,7 @@ var _2 = class extends D3 {
 };
 var Xe = /^\d+(\.\d+)*/;
 var et = (t14) => `${t14}`.split(".").map((e6) => e6.split(/(?<=\d)(?=\D)|(?<=\D)(?=\d)/)).flat(1).map((e6) => e6.match(/^\d+$/) ? e6 - 0 : e6);
-var Ai = (t14, e6) => {
+var Vi = (t14, e6) => {
   for (let [i9, s16] of f7(et(t14), et(e6)))
     if (i9 != s16)
       return typeof s16 == "number" && typeof s16 == "number" ? s16 - i9 : typeof s16 == "number" ? s16 : typeof i9 == "number" ? -i9 : `${s16}`.localeCompare(i9);
@@ -212201,7 +212276,7 @@ var Ai = (t14, e6) => {
 };
 function B(t14, e6) {
   if (t14.match(Xe) && e6.match(Xe))
-    return Ai(t14, e6);
+    return Vi(t14, e6);
   let i9 = t14.indexOf("\u2744\uFE0F");
   i9 != -1 && (t14 = t14.slice(0, i9 - 1));
   let s16 = e6.indexOf("\u2744\uFE0F");
@@ -212275,7 +212350,7 @@ var U = class extends _2 {
     if (!this.#e())
       return [];
     let i9 = await Deno.stat(e6).then((s16) => s16.isDirectory ? e6 : re(e6)).catch(() => re(e6));
-    return await vi(i9, this.settings.files);
+    return await Gi(i9, this.settings.files);
   }
   async getSuggestions() {
     let e6 = this.getCurrentInputValue(), i9 = [...this.loadSuggestions(), ...await this.getUserSuggestions(e6), ...await this.getFileSuggestions(e6)].filter(it);
@@ -212344,7 +212419,7 @@ var U = class extends _2 {
   }
   async complete() {
     let e6 = this.getCurrentInputValue(), i9 = this.suggestions[this.suggestionsIndex]?.toString();
-    return this.settings.complete ? e6 = await this.settings.complete(e6, i9) : this.#e() && e6.at(-1) !== tt && await Pi(e6) && (this.getCurrentInputValue().at(-1) !== "." || this.getCurrentInputValue().endsWith("..")) ? e6 += tt : i9 && (e6 = i9), this.#e() ? M3(e6) : e6;
+    return this.settings.complete ? e6 = await this.settings.complete(e6, i9) : this.#e() && e6.at(-1) !== tt && await vi(e6) && (this.getCurrentInputValue().at(-1) !== "." || this.getCurrentInputValue().endsWith("..")) ? e6 += tt : i9 && (e6 = i9), this.#e() ? M3(e6) : e6;
   }
   selectPreviousSuggestion() {
     this.suggestions.length && this.suggestionsIndex > -1 && (this.suggestionsIndex--, this.suggestionsIndex < this.suggestionsOffset && this.suggestionsOffset--);
@@ -212373,10 +212448,10 @@ var U = class extends _2 {
 function it(t14, e6, i9) {
   return typeof t14 < "u" && t14 !== "" && i9.indexOf(t14) === e6;
 }
-function Pi(t14) {
+function vi(t14) {
   return Deno.stat(t14).then((e6) => e6.isDirectory).catch(() => false);
 }
-async function vi(t14, e6) {
+async function Gi(t14, e6) {
   let i9 = [];
   for await (let s16 of Deno.readDir(t14 || ".")) {
     if (e6 === true && (s16.name.startsWith(".") || s16.name.endsWith("~")))
@@ -212418,7 +212493,11 @@ var H2 = class extends U {
     return e6;
   }
 };
-var zr = new Intl.Segmenter();
+var st = () => {
+  console.log(`
+`.repeat(Deno.consoleSize().rows));
+};
+var Jr = new Intl.Segmenter();
 async function Ce({ message: t14, showList: e6 = true, mustBeOnList: i9 = true, showInfo: s16, options: n9, optionDescriptions: o8, autocompleteOnSubmit: a5 = true, descriptionHighlighter: r9 = C5 }) {
   let l9;
   if (n9 instanceof Array ? (l9 = n9, n9 = Object.fromEntries(l9.map((p6) => [p6, p6]))) : l9 = Object.keys(n9), Object.values(n9).length == 0)
@@ -212446,7 +212525,7 @@ async function Ce({ message: t14, showList: e6 = true, mustBeOnList: i9 = true, 
   }
 }
 var T3 = (...t14) => Vo(...t14).noThrow();
-var Bi = /[0123456789abcdfghijklmnpqrsvwxyz]{32}/;
+var Ki = /[0123456789abcdfghijklmnpqrsvwxyz]{32}/;
 var Se = (t14) => `"${t14.replace(/\$\{|[\\"]/g, "\\$&").replace(/\u0000/g, "\\0")}"`;
 var Pe = async () => {
   let t14 = await T3`nix --extra-experimental-features nix-command profile list --json`.text(), e6 = JSON.parse(t14).elements;
@@ -212455,10 +212534,10 @@ var Pe = async () => {
   return e6;
 };
 var G2;
-var Ro = async ({ cacheFolder: t14, overrideWith: e6 = null }) => {
+var Lo = async ({ cacheFolder: t14, overrideWith: e6 = null }) => {
   let i9 = await FileSystem.info(`${FileSystem.home}/.local/state/nix/profiles/profile/manifest.nix`), s16 = await FileSystem.info(`${FileSystem.home}/.local/state/nix/profiles/profile/manifest.json`);
-  if (i9.exists || s16.exists)
-    return i9.exists;
+  if (s16.exists || i9.exists)
+    return s16.exists;
   if (!G2) {
     let n9 = `${t14}/has_flakes_enabled.check.json`;
     if (G2 = FileSystem.sync.read(n9), G2 == null) {
@@ -212475,7 +212554,7 @@ ${cyan3`❄️`} Checking if you use flakes...`), console.warn(dim3`- (this will
   }
   return JSON.parse(G2);
 };
-function Fi(t14) {
+function Wi(t14) {
   let e6 = [];
   if (typeof t14.attrPath == "string") {
     let s16 = t14.attrPath.split(/\./g);
@@ -212489,7 +212568,7 @@ function Fi(t14) {
     let [n9, o8, a5] = FileSystem.pathPieces(s16), r9, l9 = false;
     for (let c11 of n9) {
       if (l9) {
-        if ((r9 = c11.match(Bi)) && r9.index == 0) {
+        if ((r9 = c11.match(Ki)) && r9.index == 0) {
           let u7 = c11.slice(r9[0].length + 1);
           u7 && e6.push(u7);
         }
@@ -212500,14 +212579,14 @@ function Fi(t14) {
   }
   return e6;
 }
-async function Wi({ name: t14, hasFlakesEnabled: e6 }) {
+async function ji({ name: t14, hasFlakesEnabled: e6 }) {
   if (e6) {
     console.log(`Okay removing ${t14}`);
     let s16 = await Pe();
     try {
       let n9 = [];
       for (let o8 of s16)
-        Fi(o8).some((r9) => r9.match(regex`${/^/}${t14}${/\b/}`.ig)) && n9.push(o8);
+        Wi(o8).some((r9) => r9.match(regex`${/^/}${t14}${/\b/}`.ig)) && n9.push(o8);
       for (let o8 of n9)
         if (o8.Index != null)
           try {
@@ -212523,7 +212602,7 @@ ${o8}`.split(`
 `) });
     if (a5 == o8)
       return;
-    await Wi({ name: a5, hasFlakesEnabled: e6 });
+    await ji({ name: a5, hasFlakesEnabled: e6 });
   } else {
     let n9 = `nix-env -e ${escapeNixString(t14)}`;
     console.log(dim3`- running: ${n9}`);
@@ -212533,12 +212612,12 @@ ${o8}`.split(`
  - \u274C there was an issue removing ${t14}`);
   }
 }
-var st = async ({ urlOrPath: t14, storePath: e6, packages: i9 }) => {
+var rt = async ({ urlOrPath: t14, storePath: e6, packages: i9 }) => {
   i9 = i9 || await Pe();
   try {
     let s16 = [];
     for (let n9 of i9) {
-      let a5 = packageEntry.storePaths.filter((r9) => r9.length > 0).some((r9) => `${e6}`.startsWith(r9));
+      let a5 = n9.storePaths.filter((r9) => r9.length > 0).some((r9) => `${e6}`.startsWith(r9));
       (e6 && a5 || t14 && n9.originalUrl == t14) && s16.push(n9);
     }
     for (let n9 of s16)
@@ -212551,7 +212630,7 @@ var st = async ({ urlOrPath: t14, storePath: e6, packages: i9 }) => {
     console.warn(s16);
   }
 };
-async function Lo({ hasFlakesEnabled: t14, humanPackageSummary: e6, urlOrPath: i9, force: s16, versionInfo: n9 }) {
+async function $o({ hasFlakesEnabled: t14, humanPackageSummary: e6, urlOrPath: i9, force: s16, versionInfo: n9 }) {
   if (t14) {
     console.log(`Okay installing ${e6}`);
     let a5;
@@ -212570,15 +212649,15 @@ async function Lo({ hasFlakesEnabled: t14, humanPackageSummary: e6, urlOrPath: i
         a5 = r9;
         let u7 = r9.match(/error: An existing package already provides the following file:(?:\w|\W)+?(?<existing>\/nix\/store\/.+)(?:\w|\W)+?This is the conflicting file from the new package:(?:\w|\W)+?(?<newPackage>\/nix\/store\/.+)(?:\w|\W)+?To remove the existing package:(?:\w|\W)+?(?<removeExisting>nix profile remove.+)(?:\w|\W)+?To prioritise the new package:(?:\w|\W)+?(?<prioritiseNew>nix profile install.+)(?:\w|\W)+?To prioritise the existing package:(?:\w|\W)+?(?<prioritiseExisting>nix profile install.+)/);
         if (u7) {
-          let { existing: g8, newPackage: h7, removeExisting: d5, prioritiseNew: b2, prioritiseExisting: p6 } = u7.groups, [z2, A4, J] = FileSystem.pathPieces(g8), at = cyan3(z2.slice(4).join("/")) + cyan3("/") + green3(A4 + J);
-          clearScreen();
+          let { existing: g8, newPackage: h7, removeExisting: d5, prioritiseNew: b2, prioritiseExisting: p6 } = u7.groups, [z2, A4, J] = FileSystem.pathPieces(g8), lt = cyan3(z2.slice(4).join("/")) + cyan3("/") + green3(A4 + J);
+          st();
           let ve = await Pe();
           if (s16) {
             let q2 = (d5.slice(61).match(/(.+?)#/) || "")[1];
-            d5 && await st({ urlOrPath: q2, storePath: g8, packages: ve });
+            d5 && await rt({ urlOrPath: q2, storePath: g8, packages: ve });
             continue e;
           } else {
-            console.log(bold3`Looks like there was a conflict:`), console.log(`    The install adds: ${at}`), console.log(`    Which already exists from:
+            console.log(bold3`Looks like there was a conflict:`), console.log(`    The install adds: ${lt}`), console.log(`    Which already exists from:
         ${yellow3((d5 || "").trim().slice(61) || g8)}`), console.log("");
             let q2 = "uninstall: remove the old package, install the one you just picked", Ge = "higher: install the one you just picked with a higher priority", Ie = "lower: install one you just picked, but have it be lower priority", Z = await Ce({ message: "Choose an action:", showList: true, showInfo: false, options: [q2, ...b2 ? [Ge] : [], Ie, "cancel"] });
             if (Z == "cancel")
@@ -212588,8 +212667,8 @@ async function Lo({ hasFlakesEnabled: t14, humanPackageSummary: e6, urlOrPath: i
             else if (Z == Ie)
               await T3`${p6.trim().split(/\s/g)}`;
             else if (Z == q2) {
-              let lt = (d5.slice(61).match(/(.+?)#/) || "")[1];
-              d5 && await st({ urlOrPath: lt, storePath: g8, packages: ve });
+              let ut = (d5.slice(61).match(/(.+?)#/) || "")[1];
+              d5 && await rt({ urlOrPath: ut, storePath: g8, packages: ve });
             }
             continue e;
           }
@@ -212657,7 +212736,7 @@ Misc:
       info: {
         version: version2,
         cacheFolder,
-        hasFlakesEnabled: await Ro({ cacheFolder })
+        hasFlakesEnabled: await Lo({ cacheFolder })
       }
     }));
     Deno.exit(0);
@@ -212665,9 +212744,9 @@ Misc:
   if (args2.length == 0) {
     return command.parse(["--help"].concat(Deno.args));
   }
-  const hasFlakesEnabled = await Ro({ cacheFolder });
+  const hasFlakesEnabled = await Lo({ cacheFolder });
   if (options.update) {
-    await Wi({ name: "nvs", hasFlakesEnabled });
+    await ji({ name: "nvs", hasFlakesEnabled });
     if (hasFlakesEnabled) {
       var { success } = await run4`nix --extra-experimental-features nix-command --extra-experimental-features flakes profile install https://github.com/jeff-hykin/nix_version_search_cli/archive/master.tar.gz#nvs`;
     } else {
@@ -212707,7 +212786,7 @@ Misc:
   const commandWithExplainFlag = green3`nvs ` + yellow3`--explain ` + dim3`${Deno.args.map(posixShellEscape).join(" ")}`;
   if ((args2[0].startsWith("https://") || args2[0].startsWith("./")) && options.install) {
     try {
-      await Lo({
+      await $o({
         hasFlakesEnabled,
         humanPackageSummary: `${args2[0]}`,
         urlOrPath: args2[0],
@@ -212903,11 +212982,11 @@ No exact results, let me broaden the search...
           "method": "POST",
           "mode": "cors"
         });
-        const data = await response.json();
+        const data2 = await response.json();
         const names = [
           .../* @__PURE__ */ new Set([
-            ...(data?.hits?.hits || []).map((each2) => each2?._source?.package_attr_name),
-            ...(data?.hits?.hits || []).map((each2) => each2?._source?.package_pname)
+            ...(data2?.hits?.hits || []).map((each2) => each2?._source?.package_attr_name),
+            ...(data2?.hits?.hits || []).map((each2) => each2?._source?.package_pname)
           ])
         ];
         if (names.length == 0) {
@@ -213043,7 +213122,7 @@ Maybe search.nixos.org changed their API
     if (options.install) {
       didSomething = true;
       try {
-        await Lo({
+        await $o({
           hasFlakesEnabled,
           humanPackageSummary,
           urlOrPath: url,
