@@ -54,7 +54,13 @@ export const rikudoeSage = {
                 } catch (error) {
                 }
                 if (!names) {
+                    if (globalThis.debugMode) {
+                        console.log("[source:rikudoeSage] Fetching package names...")
+                    }
                     names = await fetchData().then(listOfPackageNames=>{
+                        if (globalThis.debugMode) {
+                            console.log("[source:rikudoeSage] Fetching package names... resolved!")
+                        }
                         FileSystem.write({
                             path: nameCachePath,
                             data: "export default new Set("+JSON.stringify(listOfPackageNames)+")",
@@ -106,8 +112,17 @@ export const rikudoeSage = {
         const url = `https://api.history.nix-packages.com/packages/${encodeURIComponent(attrPath)}`
         let results
         try {
+            if (globalThis.debugMode) {
+                console.log("[source:rikudoeSage] Fetching versions...")
+            }
             results = await fetch(url).then(result=>result.json())
+            if (globalThis.debugMode) {
+                console.log("[source:rikudoeSage] Fetching versions... resolved!")
+            }
         } catch (error) {
+            if (globalThis.debugMode) {
+                console.log("[source:rikudoeSage] Fetching versions... error ... "+String(error?.stack||error))
+            }
             return []
         }
         return results.map(({name,revision,version})=>{
@@ -123,8 +138,25 @@ export const devbox = {
         try {
             var url = `https://www.nixhub.io/search?q=${encodeURIComponent(query)}&_data=routes%2F_nixhub.search` // `https://www.nixhub.io/search?q=${encodeURIComponent(query)}`
             try {
-                var response = await fetch(url).then(result=>result.json())
+                if (globalThis.debugMode) {
+                    console.log("[source:devbox] Fetching package names...")
+                }
+                var response = await fetch(url).then(result=>result.text())
+                try {
+                    response = JSON.parse(response)
+                    if (globalThis.debugMode) {
+                        console.log("[source:devbox] Fetching package names... resolved!")
+                    }
+                } catch (error) {
+                    if (globalThis.debugMode) {
+                        console.debug(`[devbox] response is:`,response)
+                    }
+                    throw error
+                }
             } catch (error) {
+                if (globalThis.debugMode) {
+                    console.log("[source:devbox] Fetching package names...  error ... "+String(error?.stack||error))
+                }
                 // try one more time, sometimes nixhub.io just has issues
                 if (`${error}`.match(/^fetchingSyntaxError: Unexpected end of JSON input/)) {
                     var response = await fetch(url).then(result=>result.text())
@@ -166,8 +198,17 @@ export const devbox = {
         const url = `https://www.nixhub.io/packages/${encodeURIComponent(attrPath)}`
         let htmlResult
         try {
+            if (globalThis.debugMode) {
+                console.log("[source:devbox] Fetching package versions...")
+            }
             htmlResult = await fetch(url).then(result=>result.text())
+            if (globalThis.debugMode) {
+                console.log("[source:devbox] Fetching package versions... resolved!")
+            }
         } catch (error) {
+            if (globalThis.debugMode) {
+                console.log("[source:devbox] Fetching package versions... error ... "+String(error?.stack||error))
+            }
             return []
         }
         const document = new DOMParser().parseFromString(
@@ -222,8 +263,17 @@ export const lazamar = {
         const url = `https://lazamar.co.uk/nix-versions/?channel=nixpkgs-unstable&package=${encodeURIComponent(query)}`
         let htmlResult
         try {
+            if (globalThis.debugMode) {
+                console.log("[source:lazamar] Fetching package names...")
+            }
             htmlResult = await fetch(url).then(result=>result.text())
+            if (globalThis.debugMode) {
+                console.log("[source:lazamar] Fetching package names... resolved!")
+            }
         } catch (error) {
+            if (globalThis.debugMode) {
+                console.log("[source:lazamar] Fetching package names... error ... "+String(error?.stack||error))
+            }
             return []
         }
         const document = new DOMParser().parseFromString(
