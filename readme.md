@@ -29,14 +29,24 @@ nix profile install 'https://github.com/jeff-hykin/nix_version_search_cli/archiv
 
 ## How to use
 
-There's one command with a few usages:
+Examples:
+
+```sh
+nvs --install python
+nvs --install python@3
+nvs --install python@3.10
+nvs --repl python
+nvs --shell python
+```
+
+Examples Explained:
 - `nvs --install <nameOfSomething>` works like `apt-get install`/`brew install`. After you select a version, it will get system installed.
 - `nvs --dry-install <nameOfSomething>` show the nix command (if you want to run it yourself)
 - `nvs <nameOfSomething>` will give copy-pastable code for a `shell.nix`, `default.nix`, or `flake.nix` file.
 - `nvs --repl <nameOfSomething>` give copy-pastable code for accessing the package anywhere in nix (e.g. after running `nix repl`)
 - `nvs --shell <nameOfSomething>` if you want want the command for an interactive nix shell that has the package 
 
-## Example
+## Full Output Example
 
 If you want to use the "python" package in some nix code do:
 
@@ -79,3 +89,11 @@ If you are not sure how to use this^
 Run: nvs --explain python@3
 ```
 
+# How does it work?
+
+Many other people are doing heavy lifting, this is just a CLI interface that standardizes and aggregates them. This tool grabs from 3 main sources:
+- https://history.nix-packages.com/
+- https://www.nixhub.io/search (the jetify guys)
+- https://lazamar.co.uk/nix-versions/
+
+This means, sometimes, the CLI is slow because one of those sites hang. It also means when they change their site a lot (only nixhub basically) it can break the CLI, or at least weaken the results. 
