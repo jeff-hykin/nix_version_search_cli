@@ -885,7 +885,7 @@ const command =new Command()
                         console.log()
                         console.log(`Okay use the following to get ${humanPackageSummary}`)
                         console.log(``)
-                        console.log(cyan`    ${name}.url = ${jsStringToNixString(basePath)}`)
+                        console.log(cyan`    ${name}.url = ${jsStringToNixString(basePath)};`)
                         if (trailingName) {
                             console.log(dim`    # access^ using: ${cyan.dim`${name}.${trailingName}`}`)
                         } 
