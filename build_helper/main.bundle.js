@@ -18915,15 +18915,15 @@ var GenericInput = class extends GenericPrompt {
   inputValue = "";
   inputIndex = 0;
   getDefaultSettings(options) {
-    const settings = super.getDefaultSettings(options);
+    const settings2 = super.getDefaultSettings(options);
     return {
-      ...settings,
+      ...settings2,
       keys: {
         moveCursorLeft: ["left"],
         moveCursorRight: ["right"],
         deleteCharLeft: ["backspace"],
         deleteCharRight: ["delete"],
-        ...settings.keys ?? {}
+        ...settings2.keys ?? {}
       }
     };
   }
@@ -19013,10 +19013,10 @@ var GenericSuggestions = class extends GenericInput {
   suggestionDescriptions = [];
   #hasReadPermissions;
   getDefaultSettings(options) {
-    const settings = super.getDefaultSettings(options);
+    const settings2 = super.getDefaultSettings(options);
     return {
       completeOnSubmit: false,
-      ...settings,
+      ...settings2,
       listPointer: options.listPointer ?? brightBlue(Figures.POINTER),
       maxRows: options.maxRows ?? 8,
       keys: {
@@ -19026,7 +19026,7 @@ var GenericSuggestions = class extends GenericInput {
         previous: ["down"],
         nextPage: ["pageup"],
         previousPage: ["pagedown"],
-        ...settings.keys ?? {}
+        ...settings2.keys ?? {}
       }
     };
   }
@@ -24990,6 +24990,22 @@ DateTime.now = () => {
   return new DateTime();
 };
 var date_default = DateTime;
+
+// tools/fetch.js
+var settings = {
+  defaultTimeout: 5e3
+};
+function fetchWithTimeout(url, options = {}, timeout = null) {
+  if (timeout === null) {
+    timeout = settings.defaultTimeout;
+  }
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  return fetch(url, {
+    ...options,
+    signal: controller.signal
+  }).finally(() => clearTimeout(id));
+}
 
 // names.js
 var names_default = /* @__PURE__ */ new Set([
@@ -205252,7 +205268,7 @@ var rikudoeSage = {
         FileSystem.info(mostRecentCheckPath)
       ]);
       const fetchData = () => {
-        return fetch("https://api.history.nix-packages.com/packages", {
+        return fetchWithTimeout("https://api.history.nix-packages.com/packages", {
           "credentials": "omit",
           "headers": {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0",
@@ -205336,7 +205352,7 @@ var rikudoeSage = {
       if (globalThis.debugMode) {
         console.log("[source:rikudoeSage] Fetching versions...");
       }
-      results = await fetch(url).then((result2) => result2.json());
+      results = await fetchWithTimeout(url).then((result2) => result2.json());
       if (globalThis.debugMode) {
         console.log("[source:rikudoeSage] Fetching versions... resolved!");
       }
@@ -205359,7 +205375,7 @@ var devbox = {
         if (globalThis.debugMode) {
           console.log("[source:devbox] Fetching package names...");
         }
-        var response = await fetch(url).then((result2) => result2.text());
+        var response = await fetchWithTimeout(url).then((result2) => result2.text());
         try {
           response = JSON.parse(response);
           if (globalThis.debugMode) {
@@ -205376,7 +205392,7 @@ var devbox = {
           console.log("[source:devbox] Fetching package names...  error ... " + String(error?.stack || error));
         }
         if (`${error}`.match(/^fetchingSyntaxError: Unexpected end of JSON input/)) {
-          var response = await fetch(url).then((result2) => result2.text());
+          var response = await fetchWithTimeout(url).then((result2) => result2.text());
           if (globalThis.debugMode) {
             console.debug(`response is:`, response);
           }
@@ -205406,7 +205422,7 @@ var devbox = {
       if (globalThis.debugMode) {
         console.log("[source:devbox] Fetching package versions...");
       }
-      htmlResult = await fetch(url).then((result2) => result2.text());
+      htmlResult = await fetchWithTimeout(url).then((result2) => result2.text());
       if (globalThis.debugMode) {
         console.log("[source:devbox] Fetching package versions... resolved!");
       }
@@ -205467,7 +205483,7 @@ var lazamar = {
       if (globalThis.debugMode) {
         console.log("[source:lazamar] Fetching package names...");
       }
-      htmlResult = await fetch(url).then((result2) => result2.text());
+      htmlResult = await fetchWithTimeout(url).then((result2) => result2.text());
       if (globalThis.debugMode) {
         console.log("[source:lazamar] Fetching package names... resolved!");
       }
@@ -205585,7 +205601,7 @@ Failed getting packages from one of the sources (${name}):
 }
 var determinateSystems = {
   async searchBasePackage(query) {
-    const output = await fetch("https://b4lflfxxy4-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.20.0)%3B%20Browser%3B%20instantsearch.js%20(4.58.0)%3B%20react%20(18.2.0)%3B%20react-instantsearch%20(7.2.0)%3B%20react-instantsearch-core%20(7.2.0)%3B%20JS%20Helper%20(3.14.2)", {
+    const output = await fetchWithTimeout("https://b4lflfxxy4-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.20.0)%3B%20Browser%3B%20instantsearch.js%20(4.58.0)%3B%20react%20(18.2.0)%3B%20react-instantsearch%20(7.2.0)%3B%20react-instantsearch-core%20(7.2.0)%3B%20JS%20Helper%20(3.14.2)", {
       "credentials": "omit",
       "headers": {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0",
@@ -205610,7 +205626,7 @@ var determinateSystems = {
     const url = `https://flakehub.com/f/${org}/${project}`;
     let versionInfo;
     try {
-      versionInfo = await fetch(`${url}/releases`).then((result2) => result2.json());
+      versionInfo = await fetchWithTimeout(`${url}/releases`).then((result2) => result2.json());
     } catch (error) {
       return [];
     }
