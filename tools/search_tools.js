@@ -40,7 +40,7 @@ export const rikudoeSage = {
                     "referrer": "https://history.nix-packages.com/",
                     "method": "GET",
                     "mode": "cors"
-                }).catch(_=>0).then(result=>result.json().catch(_=>0)).then(listOfPackageNames=>listOfPackageNames)
+                }).catch(_=>0).then(result=>result.json().catch(_=>0)).catch(_=>0)
             }
 
             let output = []
@@ -96,11 +96,13 @@ export const rikudoeSage = {
                 path: recentCheckInfo.path,
             }).catch(_=>0)
             // dont await because it doesn't matter
-            fetchData().then(listOfPackageNames=>{
-                FileSystem.write({
-                    path: nameCachePath,
-                    data: "export default new Set("+JSON.stringify(listOfPackageNames)+")",
-                }).catch(_=>0)
+            fetchData().catch(_=>0).then(listOfPackageNames=>{
+                if (listOfPackageNames) {
+                    FileSystem.write({
+                        path: nameCachePath,
+                        data: "export default new Set("+JSON.stringify(listOfPackageNames)+")",
+                    }).catch(_=>0)
+                }
             })
 
             return output
@@ -1465,8 +1467,10 @@ export const determinateSystems = {
         
         const extractOutputs = async (version)=>{
             try {
-                const info = await run`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)} ${Stderr(null)}`
-                return [...new Set(Object.values(JSON.parse(info).packages).map(each=>Object.keys(each)).flat(1))]
+                // commented out because it's too slow (can cause massive whole-system slowdown)
+                // console.log(`running flake show`)
+                // const info = await run`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version}.tar.gz`} ${Stdout(returnAsString)} ${Stderr(null)}`
+                // return [...new Set(Object.values(JSON.parse(info).packages).map(each=>Object.keys(each)).flat(1))]
             } catch (error) {
                 return []
             }
