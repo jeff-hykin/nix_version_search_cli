@@ -53,6 +53,12 @@
                     mkdir -p "$out/tmp"
                     # copy over source code
                     cp "$src/main.bundle.js" "$out/source/main.bundle.js"
+                    echo "NVS showing out directory before compile"
+                    ls -la "$out/"
+                    echo "$out/source:"
+                    ls -la "$out/source"
+                    echo "$out/bin:"
+                    ls -la "$out/bin"
                     
                     # setup for isolating deno
                     export HOME="$src/home"
@@ -65,7 +71,7 @@
                     # compile as a means of caching any dependencies
                     # note1: there shouldn't be any (its bundled)
                     # note2: deno has better ways to cache, but this works across deno 1.x and 2.x
-                    ${denoEscaped}/bin/deno compile --no-lock --allow-all --output "$out/tmp" "$src/main.bundle.js" &> "$out/err.log"
+                    ${denoEscaped}/bin/deno compile --no-lock --allow-all --output "$out/tmp" "$src/main.bundle.js"
                     
                     # create the helper executer for deno
                     echo ${escapeShellArg ''#!/bin/sh
@@ -83,6 +89,13 @@
                     rm -rf "$out/tmp"
                     rm -rf "$out/home"
                     rm -rf "$out/err.log"
+                    
+                    echo "NVS showing out directory"
+                    ls -la "$out/"
+                    echo "$out/source:"
+                    ls -la "$out/source"
+                    echo "$out/bin:"
+                    ls -la "$out/bin"
                 ''
             ];
         }
