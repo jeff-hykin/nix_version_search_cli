@@ -2,12 +2,17 @@
     description = "A CLI tool (nvs) for finding old versions of nix packages!";
 
     inputs = {
-        nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+        libSource.url = "github:divnix/nixpkgs.lib";
         flakeUtils.url = "github:numtide/flake-utils";
+        nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05"; # <- THIS number and
+        home-manager.url = "github:nix-community/home-manager/release-25.05"; # <- THIS number and (below)
+        home-manager.inputs.nixpkgs.follows = "nixpkgs";
         xome.url = "github:jeff-hykin/xome";
+        xome.inputs.nixpkgs.follows = "nixpkgs";
+        xome.inputs.home-manager.follows = "home-manager";
     };
 
-    outputs = { self, nixpkgs, flakeUtils, xome }:
+    outputs = { self, libSource, nixpkgs, flakeUtils, xome, ... }:
         flakeUtils.lib.eachDefaultSystem (system:
             let
                 pkgs = nixpkgs.legacyPackages.${system};
@@ -31,10 +36,10 @@
                             # all home-manager options: 
                             # https://nix-community.github.io/home-manager/options.xhtml
                             home.homeDirectory = "/tmp/virtual_homes/nix_version_search_cli";
-                            home.stateVersion = "25.11";
+                            home.stateVersion = "25.05";
                             home.packages = [
                                 # vital stuff
-                                pkgs.nix
+                                # pkgs.nix
                                 pkgs.coreutils-full
                                 
                                 # optional stuff
@@ -60,7 +65,7 @@
                                 pkgs.ripgrep
                                 # project specific stuff
                                 pkgs.patchelf
-                                nvs
+                                # nvs
                             ];
                             
                             programs = {

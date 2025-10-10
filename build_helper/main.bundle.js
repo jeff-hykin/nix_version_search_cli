@@ -16851,7 +16851,7 @@ function stringify(obj, options) {
 }
 
 // tools/version.js
-var version2 = "1.4.32";
+var version2 = "1.5.0";
 
 // subrepos/cliffy/ansi/ansi_escapes.ts
 var ansi_escapes_exports = {};
@@ -205281,7 +205281,7 @@ var rikudoeSage = {
           "referrer": "https://history.nix-packages.com/",
           "method": "GET",
           "mode": "cors"
-        }).catch((_3) => 0).then((result2) => result2.json().catch((_3) => 0)).then((listOfPackageNames) => listOfPackageNames);
+        }).catch((_3) => 0).then((result2) => result2.json().catch((_3) => 0)).catch((_3) => 0);
       };
       let output = [];
       if (!nameCacheInfo.isFile) {
@@ -205332,11 +205332,13 @@ var rikudoeSage = {
         data: JSON.stringify(now.unix),
         path: recentCheckInfo.path
       }).catch((_3) => 0);
-      fetchData().then((listOfPackageNames) => {
-        FileSystem.write({
-          path: nameCachePath,
-          data: "export default new Set(" + JSON.stringify(listOfPackageNames) + ")"
-        }).catch((_3) => 0);
+      fetchData().catch((_3) => 0).then((listOfPackageNames) => {
+        if (listOfPackageNames) {
+          FileSystem.write({
+            path: nameCachePath,
+            data: "export default new Set(" + JSON.stringify(listOfPackageNames) + ")"
+          }).catch((_3) => 0);
+        }
       });
       return output;
     } catch (error) {
@@ -205632,8 +205634,6 @@ var determinateSystems = {
     }
     const extractOutputs = async (version3) => {
       try {
-        const info = await run4`nix flake show --json --all-systems ${`https://api.flakehub.com/f/${org}/${project}/${version3}.tar.gz`} ${Stdout2(returnAsString)} ${Stderr2(null)}`;
-        return [...new Set(Object.values(JSON.parse(info).packages).map((each2) => Object.keys(each2)).flat(1))];
       } catch (error) {
         return [];
       }
@@ -213375,7 +213375,7 @@ Maybe search.nixos.org changed their API
           console.log();
           console.log(`Okay use the following to get ${humanPackageSummary}`);
           console.log(``);
-          console.log(cyan3`    ${name2}.url = ${Se(basePath)}`);
+          console.log(cyan3`    ${name2}.url = ${Se(basePath)};`);
           if (trailingName) {
             console.log(dim3`    # access^ using: ${cyan3.dim`${name2}.${trailingName}`}`);
           }

@@ -186,10 +186,10 @@ await run`nix --extra-experimental-features nix-command --extra-experimental-fea
     //         eachTarget=>denoCmd(`compile`, `--target`, eachTarget, mainFileBundled).then(()=>console.log(`compiled ${eachTarget}`))
     //     )
     // )
-    console.log(`compiling...`)
-    for (const eachTarget of architectures) {
-        await denoCmd(`compile`, "--no-lock", `--target`, eachTarget, "--output", `./dummy.${eachTarget}`, "./dummy.js",).then(()=>console.log(`- compiled ${eachTarget}`))
-    }
+    // console.log(`compiling...`)
+    // for (const eachTarget of architectures) {
+    //     await denoCmd(`compile`, "--no-lock", `--target`, eachTarget, "--output", `./dummy.${eachTarget}`, "./dummy.js",).then(()=>console.log(`- compiled ${eachTarget}`))
+    // }
 
 // console.log(`committing updated default.nix`)
 // var { success } = await run`git add -A`
