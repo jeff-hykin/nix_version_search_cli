@@ -1,6 +1,8 @@
 let channelPrefixCache, channelCache
 
 /**
+ * use https://search.nixos.org programmatically
+ * 
  * @example
  * ```js
  * let result = await searchNixpkgs("kaitai", { localStorageKey: "nixpkgs-search-cache:"+Math.random() })
